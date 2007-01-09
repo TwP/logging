@@ -328,11 +328,33 @@ module TestLogging
       assert_nil a2.readline
     end
 
+    def test_log_eh
+      @repo[:root].level = 'info'
+      log = @repo['A Logger']
+
+      assert_equal false, log.debug?
+      assert_equal true, log.info?
+      assert_equal true, log.warn?
+      assert_equal true, log.error?
+      assert_equal true, log.fatal?
+
+      log.level = :warn
+      assert_equal false, log.debug?
+      assert_equal false, log.info?
+      assert_equal true, log.warn?
+      assert_equal true, log.error?
+      assert_equal true, log.fatal?
+
+      assert_raise(NoMethodError) do
+        log.critical? 'this log level does not exist'
+      end
+    end
+
     def test_name
       root = @repo[:root]
       log  = @repo['A']
 
-      assert_equal '', root.name
+      assert_equal 'root', root.name
       assert_equal 'A', log.name
     end
 
@@ -402,6 +424,7 @@ module TestLogging
         b
       end
 
+      assert_equal 1, logs[1] <=> @repo[:root]
       assert_raise(NoMethodError) {logs[1] <=> Object.new}
     end
 

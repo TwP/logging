@@ -76,6 +76,51 @@ module Logging
       # object's class will be used to retrieve the logger.
       #
       def fetch( name ) ::Logging::LoggerRepository.instance.fetch(name) end
+
+      #
+      # nodoc:
+      #
+      # This is where the actual logging methods are defined. Two methods
+      # are created for each log level. The first is a query method used to
+      # determine if that perticular logging level is enabled. The second is
+      # the actual logging method that accepts a list of objects to be
+      # logged or a block. If a block is given, then the object returned
+      # from the block will be logged.
+      #
+      # Example
+      #
+      #    log = Logging::Logger['my logger']
+      #    log.level = :warn
+      #
+      #    log.info?                               # => false
+      #    log.warn?                               # => true
+      #    log.warn 'this is your last warning'
+      #    log.fatal 'I die!', exception
+      #
+      #    log.debug do
+      #      # expensive method to construct log message
+      #      msg
+      #    end
+      #
+      def define_log_methods( logger )
+        ::Logging::LEVELS.each do |sym,num|
+          if logger.level > num
+            module_eval <<-CODE
+              def logger.#{sym}?( ) false end
+              def logger.#{sym}( *args ) false end
+            CODE
+          else
+            module_eval <<-CODE
+              def logger.#{sym}?( ) true end
+              def logger.#{sym}( *args )
+                args.push yield if block_given?
+                log_event(LogEvent.new(@name, '#{::Logging::LNAMES[sym]}', args)) unless args.empty?
+                true
+              end
+            CODE
+          end
+        end
+      end
     end
 
     #  nodoc:
@@ -102,12 +147,13 @@ module Logging
         raise(ArgumentError, "logger must have a name") if name.empty?
       else raise(ArgumentError, "logger name must be a String") end
 
-      @name = name
       repo = ::Logging::LoggerRepository.instance
+      @name = name
       @parent = repo.parent(name)
-      @level = @parent.level
       @appenders = []
       @additive = true
+      self.level = @parent.level
+
       repo.children(name).each {|c| c.parent = self}
     end
 
@@ -119,8 +165,10 @@ module Logging
     # for +String+ objects apply.
     #
     def <=>( other )
-      if other.kind_of? ::Logging::Logger
-        @name <=> other.name
+      case other
+      when self: 0
+      when ::Logging::RootLogger: 1
+      when ::Logging::Logger: @name <=> other.name
       else super end
     end
 
@@ -182,7 +230,11 @@ module Logging
             end
       if lvl.nil? or lvl < 0 or lvl > ::Logging::LEVELS.length
         raise ArgumentError, "unknown level was given '#{level}'"
-      else @level = lvl end
+      end
+
+      @level = lvl
+      ::Logging::Logger.define_log_methods(self)
+      @level
     end
 
     #
@@ -244,45 +296,6 @@ module Logging
     #
     def clear( ) @appenders.clear end
 
-    #
-    # nodoc:
-    #
-    # This is where the actual logging methods are "invoked". Two forms are
-    # supported: the first has no options and returns +true+ or +false+ if
-    # the particualr logging level is enabled or no; the second has an array
-    # of objects to be logged.
-    #
-    # Example
-    #
-    #    log = Logging::Logger['my logger']
-    #    log.level = :warn
-    #
-    #    log.info                                # => false
-    #    log.warn                                # => true
-    #    log.warn 'this is your last warning'
-    #    log.fatal 'I die!', exception
-    #
-    #    log.debug do
-    #      # expensive method to construct log message
-    #      msg
-    #    end
-    #
-    def method_missing( *args, &block )
-      lvl = ::Logging::LEVELS[args[0]]
-      if lvl.nil?
-        raise NoMethodError,
-        "undefined method '#{args[0]}' for #{self.inspect}"
-      end
-      return false if lvl < level
-
-      lvl = args.shift
-      return true if args.empty? and not block_given?
-
-      args.push yield if block_given?
-      log_event(LogEvent.new(@name, ::Logging::LNAMES[lvl], args))
-      return true
-    end
-
 
     protected
     #
@@ -313,13 +326,13 @@ module Logging
 
   #
   # The root logger exists to ensure that all loggers have a parent and a
-  # defined logging level. If a logger is additive, eventually its log events
-  # will propogate up to the root logger.
+  # defined logging level. If a logger is additive, eventually its log
+  # events will propogate up to the root logger.
   #
   class RootLogger < Logger
 
     # undefine the methods that the root logger does not need
-    %w(additive additive= method_missing parent parent=).each do |m|
+    %w(additive additive= parent parent=).each do |m|
       undef_method m.intern
     end
 
@@ -331,14 +344,28 @@ module Logging
     # once when the +LoggerRepository+ singleton instance is created.
     #
     def initialize( )
-      @level = 0
-      @name = ''
-      @appenders = []
-      @additive = false
-
       unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
         ::Logging.define_levels %w(debug info warn error fatal)
       end
+
+      @name = 'root'
+      @appenders = []
+      @additive = false
+      self.level = 0
+    end
+
+    #
+    # call-seq:
+    #    log <=> other
+    #
+    # Compares this logger by name to another logger. The normal return codes
+    # for +String+ objects apply.
+    #
+    def <=>( other )
+      case other
+      when self: 0
+      when ::Logging::Logger: -1
+      else super end
     end
 
     #
@@ -350,8 +377,8 @@ module Logging
     # root logger is not allowed. The level is silently set to :all.
     #
     def level=( level )
-      if level.nil? then @level = 0
-      else super end
+      level ||= 0
+      super
     end
 
   end  # class RootLogger

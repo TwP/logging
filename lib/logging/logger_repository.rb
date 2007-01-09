@@ -7,8 +7,8 @@ require 'logging/logger'
 module Logging
 
   #
-  # The LoggerRepository is a hash that stores references to all Loggers that
-  # have been created. It provides methods to determine parent/child
+  # The LoggerRepository is a hash that stores references to all Loggers
+  # that have been created. It provides methods to determine parent/child
   # relationships between Loggers and to retrieve Loggers from the hash.
   #
   class LoggerRepository
@@ -50,8 +50,8 @@ module Logging
     #
     # Returns the parent logger for the logger identified by _key_ where
     # _key_ follows the same identification rules described in
-    # +LoggerRepository#[]+. A parent is returned regardless of the existence
-    # of the logger referenced by _key_.
+    # +LoggerRepository#[]+. A parent is returned regardless of the
+    # existence of the logger referenced by _key_.
     #
     def parent( key )
       key = to_key(key)
@@ -73,8 +73,8 @@ module Logging
     #
     # Returns an array of the children loggers for the logger identified by
     # _key_ where _key_ follows the same identification rules described in
-    # +LoggerRepository#[]+. Children are returned regardless of the existence
-    # of the logger referenced by _key_.
+    # +LoggerRepository#[]+. Children are returned regardless of the
+    # existence of the logger referenced by _key_.
     #
     def children( key )
       key = to_key(key)
