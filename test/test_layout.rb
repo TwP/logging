@@ -43,7 +43,7 @@ module TestLogging
     end
 
     def test_format
-      assert_nil @layout.format(::Logging::LogEvent.new)
+      assert_nil @layout.format(::Logging::LogEvent.new('a','b','c',false))
     end
 
     def test_format_obj

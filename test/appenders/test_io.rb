@@ -19,7 +19,8 @@ module TestAppenders
     end
 
     def test_append
-      event = ::Logging::LogEvent.new('TestLogger', 'WARN', [[1, 2, 3, 4]])
+      event = ::Logging::LogEvent.new('TestLogger', 'WARN',
+                                      [[1, 2, 3, 4]], false)
       @appender.append event
       assert_equal " WARN - TestLogger - <Array> 1234\n", readline
       assert_raise(EOFError) {readline}
@@ -37,7 +38,8 @@ module TestAppenders
 
     def test_append_error
       @sio.close
-      event = ::Logging::LogEvent.new('TestLogger', 'WARN', [[1, 2, 3, 4]])
+      event = ::Logging::LogEvent.new('TestLogger', 'WARN',
+                                      [[1, 2, 3, 4]], false)
       assert_raise(IOError) {@appender.append event}
       assert_equal true, @appender.closed?
     end

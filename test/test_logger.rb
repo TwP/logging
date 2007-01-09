@@ -428,6 +428,20 @@ module TestLogging
       assert_raise(NoMethodError) {logs[1] <=> Object.new}
     end
 
+    def test_trace
+      log = @repo[:root]
+      assert_equal false, log.trace
+
+      log.trace = true
+      assert_equal true, log.trace
+
+      log = @repo['A']
+      assert_equal false, log.trace
+
+      log.trace = true
+      assert_equal true, log.trace
+    end
+
   end  # class TestLogger
 
   class SioAppender < ::Logging::Appenders::IO

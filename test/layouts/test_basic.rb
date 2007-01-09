@@ -15,7 +15,8 @@ module TestLayouts
     end
 
     def test_format
-      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO', ['log message'])
+      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO',
+                                      ['log message'], false)
       assert_equal " INFO - ArrayLogger - log message\n", @layout.format(event)
 
       event.data = [[1, 2, 3, 4]]

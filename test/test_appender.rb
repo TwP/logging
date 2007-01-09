@@ -10,7 +10,7 @@ module TestLogging
     def setup
       super
 
-      @event = ::Logging::LogEvent.new('', 'DEBUG', [])
+      @event = ::Logging::LogEvent.new('', 'DEBUG', [], false)
       @appender = ::Logging::Appender.new 'test_appender'
     end
 

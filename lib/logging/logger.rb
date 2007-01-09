@@ -2,17 +2,11 @@
 
 require 'logging'
 require 'logging/appender'
+require 'logging/log_event'
 require 'logging/logger_repository'
 
 
 module Logging
-
-  #
-  # Defines a logging event. This structure contains the name of the logger
-  # that generated the logging event, the logging level name, and the data
-  # to be logged.
-  #
-  LogEvent = Struct.new( :logger, :level, :data )
 
   #
   # The +Logger+ class is the primary interface to the +Logging+ framework.
@@ -114,7 +108,7 @@ module Logging
               def logger.#{sym}?( ) true end
               def logger.#{sym}( *args )
                 args.push yield if block_given?
-                log_event(LogEvent.new(@name, '#{::Logging::LNAMES[sym]}', args)) unless args.empty?
+                log_event(::Logging::LogEvent.new(@name, '#{::Logging::LNAMES[sym]}', args, @trace)) unless args.empty?
                 true
               end
             CODE
@@ -133,7 +127,7 @@ module Logging
     end
 
     attr_reader :level, :name, :parent
-    attr_accessor :additive
+    attr_accessor :additive, :trace
 
     #
     # call-seq:
@@ -152,6 +146,7 @@ module Logging
       @parent = repo.parent(name)
       @appenders = []
       @additive = true
+      @trace = false
       self.level = @parent.level
 
       repo.children(name).each {|c| c.parent = self}
@@ -351,6 +346,7 @@ module Logging
       @name = 'root'
       @appenders = []
       @additive = false
+      @trace = false
       self.level = 0
     end
 

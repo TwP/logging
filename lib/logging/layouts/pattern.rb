@@ -109,7 +109,7 @@ module Layouts
       f = opts.delete(:obj_format)
       super(f)
 
-      pattern = "[%d] %#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m"
+      pattern = "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m"
       opts[:pattern] = pattern if opts[:pattern].nil?
       opts[:date_pattern] = ISO8601 if opts[:date_pattern].nil? and
                                        opts[:date_method].nil?

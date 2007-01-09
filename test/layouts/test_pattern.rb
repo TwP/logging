@@ -18,12 +18,13 @@ module TestLayouts
     def test_format
       fmt = '\[' + @date_fmt + '\] %s -- %s : %s\n'
 
-      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO', ['log message'])
-      rgxp  = Regexp.new(sprintf(fmt, ' INFO', 'ArrayLogger', 'log message'))
+      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO',
+                                      ['log message'], false)
+      rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', 'log message'))
       assert_match rgxp, @layout.format(event)
 
       event.data = [[1, 2, 3, 4]]
-      rgxp  = Regexp.new(sprintf(fmt, ' INFO', 'ArrayLogger', '<Array> 1234'))
+      rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', '<Array> 1234'))
       assert_match rgxp, @layout.format(event)
 
       event.level = 'DEBUG'
