@@ -182,6 +182,10 @@ module TestLogging
 
       root.level = :warn
       assert_equal 2, root.level
+      assert_equal 0, log.level
+
+      log.level = nil
+      assert_equal 2, root.level
       assert_equal 2, log.level
 
       log.level = :error
@@ -204,17 +208,21 @@ module TestLogging
 
       root.level = 'INFO'
       assert_equal 1, root.level
-      assert_equal 1, log.level
+      assert_equal 0, log.level
 
       root.level = :warn
       assert_equal 2, root.level
-      assert_equal 2, log.level
+      assert_equal 0, log.level
 
       root.level = 'error'
       assert_equal 3, root.level
-      assert_equal 3, log.level
+      assert_equal 0, log.level
 
       root.level = 4
+      assert_equal 4, root.level
+      assert_equal 0, log.level
+
+      log.level = nil
       assert_equal 4, root.level
       assert_equal 4, log.level
 
@@ -236,7 +244,7 @@ module TestLogging
 
       root.level = :warn
       assert_equal 2, root.level
-      assert_equal 2, log.level
+      assert_equal 0, log.level
 
       root.level = nil
       assert_equal 0, root.level
@@ -244,11 +252,12 @@ module TestLogging
     end
 
     def test_log
+      @repo[:root].level = 'info'
+
       a1 = SioAppender.new 'a1'
       a2 = SioAppender.new 'a2'
       log = @repo['A Logger']
 
-      @repo[:root].level = 'info'
       @repo[:root].add a1
       assert_nil a1.readline
       assert_nil a2.readline
@@ -389,7 +398,7 @@ module TestLogging
       logs.unshift @repo[:root]
 
       logs.inject do |a,b|
-        assert_equal -1, a <=> b
+        assert_equal -1, a <=> b, "'#{a.name}' <=> '#{b.name}'"
         b
       end
 

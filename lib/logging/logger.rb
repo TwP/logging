@@ -87,7 +87,7 @@ module Logging
       super(*args)
     end
 
-    attr_reader :name, :parent
+    attr_reader :level, :name, :parent
     attr_accessor :additive
 
     #
@@ -105,7 +105,7 @@ module Logging
       @name = name
       repo = ::Logging::LoggerRepository.instance
       @parent = repo.parent(name)
-      @level = nil
+      @level = @parent.level
       @appenders = []
       @additive = true
       repo.children(name).each {|c| c.parent = self}
@@ -135,19 +135,6 @@ module Logging
     def <<( msg )
       @appenders.each {|a| a << msg}
       @parent << msg if @additive
-    end
-
-    #
-    # call-seq:
-    #    level
-    #
-    # Returns the logging level for this logger. If a level has not been
-    # set, then the parent's level is returned. This traversal from child to
-    # parent continues until a parent is found that has a defined logging
-    # level. The root logger will always have a defined level.
-    #
-    def level( )
-      @level || @parent.level
     end
 
     #
@@ -188,9 +175,10 @@ module Logging
               when :off: ::Logging::LEVELS.length
               else ::Logging::LEVELS[lvl] end
             when Fixnum: level
-            when nil: return @level = nil
+            when nil: @parent.level
             else
-              raise ArgumentError, "level must be a String, Symbol, or Integer"
+              raise ArgumentError,
+                    "level must be a String, Symbol, or Integer"
             end
       if lvl.nil? or lvl < 0 or lvl > ::Logging::LEVELS.length
         raise ArgumentError, "unknown level was given '#{level}'"
@@ -219,7 +207,8 @@ module Logging
     def add( *args )
       args.each do |arg|
         unless arg.kind_of? ::Logging::Appender
-          raise TypeError, "#{arg.inspect} is not a kind of 'Logging::Appender'"
+          raise TypeError,
+                "#{arg.inspect} is not a kind of 'Logging::Appender'"
         end
         @appenders << arg unless @appenders.include? arg
       end
@@ -361,8 +350,8 @@ module Logging
     # root logger is not allowed. The level is silently set to :all.
     #
     def level=( level )
-      super
-      @level ||= 0
+      if level.nil? then @level = 0
+      else super end
     end
 
   end  # class RootLogger
