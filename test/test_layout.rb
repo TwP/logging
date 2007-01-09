@@ -1,0 +1,85 @@
+# $Id$
+
+require 'test/setup.rb'
+
+module TestLogging
+
+  class TestLayout < Test::Unit::TestCase
+    include LoggingTestCase
+
+    def setup
+      super
+      @layout = ::Logging::Layout.new
+    end
+
+    def test_header
+      assert_equal '', @layout.header
+    end
+
+    def test_initialize
+      obj_format = lambda {|l| l.instance_variable_get :@obj_format}
+
+      assert_equal :string, obj_format[@layout]
+
+      @layout = ::Logging::Layout.new 'blah'
+      assert_equal :string, obj_format[@layout]
+
+      @layout = ::Logging::Layout.new :inspect
+      assert_equal :inspect, obj_format[@layout]
+
+      @layout = ::Logging::Layout.new :yaml
+      assert_equal :yaml, obj_format[@layout]
+
+      @layout = ::Logging::Layout.new
+      assert_equal :string, obj_format[@layout]
+
+      ::Logging.format_as :yaml
+      @layout = ::Logging::Layout.new
+      assert_equal :yaml, obj_format[@layout]
+    end
+
+    def test_footer
+      assert_equal '', @layout.footer
+    end
+
+    def test_format
+      assert_nil @layout.format(::Logging::LogEvent.new)
+    end
+
+    def test_format_obj
+      obj = 'test string'
+      r = @layout.send :format_obj, obj
+      assert_same obj, r
+
+      obj = RuntimeError.new
+      r = @layout.send :format_obj, obj
+      assert_equal '<RuntimeError> RuntimeError', r
+
+      obj = TypeError.new 'only works with Integers'
+      r = @layout.send :format_obj, obj
+      assert_equal '<TypeError> only works with Integers', r
+
+      obj = Exception.new 'some exception'
+      obj.set_backtrace %w( this is the backtrace )
+      r = @layout.send :format_obj, obj
+      obj = "<Exception> some exception\n\tthis\n\tis\n\tthe\n\tbacktrace"
+      assert_equal obj, r
+
+      obj = [1, 2, 3, 4]
+      r = @layout.send :format_obj, obj
+      assert_equal '<Array> 1234', r
+
+      obj = %w( one two three four )
+      @layout = ::Logging::Layout.new :inspect
+      r = @layout.send :format_obj, obj
+      assert_equal '<Array> ["one", "two", "three", "four"]', r
+
+      @layout = ::Logging::Layout.new :yaml
+      r = @layout.send :format_obj, obj
+      assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
+    end
+
+  end  # class TestAppender
+end  # module TestLogging
+
+# EOF
