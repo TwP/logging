@@ -71,8 +71,8 @@ module Logging
       #
       def fetch( name ) ::Logging::LoggerRepository.instance.fetch(name) end
 
-      #
-      # nodoc:
+      # :stopdoc:
+
       #
       # This is where the actual logging methods are defined. Two methods
       # are created for each log level. The first is a query method used to
@@ -117,7 +117,6 @@ module Logging
       end
     end
 
-    #  nodoc:
     def self.new( *args )
       unless caller[0] =~ %r/logger_repository.rb:\d+:/
         raise RuntimeError,
@@ -125,6 +124,7 @@ module Logging
       end
       super(*args)
     end
+    # :startdoc:
 
     attr_reader :level, :name, :parent
     attr_accessor :additive, :trace

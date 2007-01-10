@@ -105,13 +105,14 @@ module Logging
       module_eval "OBJ_FORMAT = :#{f}"
     end
 
-    # nodoc:
+    # :stopdoc:
     def levelify( level )
       case level
       when String: level.downcase.intern
       when Symbol: level.to_s.downcase.intern
       else raise ArgumentError, "levels must be a String or Symbol" end
     end
+    # :startdoc:
   end
 
 end  # module Logging

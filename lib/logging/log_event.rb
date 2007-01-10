@@ -7,12 +7,15 @@ module Logging
   #
   class LogEvent
 
+    # :stopdoc:
+
     # Regular expression used to parse out caller information
     #
     # * $1 == filename
     # * $2 == line number
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
+    # :startdoc:
 
     #
     # call-seq:
@@ -22,15 +25,13 @@ module Logging
       @logger = logger
       @level = level
       @data = data
-      @thread = Thread.current.object_id
-      @caller = @file = @line = @method = ''
+      @file = @line = @method = ''
 
       if trace
-        t = Kernel.caller[1]
+        t = Kernel.caller(3)[0]
         break if t.nil?
 
         m = CALLER_RGXP.match(t)
-        @caller = t
         @file = m[1]
         @line = m[2]
         @method = m[3] unless m[3].nil?
@@ -38,7 +39,7 @@ module Logging
     end
 
     attr_accessor :logger, :level, :data
-    attr_reader :thread, :caller, :file, :line, :method
+    attr_reader :file, :line, :method
 
   end  # class LogEvent
 end  # module Logging

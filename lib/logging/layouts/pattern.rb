@@ -8,18 +8,47 @@ module Layouts
 
   #
   #
+  #  [c]  Used to output the name of the logger that generated the logging
+  #       event.
+  #  [d]  Used to output the date of the logging event. The format of the
+  #       date is specified using the :date_pattern option when the Layout
+  #       is created. ISO8601 format is assumed if not date pattern is given.
+  #  [F]  Used to output the file name where the logging request was issued.
+  #  [l]  Used to output the level of the logging event.
+  #  [L]  Used to output the line number where the logging request was
+  #       issued.
+  #  [m]  Used to output the application supplied message associated with
+  #       the logging event.
+  #  [M]  Used to output the method name where the logging request was
+  #       issued.
+  #  [p]  Used to output the process ID of the currently running program.
+  #  [r]  Used to output the number of milliseconds elapsed from the
+  #       construction of the Layout until creation of the logging event.
+  #  [t]  Used to output the object ID of the thread that generated the
+  #       logging event.
+  #  [%]  The sequence '%%' outputs a single percent sign.
+  #
+  #  The directives F, L, and M will only work if the Logger generating the
+  #  events is configured to generate tracing information. If this is not
+  #  the case these fields will always be empty.
   #
   class Pattern < ::Logging::Layout
 
+    # :stopdoc:
+
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
-      'c' => 'event.logger',   # %c => logger name
-      'C' => 'event.logger',   # %C => logger name
-      'd' => 'format_date',    # %d => timestamp
-      'm' => :placeholder,     # %m => log event data
-      'M' => :placeholder,     # %M => log event data
-      'l' => 'event.level',    # %l => log level
-      '%' => :placeholder      # %% => literal '%' character
+      'c' => 'event.logger',
+      'd' => 'format_date',
+      'F' => 'event.file',
+      'l' => 'event.level',
+      'L' => 'event.line',
+      'm' => :placeholder,
+      'M' => 'event.method',
+      'p' => 'Process.pid',
+      'r' => 'Integer((Time.now-@created_at)*1000).to_s',
+      't' => 'Thread.current.object_id.to_s',
+      '%' => :placeholder
     }
 
     # Matches the first directive encountered and the stuff around it.
@@ -68,7 +97,7 @@ module Layouts
         case m[3]
         when '%'
           code << '%%%%'   # this results in a %% in the format string
-        when 'm', 'M'
+        when 'm'
           code << '%' + m[2] + 's'
           have_m_directive = true
         when *DIRECTIVE_TABLE.keys
@@ -100,6 +129,7 @@ module Layouts
         class << pf; alias :format :format_str; end
       end
     end
+    # :startdoc:
 
     #
     # call-seq:
@@ -108,6 +138,8 @@ module Layouts
     def initialize( opts = {} )
       f = opts.delete(:obj_format)
       super(f)
+
+      @created_at = Time.now
 
       pattern = "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m"
       opts[:pattern] = pattern if opts[:pattern].nil?
