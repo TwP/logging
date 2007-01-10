@@ -115,14 +115,14 @@ module Logging
           end
         end
       end
-    end
 
-    def self.new( *args )
-      unless caller[0] =~ %r/logger_repository.rb:\d+:/
-        raise RuntimeError,
-              "use 'Logging::Logger[name]' to obtain Logger instances"
+      def new( *args )
+        unless caller[0] =~ %r/logger_repository.rb:\d+:/
+          raise RuntimeError,
+                "use 'Logging::Logger[name]' to obtain Logger instances"
+        end
+        super(*args)
       end
-      super(*args)
     end
     # :startdoc:
 
