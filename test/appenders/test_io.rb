@@ -82,6 +82,15 @@ module TestAppenders
       assert_equal true, @appender.closed?
     end
 
+    def test_flush
+      ary = []
+      @sio.instance_variable_set :@ary, ary
+      def @sio.flush() @ary << :flush end
+
+      @appender.flush
+      assert_equal :flush, ary.pop
+    end
+
     def test_initialize
       assert_raise(EOFError) {@sio.readline}
       assert_raise(TypeError) {::Logging::Appenders::IO.new 'test', []}

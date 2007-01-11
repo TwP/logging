@@ -169,7 +169,7 @@ module Logging
       when self: 0
       when ::Logging::RootLogger: 1
       when ::Logging::Logger: @name <=> other.name
-      else super end
+      else raise ArgumentError, 'expecting a Logger instance' end
     end
 
     #
@@ -361,7 +361,7 @@ module Logging
       case other
       when self: 0
       when ::Logging::Logger: -1
-      else super end
+      else raise ArgumentError, 'expecting a Logger instance' end
     end
 
     #

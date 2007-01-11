@@ -6,9 +6,9 @@ require 'logging'
 module Logging
 
   #
-  # The +Layout+ class provides methods for formatting log events into a string
-  # representation. Layouts are used by Appenders to format log events before
-  # writing them to the logging destination.
+  # The +Layout+ class provides methods for formatting log events into a
+  # string representation. Layouts are used by Appenders to format log
+  # events before writing them to the logging destination.
   #
   # All other Layouts inherit from this class which provides stub methods.
   # Each subclass should provide a +format+ method. A layout can be used by
@@ -30,9 +30,9 @@ module Logging
     # * :inspect => inspect
     # * :yaml    => to_yaml
     #
-    # If _obj_format_ is not given then the global object format is used (see
-    # Logging#format_as). If the global object format is not specified then
-    # +:string+ is used.
+    # If _obj_format_ is not given then the global object format is used
+    # (see Logging#format_as). If the global object format is not specified
+    # then +:string+ is used.
     #
     def initialize( f = nil )
       f ||= ::Logging::OBJ_FORMAT if ::Logging.const_defined? 'OBJ_FORMAT'
@@ -45,8 +45,8 @@ module Logging
     # call-seq:
     #    format( event )
     #
-    # Returns a string representation of the given loggging _event_. It is up
-    # to subclasses to implement this method.
+    # Returns a string representation of the given loggging _event_. It is
+    # up to subclasses to implement this method.
     #
     def format( event ) nil end
 

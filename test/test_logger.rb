@@ -14,7 +14,8 @@ module TestLogging
     end
 
     def test_initialize
-      assert_raise(RuntimeError) {::Logging::Logger.new('test')}
+      assert_raise(RuntimeError)  {::Logging::Logger.new('test')}
+      assert_raise(ArgumentError) {::Logging::Logger[:test]}
     end
 
     def test_add
@@ -425,7 +426,8 @@ module TestLogging
       end
 
       assert_equal 1, logs[1] <=> @repo[:root]
-      assert_raise(NoMethodError) {logs[1] <=> Object.new}
+      assert_raise(ArgumentError) {logs[1] <=> Object.new}
+      assert_raise(ArgumentError) {@repo[:root] <=> 'string'}
     end
 
     def test_trace
@@ -465,7 +467,6 @@ module TestLogging
     end
 
   end  # class SioAppender
-
 end  # module TestLogging
 
 # EOF

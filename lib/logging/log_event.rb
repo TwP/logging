@@ -21,6 +21,11 @@ module Logging
     # call-seq:
     #    LogEvent.new( logger, level, [data], trace )
     #
+    # Creates a new log event with the given _logger_ name, numeric _level_,
+    # array of _data_ from the user to be logged, and boolean _trace_ flag.
+    # If the _trace_ flag is set to +true+ then Kernel::caller will be
+    # invoked to get the execution trace of the logging method.
+    #
     def initialize( logger, level, data, trace )
       @logger = logger
       @level = level

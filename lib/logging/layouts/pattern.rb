@@ -107,11 +107,12 @@ module Layouts
   #
   # Below are examples of some conversion patterns.
   #
-  #    %.1l, [%d %r #%p] %5l -- %c: %m\n
+  #    %.1l, [%d] %5l -- %c: %m\n
   #
   # This is how the Logger class in the Ruby standard library formats
   # messages. The main difference will be in the date format (the Pattern
-  # Layout uses the ISO8601 date format).
+  # Layout uses the ISO8601 date format). Set the :date_method on the
+  # Pattern Layout to be 'to_s' and then the date formats will agree.
   #
   class Pattern < ::Logging::Layout
 
@@ -145,30 +146,36 @@ module Layouts
 
     #
     # call-seq:
-    #    Pattern.create_format_methods( pf, opts )
+    #    Pattern.create_date_format_methods( pf )
     #
-    def self.create_format_methods( pf, opts )
-      # first, define the format_date method
-      unless opts[:date_method].nil?
+    def self.create_date_format_methods( pf )
+      unless pf.date_method.nil?
         module_eval <<-CODE
           def pf.format_date
-            Time.now.#{opts[:date_method]}
+            Time.now.#{pf.date_method}
           end
         CODE
       else
         module_eval <<-CODE
           def pf.format_date
-            Time.now.strftime "#{opts[:date_pattern]}"
+            Time.now.strftime "#{pf.date_pattern}"
           end
         CODE
       end
+    end
 
+    #
+    # call-seq:
+    #    Pattern.create_format_methods( pf )
+    #
+    def self.create_format_methods( pf )
       # Create the format_str(event) method. This method will return format
       # string that can be used with +sprintf+ to format the data objects in
       # the given _event_.
       code = "def pf.format_str( event )\nsprintf(\""
-      pattern = opts[:pattern]
+      pattern = pf.pattern.dup
       have_m_directive = false
+      have_percent = false
       args = []
 
       while true
@@ -178,6 +185,7 @@ module Layouts
         case m[3]
         when '%'
           code << '%%%%'   # this results in a %% in the format string
+          have_percent = true
         when 'm'
           code << '%' + m[2] + 's'
           have_m_directive = true
@@ -193,8 +201,9 @@ module Layouts
         pattern = m[4]
       end
 
-      code << '", ' + args.join(', ') + ")\n"
+      code << '", ' + (args.empty? ? '""' : args.join(', ')) + ")\n"
       code << "end\n"
+      code.gsub!('%%', '%') if have_percent and not have_m_directive
       module_eval code
 
       # Create the format(event) method
@@ -231,11 +240,45 @@ module Layouts
 
       @created_at = Time.now
 
-      pattern = "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n"
-      opts[:pattern] = pattern if opts[:pattern].nil?
-      opts[:date_pattern] = ISO8601 if opts[:date_pattern].nil? and
-                                       opts[:date_method].nil?
-      Pattern.create_format_methods(self, opts)
+      @pattern = opts[:pattern]
+      @date_pattern = opts[:date_pattern]
+      @date_method = opts[:date_method]
+
+      @pattern ||= "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n"
+      @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
+
+      Pattern.create_date_format_methods(self)
+      Pattern.create_format_methods(self)
+    end
+
+    attr_reader :pattern, :date_pattern, :date_method
+
+    #
+    # call-seq:
+    #    appender.pattern = "[%d] %-5l -- %c : %m\n"
+    #
+    def pattern=( var )
+      @pattern = var.to_s
+      Pattern.create_format_methods(self)
+    end
+
+    #
+    # call-seq:
+    #    appender.date_pattern = "%Y-%m-%d %H:%M:%S"
+    #
+    def date_pattern=( var )
+      @date_pattern = var.to_s
+      Pattern.create_date_format_methods(self)
+    end
+
+    #
+    # call-seq:
+    #    appender.date_method = 'to_s'
+    #    appender.date_method = :usec
+    #
+    def date_method=( var )
+      @date_method = var
+      Pattern.create_date_format_methods(self)
     end
 
   end  # class Pattern
