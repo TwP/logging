@@ -12,6 +12,7 @@ module TestAppenders
     def setup
       super
       ::Logging.define_levels %w(debug info warn error fatal)
+      @levels = ::Logging::LEVELS
 
       @sio = StringIO.new
       @appender = ::Logging::Appenders::IO.new 'test_appender', @sio
@@ -19,13 +20,13 @@ module TestAppenders
     end
 
     def test_append
-      event = ::Logging::LogEvent.new('TestLogger', 'WARN',
+      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [[1, 2, 3, 4]], false)
       @appender.append event
       assert_equal " WARN - TestLogger - <Array> 1234\n", readline
       assert_raise(EOFError) {readline}
 
-      event.level = "DEBUG"
+      event.level = @levels['debug']
       event.data = ['the big log message', [1, 2, 3, 4]]
       @appender.append event
       assert_equal "DEBUG - TestLogger - the big log message\n", readline
@@ -38,7 +39,7 @@ module TestAppenders
 
     def test_append_error
       @sio.close
-      event = ::Logging::LogEvent.new('TestLogger', 'WARN',
+      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [[1, 2, 3, 4]], false)
       assert_raise(IOError) {@appender.append event}
       assert_equal true, @appender.closed?

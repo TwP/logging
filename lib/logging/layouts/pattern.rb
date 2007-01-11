@@ -9,23 +9,23 @@ module Layouts
   #
   # A flexible layout configurable with pattern string.
   #
-  # The goal of this class is to format a LogEvent and return the results as a
-  # String. The results depend on the conversion pattern.
+  # The goal of this class is to format a LogEvent and return the results as
+  # a String. The results depend on the conversion pattern.
   #
-  # The conversion pattern is closely related to the conversion pattern of the
-  # sprintf function. A conversion pattern is composed of literal text and
-  # format control expressions called conversion specifiers.
+  # The conversion pattern is closely related to the conversion pattern of
+  # the sprintf function. A conversion pattern is composed of literal text
+  # and format control expressions called conversion specifiers.
   #
   # You are free to insert any literal text within the conversion pattern.
   #
-  # Each conversion specifier starts with a percent sign (%) and is followed by
-  # optional format modifiers and a conversion character. The conversion
-  # character specifies the type of data, e.g. logger, level, date, thread ID.
-  # The format modifiers control such things as field width, padding, left and
-  # right justification. The following is a simple example.
+  # Each conversion specifier starts with a percent sign (%) and is followed
+  # by optional format modifiers and a conversion character. The conversion
+  # character specifies the type of data, e.g. logger, level, date, thread
+  # ID. The format modifiers control such things as field width, padding,
+  # left and right justification. The following is a simple example.
   #
-  # Let the conversion pattern be "%-5l [%c]: %m\n" and assume that the logging
-  # environment was set to use a Pattern layout. Then the statements
+  # Let the conversion pattern be "%-5l [%c]: %m\n" and assume that the
+  # logging environment was set to use a Pattern layout. Then the statements
   #
   #    root = Logging::Logger[:root]
   #    root.debug("Message 1")
@@ -67,27 +67,28 @@ module Layouts
   # events is configured to generate tracing information. If this is not
   # the case these fields will always be empty.
   #
-  # By default the relevant information is output as is. However, with the aid
-  # of format modifiers it is possible to change the minimum field width, the
-  # maximum field width and justification.
+  # By default the relevant information is output as is. However, with the
+  # aid of format modifiers it is possible to change the minimum field width,
+  # the maximum field width and justification.
   #
   # The optional format modifier is placed between the percent sign and the
   # conversion character.
   #
-  # The first optional format modifier is the left justification flag which is
-  # just the minus (-) character. Then comes the optional minimum field width
-  # modifier. This is a decimal constant that represents the minimum number of
-  # characters to output. If the data item requires fewer characters, it is
-  # padded on either the left or the right until the minimum width is reached.
-  # The default is to pad on the left (right justify) but you can specify right
-  # padding with the left justification flag. The padding character is space.
-  # If the data item is larger than the minimum field width, the field is
-  # expanded to accommodate the data. The value is never truncated.
+  # The first optional format modifier is the left justification flag which
+  # is just the minus (-) character. Then comes the optional minimum field
+  # width modifier. This is a decimal constant that represents the minimum
+  # number of characters to output. If the data item requires fewer
+  # characters, it is padded on either the left or the right until the
+  # minimum width is reached. The default is to pad on the left (right
+  # justify) but you can specify right padding with the left justification
+  # flag. The padding character is space. If the data item is larger than the
+  # minimum field width, the field is expanded to accommodate the data. The
+  # value is never truncated.
   #
   # This behavior can be changed using the maximum field width modifier which
-  # is designated by a period followed by a decimal constant. If the data item
-  # is longer than the maximum field, then the extra characters are removed
-  # from the end of the data item.
+  # is designated by a period followed by a decimal constant. If the data
+  # item is longer than the maximum field, then the extra characters are
+  # removed from the end of the data item.
   #
   # Below are various format modifier examples for the category conversion
   # specifier.
@@ -108,9 +109,9 @@ module Layouts
   #
   #    %.1l, [%d %r #%p] %5l -- %c: %m\n
   #
-  # This is how the Logger class in the Ruby standard library formats messages.
-  # The main difference will be in the date format (the Pattern Layout uses the
-  # ISO8601 date format).
+  # This is how the Logger class in the Ruby standard library formats
+  # messages. The main difference will be in the date format (the Pattern
+  # Layout uses the ISO8601 date format).
   #
   class Pattern < ::Logging::Layout
 
@@ -121,7 +122,7 @@ module Layouts
       'c' => 'event.logger',
       'd' => 'format_date',
       'F' => 'event.file',
-      'l' => 'event.level',
+      'l' => '::Logging::LNAMES[event.level]',
       'L' => 'event.line',
       'm' => :placeholder,
       'M' => 'event.method',

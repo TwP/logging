@@ -97,18 +97,18 @@ module Logging
       #    end
       #
       def define_log_methods( logger )
-        ::Logging::LEVELS.each do |sym,num|
+        ::Logging::LEVELS.each do |name,num|
           if logger.level > num
             module_eval <<-CODE
-              def logger.#{sym}?( ) false end
-              def logger.#{sym}( *args ) false end
+              def logger.#{name}?( ) false end
+              def logger.#{name}( *args ) false end
             CODE
           else
             module_eval <<-CODE
-              def logger.#{sym}?( ) true end
-              def logger.#{sym}( *args )
+              def logger.#{name}?( ) true end
+              def logger.#{name}( *args )
                 args.push yield if block_given?
-                log_event(::Logging::LogEvent.new(@name, '#{::Logging::LNAMES[sym]}', args, @trace)) unless args.empty?
+                log_event(::Logging::LogEvent.new(@name, #{num}, args, @trace)) unless args.empty?
                 true
               end
             CODE
@@ -116,6 +116,11 @@ module Logging
         end
       end
 
+      #
+      # Overrides the new method and ensures that it will only be called from
+      # the LoggerRepository class. A RuntimeError is raised if new is
+      # called by any other class.
+      #
       def new( *args )
         unless caller[0] =~ %r/logger_repository.rb:\d+:/
           raise RuntimeError,
@@ -211,12 +216,7 @@ module Logging
     #
     def level=( level )
       lvl = case level
-            when String, Symbol:
-              lvl = ::Logging::levelify level
-              case lvl
-              when :all: 0
-              when :off: ::Logging::LEVELS.length
-              else ::Logging::LEVELS[lvl] end
+            when String, Symbol: ::Logging::level_num(level)
             when Fixnum: level
             when nil: @parent.level
             else

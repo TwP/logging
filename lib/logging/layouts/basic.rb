@@ -30,7 +30,7 @@ module Layouts
     #
     def format( event )
       start = sprintf("%*s - %s - ", ::Logging::MAX_LEVEL_LENGTH,
-                      event.level, event.logger)
+                      ::Logging::LNAMES[event.level], event.logger)
       buf = ''
       event.data.each do |obj|
         buf << start

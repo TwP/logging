@@ -1,6 +1,7 @@
 # $Id$
 
 require 'sync'
+require 'logging'
 require 'logging/logger'
 require 'logging/layout'
 require 'logging/layouts/basic'
@@ -23,7 +24,7 @@ module Logging
   #
   class Appender
 
-    attr_reader :name, :layout
+    attr_reader :name, :layout, :level
 
     #
     # call-seq:
@@ -38,6 +39,7 @@ module Logging
     def initialize( name, opts = {} )
       @name = name.to_s
       @closed = false
+      @level = 0
       self.layout = opts[:layout] if opts.include? :layout
       @layout ||= ::Logging::Layouts::Basic.new
 
@@ -47,34 +49,80 @@ module Logging
 
     #
     # call-seq:
-    #    append( data )
-    #    appender << data
+    #    append( event )
     #
-    # Write the given _data_ to the logging destination. If the data is a log
-    # event, then it will be processed through the Layout associated with the
-    # Appender.
-    # 
-    # If the data is a String it will be sent to the logging destination "as
-    # is" -- no layout formatting will be performed. If the data is any other
-    # object it will be converted to a string by calling +inspect+ on the
-    # object, and that string will be sent to the logging destination "as is"
-    # -- no layout formatting will be performed.
+    # Write the given _event_ to the logging destination. The log event will
+    # be processed through the Layout associated with the Appender.
     #
-    def append( data )
+    def append( event )
       if @closed
         raise RuntimeError,
               "appender '<#{self.class.name}: #{@name}>' is closed"
       end
 
-      data = case data
-             when String: data
-             when ::Logging::LogEvent: @layout.format(data)
-             else data.inspect end
-      sync {write(data)}
-
+      sync {write(@layout.format(event))} unless @level > event.level
       self
     end
-    alias :<< :append
+
+    #
+    # call-seq:
+    #    appender << string
+    #
+    # Write the given _string_ to the logging destination "as is" -- no
+    # layout formatting will be performed.
+    #
+    def <<( str )
+      if @closed
+        raise RuntimeError,
+              "appender '<#{self.class.name}: #{@name}>' is closed"
+      end
+
+      sync {write(str)}
+      self
+    end
+
+    #
+    # call-seq:
+    #    level = :all
+    #
+    # Set the level for this appender; log events below this level will be
+    # ignored by this appender. The level can be either a +String+, a
+    # +Symbol+, or a +Fixnum+. An +ArgumentError+ is raised if this is not
+    # the case.
+    #
+    # There are two special levels -- "all" and "off". The former will
+    # enable recording of all log events. The latter will disable the
+    # recording of all events.
+    #
+    # Example:
+    #
+    #    appender.level = :debug
+    #    appender.level = "INFO"
+    #    appender.level = 4
+    #    appender.level = 'off'
+    #    appender.level = :all
+    #
+    # These prodcue an +ArgumentError+
+    #
+    #    appender.level = Object
+    #    appender.level = -1
+    #    appender.level = 1_000_000_000_000
+    #
+    def level=( level )
+      lvl = case level
+            when String, Symbol: ::Logging::level_num(level)
+            when Fixnum: level
+            when nil: 0
+            else
+              raise ArgumentError,
+                    "level must be a String, Symbol, or Integer"
+            end
+      if lvl.nil? or lvl < 0 or lvl > ::Logging::LEVELS.length
+        raise ArgumentError, "unknown level was given '#{level}'"
+      end
+
+      @level = lvl
+    end
 
     #
     # call-seq

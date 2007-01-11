@@ -68,9 +68,9 @@ module Logging
       id = 0
       args.each do |lvl|
         lvl = levelify lvl
-        unless levels.has_key? lvl or lvl == :all or lvl == :off
+        unless levels.has_key?(lvl) or lvl == 'all' or lvl == 'off'
           levels[lvl] = id 
-          names[lvl] = lvl.to_s.upcase
+          names[id] = lvl.upcase
           id += 1
         end
       end
@@ -108,9 +108,17 @@ module Logging
     # :stopdoc:
     def levelify( level )
       case level
-      when String: level.downcase.intern
-      when Symbol: level.to_s.downcase.intern
+      when String: level.downcase
+      when Symbol: level.to_s.downcase
       else raise ArgumentError, "levels must be a String or Symbol" end
+    end
+
+    def level_num( level )
+      l = levelify level
+      case l
+      when 'all': 0
+      when 'off': LEVELS.length
+      else LEVELS[l] end
     end
     # :startdoc:
   end

@@ -25,17 +25,17 @@ module TestLogging
       assert_equal 5, @lnames.length
       assert_equal 5, ::Logging::MAX_LEVEL_LENGTH
 
-      assert_equal 0, @levels[:debug]
-      assert_equal 1, @levels[:info]
-      assert_equal 2, @levels[:warn]
-      assert_equal 3, @levels[:error]
-      assert_equal 4, @levels[:fatal]
+      assert_equal 0, @levels['debug']
+      assert_equal 1, @levels['info']
+      assert_equal 2, @levels['warn']
+      assert_equal 3, @levels['error']
+      assert_equal 4, @levels['fatal']
 
-      assert_equal 'DEBUG', @lnames[:debug]
-      assert_equal 'INFO', @lnames[:info]
-      assert_equal 'WARN', @lnames[:warn]
-      assert_equal 'ERROR', @lnames[:error]
-      assert_equal 'FATAL', @lnames[:fatal]
+      assert_equal 'DEBUG', @lnames[0]
+      assert_equal 'INFO',  @lnames[1]
+      assert_equal 'WARN',  @lnames[2]
+      assert_equal 'ERROR', @lnames[3]
+      assert_equal 'FATAL', @lnames[4]
     end
 
     def test_define_levels_special
@@ -52,17 +52,17 @@ module TestLogging
       assert_equal 5, @lnames.length
       assert_equal 5, ::Logging::MAX_LEVEL_LENGTH
 
-      assert_equal 0, @levels[:one]
-      assert_equal 1, @levels[:two]
-      assert_equal 2, @levels[:three]
-      assert_equal 3, @levels[:four]
-      assert_equal 4, @levels[:six]
+      assert_equal 0, @levels['one']
+      assert_equal 1, @levels['two']
+      assert_equal 2, @levels['three']
+      assert_equal 3, @levels['four']
+      assert_equal 4, @levels['six']
 
-      assert_equal 'ONE', @lnames[:one]
-      assert_equal 'TWO', @lnames[:two]
-      assert_equal 'THREE', @lnames[:three]
-      assert_equal 'FOUR', @lnames[:four]
-      assert_equal 'SIX', @lnames[:six]
+      assert_equal 'ONE',   @lnames[0]
+      assert_equal 'TWO',   @lnames[1]
+      assert_equal 'THREE', @lnames[2]
+      assert_equal 'FOUR',  @lnames[3]
+      assert_equal 'SIX',   @lnames[4]
     end
 
     def test_define_levels_all_off
@@ -77,15 +77,15 @@ module TestLogging
       assert_equal 4, @lnames.length
       assert_equal 1, ::Logging::MAX_LEVEL_LENGTH
 
-      assert_equal 0, @levels[:a]
-      assert_equal 1, @levels[:b]
-      assert_equal 2, @levels[:c]
-      assert_equal 3, @levels[:d]
+      assert_equal 0, @levels['a']
+      assert_equal 1, @levels['b']
+      assert_equal 2, @levels['c']
+      assert_equal 3, @levels['d']
 
-      assert_equal 'A', @lnames[:a]
-      assert_equal 'B', @lnames[:b]
-      assert_equal 'C', @lnames[:c]
-      assert_equal 'D', @lnames[:d]
+      assert_equal 'A', @lnames[0]
+      assert_equal 'B', @lnames[1]
+      assert_equal 'C', @lnames[2]
+      assert_equal 'D', @lnames[3]
     end
 
     def test_format_as

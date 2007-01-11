@@ -10,12 +10,14 @@ module TestLogging
     def setup
       super
 
-      @event = ::Logging::LogEvent.new('', 'DEBUG', [], false)
+      ::Logging.define_levels %w(debug info warn error fatal)
+      @levels = ::Logging::LEVELS
+
+      @event = ::Logging::LogEvent.new('', @levels['debug'], [], false)
       @appender = ::Logging::Appender.new 'test_appender'
     end
 
     def test_append
-      ::Logging.define_levels %w(debug info warn error fatal)
       assert_nothing_raised {@appender.append @event}
 
       @appender.close

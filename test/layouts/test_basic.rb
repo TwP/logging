@@ -12,24 +12,25 @@ module TestLayouts
       super
       ::Logging.define_levels %w(debug info warn error fatal)
       @layout = ::Logging::Layouts::Basic.new
+      @levels = ::Logging::LEVELS
     end
 
     def test_format
-      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO',
-                                      ['log message'], false)
+      event = ::Logging::LogEvent.new( 'ArrayLogger', @levels['info'],
+                                       ['log message'], false)
       assert_equal " INFO - ArrayLogger - log message\n", @layout.format(event)
 
       event.data = [[1, 2, 3, 4]]
       assert_equal " INFO - ArrayLogger - <Array> 1234\n", @layout.format(event)
 
-      event.level = 'DEBUG'
+      event.level = @levels['debug']
       event.data = [[1, 2, 3, 4], 'and some message']
       log =  "DEBUG - ArrayLogger - <Array> 1234\n"
       log << "DEBUG - ArrayLogger - and some message\n"
       assert_equal log, @layout.format(event)
 
       event.logger = 'Test'
-      event.level = 'FATAL'
+      event.level = @levels['fatal']
       event.data = [[1, 2, 3, 4], 'and some message', Exception.new]
       log =  "FATAL - Test - <Array> 1234\n"
       log << "FATAL - Test - and some message\n"

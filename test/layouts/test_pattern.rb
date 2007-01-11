@@ -12,13 +12,14 @@ module TestLayouts
       super
       ::Logging.define_levels %w(debug info warn error fatal)
       @layout = ::Logging::Layouts::Pattern.new
+      @levels = ::Logging::LEVELS
       @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
     end
 
     def test_format
       fmt = '\[' + @date_fmt + '\] %s -- %s : %s\n'
 
-      event = ::Logging::LogEvent.new('ArrayLogger', 'INFO',
+      event = ::Logging::LogEvent.new('ArrayLogger', @levels['info'],
                                       ['log message'], false)
       rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', 'log message'))
       assert_match rgxp, @layout.format(event)
@@ -27,7 +28,7 @@ module TestLayouts
       rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', '<Array> 1234'))
       assert_match rgxp, @layout.format(event)
 
-      event.level = 'DEBUG'
+      event.level = @levels['debug']
       event.data = [[1, 2, 3, 4], 'and some message']
       rgxp  = Regexp.new(
                   sprintf(fmt, 'DEBUG', 'ArrayLogger', '<Array> 1234') +
@@ -35,7 +36,7 @@ module TestLayouts
       assert_match rgxp, @layout.format(event)
 
       event.logger = 'Test'
-      event.level = 'FATAL'
+      event.level = @levels['fatal']
       event.data = [[1, 2, 3, 4], 'and some message', Exception.new]
       rgxp  = Regexp.new(
                   sprintf(fmt, 'FATAL', 'Test', '<Array> 1234') +
