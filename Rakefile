@@ -1,6 +1,4 @@
 
-ENV['RUBY_FLAGS'] ||= "-I#{%w(lib test).join(File::PATH_SEPARATOR)}"
-
 require 'rubygems'
 require 'hoe'
 

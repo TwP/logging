@@ -98,21 +98,26 @@ module Logging
       #
       def define_log_methods( logger )
         ::Logging::LEVELS.each do |name,num|
+          code =  "undef :#{name}  if method_defined? :#{name}\n"
+          code << "undef :#{name}? if method_defined? :#{name}?\n"
+
           if logger.level > num
-            module_eval <<-CODE
-              def logger.#{name}?( ) false end
-              def logger.#{name}( *args ) false end
+            code << <<-CODE
+              def #{name}?( ) false end
+              def #{name}( *args ) false end
             CODE
           else
-            module_eval <<-CODE
-              def logger.#{name}?( ) true end
-              def logger.#{name}( *args )
+            code << <<-CODE
+              def #{name}?( ) true end
+              def #{name}( *args )
                 args.push yield if block_given?
                 log_event(::Logging::LogEvent.new(@name, #{num}, args, @trace)) unless args.empty?
                 true
               end
             CODE
           end
+
+          logger.meta_eval code
         end
       end
 
@@ -315,6 +320,22 @@ module Logging
       @appenders.each {|a| a.append(event)}
       @parent.log_event(event) if @additive
     end
+
+    # :stopdoc:
+
+    #
+    # call-seq:
+    #    meta_eval( code )
+    #
+    # Evaluates the given string of _code_ if the singleton class of this
+    # Logger object.
+    #
+    def meta_eval( code )
+      meta = class << self; self end
+      meta.class_eval code
+    end
+    public :meta_eval
+    # :startdoc:
 
   end  # class Logger
 

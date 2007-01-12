@@ -153,19 +153,13 @@ module Layouts
     # specified by the user.
     #
     def self.create_date_format_methods( pf )
-      unless pf.date_method.nil?
-        module_eval <<-CODE
-          def pf.format_date
-            Time.now.#{pf.date_method}
-          end
-        CODE
-      else
-        module_eval <<-CODE
-          def pf.format_date
-            Time.now.strftime "#{pf.date_pattern}"
-          end
-        CODE
-      end
+      code = "undef :format_date if method_defined? :format_date\n"
+      code << "def format_date\nTime.now."
+      code << if pf.date_method.nil? then "strftime '#{pf.date_pattern}'\n"
+              else "#{pf.date_method}\n" end
+      code << "end\n"
+
+      pf.meta_eval code
     end
 
     #
@@ -180,7 +174,8 @@ module Layouts
       # Create the format_str(event) method. This method will return format
       # string that can be used with +sprintf+ to format the data objects in
       # the given _event_.
-      code = "def pf.format_str( event )\nsprintf(\""
+      code = "undef :format_str if method_defined? :format_str\n"
+      code << "def format_str( event )\nsprintf(\""
       pattern = pf.pattern.dup
       have_m_directive = false
       have_percent = false
@@ -215,12 +210,13 @@ module Layouts
       code << "end\n"
 
       code.gsub!('%%', '%') if have_percent and not have_m_directive
-      module_eval code
+      pf.meta_eval code
 
       # Create the format(event) method
+      code = "undef :format if method_defined? :format\n"
       if have_m_directive
-        module_eval <<-CODE
-          def pf.format( event )
+        code << <<-CODE
+          def format( event )
             fmt = format_str(event)
             buf = ''
             event.data.each {|obj| buf << sprintf(fmt, format_obj(obj))}
@@ -228,8 +224,9 @@ module Layouts
           end
         CODE
       else
-        class << pf; alias :format :format_str; end
+        code << "alias :format :format_str\n"
       end
+      pf.meta_eval code
     end
     # :startdoc:
 
@@ -300,6 +297,21 @@ module Layouts
       @date_method = var
       Pattern.create_date_format_methods(self)
     end
+
+    # :stopdoc:
+
+    #
+    # call-seq:
+    #    meta_eval( code )
+    #
+    # Evaluates the given string of _code_ if the singleton class of this
+    # Pattern Layout object.
+    #
+    def meta_eval( code )
+      meta = class << self; self end
+      meta.class_eval code
+    end
+    # :startdoc:
 
   end  # class Pattern
 end  # module Layouts
