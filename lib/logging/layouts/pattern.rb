@@ -148,6 +148,10 @@ module Layouts
     # call-seq:
     #    Pattern.create_date_format_methods( pf )
     #
+    # This method will create the +date_format+ method in the given Pattern
+    # Layout _pf_ based on the configured date patten and/or date method
+    # specified by the user.
+    #
     def self.create_date_format_methods( pf )
       unless pf.date_method.nil?
         module_eval <<-CODE
@@ -167,6 +171,10 @@ module Layouts
     #
     # call-seq:
     #    Pattern.create_format_methods( pf )
+    #
+    # This method will create the +format+ and +format_str+ methods in the
+    # given Pattern Layout _pf_ based on the configured format pattern
+    # specified by the user.
     #
     def self.create_format_methods( pf )
       # Create the format_str(event) method. This method will return format
@@ -201,8 +209,11 @@ module Layouts
         pattern = m[4]
       end
 
-      code << '", ' + (args.empty? ? '""' : args.join(', ')) + ")\n"
+      code << '"'
+      code << ', ' + args.join(', ') unless args.empty?
+      code << ")\n"
       code << "end\n"
+
       code.gsub!('%%', '%') if have_percent and not have_m_directive
       module_eval code
 
@@ -257,6 +268,8 @@ module Layouts
     # call-seq:
     #    appender.pattern = "[%d] %-5l -- %c : %m\n"
     #
+    # Set the message formatting pattern to be used by the layout.
+    #
     def pattern=( var )
       @pattern = var.to_s
       Pattern.create_format_methods(self)
@@ -265,6 +278,9 @@ module Layouts
     #
     # call-seq:
     #    appender.date_pattern = "%Y-%m-%d %H:%M:%S"
+    #
+    # Set the date formatting pattern to be used when outputting timestamps
+    # in the log messages.
     #
     def date_pattern=( var )
       @date_pattern = var.to_s
@@ -275,6 +291,10 @@ module Layouts
     # call-seq:
     #    appender.date_method = 'to_s'
     #    appender.date_method = :usec
+    #
+    # Set the date method to be used when outputting timestamps in the log
+    # messages. If a date method is configured, the output of that method
+    # will be used in leu of the date pattern.
     #
     def date_method=( var )
       @date_method = var

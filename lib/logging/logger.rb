@@ -241,7 +241,7 @@ module Logging
     #
     def appenders=( args )
       @appenders.clear
-      add *args unless args.nil?
+      add(*args) unless args.nil?
     end
 
     #

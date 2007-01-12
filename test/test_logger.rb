@@ -421,7 +421,7 @@ module TestLogging
       logs.unshift @repo[:root]
 
       logs.inject do |a,b|
-        assert_equal -1, a <=> b, "'#{a.name}' <=> '#{b.name}'"
+        assert_equal(-1, a <=> b, "'#{a.name}' <=> '#{b.name}'")
         b
       end
 

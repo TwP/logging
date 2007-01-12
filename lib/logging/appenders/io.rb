@@ -42,7 +42,7 @@ module Appenders
     def close( *args )
       return self if @io.nil?
       sync do
-        super *args
+        super(*args)
         @io.close unless [STDIN, STDERR, STDOUT].include?(@io)
         @io = nil
       end

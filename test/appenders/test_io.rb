@@ -34,7 +34,7 @@ module TestAppenders
       assert_raise(EOFError) {readline}
 
       @appender.close
-      assert_raise(RuntimeError) {@appender.append @event}
+      assert_raise(RuntimeError) {@appender.append event}
     end
 
     def test_append_error
@@ -73,7 +73,7 @@ module TestAppenders
       assert_raise(EOFError) {readline}
 
       @appender.close
-      assert_raise(RuntimeError) {@appender.append @event}
+      assert_raise(RuntimeError) {@appender << 'message'}
     end
 
     def test_concat_error
