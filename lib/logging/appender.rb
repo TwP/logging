@@ -45,6 +45,8 @@ module Logging
 
       @sync = Sync.new
       sync {write(@layout.header)}
+
+      ::Logging::Appender[@name] = self
     end
 
     #

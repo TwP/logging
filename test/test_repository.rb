@@ -4,16 +4,16 @@ require 'test/setup.rb'
 
 module TestLogging
 
-  class TestLoggerRepository < Test::Unit::TestCase
+  class TestRepository < Test::Unit::TestCase
     include LoggingTestCase
 
     def setup
       super
-      @repo = ::Logging::LoggerRepository.instance
+      @repo = ::Logging::Repository.instance
     end
 
     def test_instance
-      assert_same @repo, ::Logging::LoggerRepository.instance
+      assert_same @repo, ::Logging::Repository.instance
     end
 
     def test_aref
@@ -96,7 +96,8 @@ module TestLogging
       assert_equal 'blah', @repo.send(:to_key, 'blah')
       assert_equal :blah, @repo.send(:to_key, :blah)
     end
-  end  # class TestLoggerRepository
+
+  end  # class TestRepository
 end  # module TestLogging
 
 # EOF

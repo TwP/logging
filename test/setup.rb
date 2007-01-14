@@ -30,7 +30,7 @@ module TestLogging
         remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
       end
 
-      ::Logging::LoggerRepository.class_eval do
+      ::Logging::Repository.class_eval do
         @__instance__ = nil
         class << self
           nonce = class << Singleton; self; end

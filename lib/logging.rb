@@ -1,10 +1,11 @@
 # $Id$
 
-require 'logging/logger_repository'
+require 'logging/repository'
 
 # require all appenders
 require 'logging/appenders/console'
 require 'logging/appenders/file'
+require 'logging/appenders/static_appender'
 
 # require all layouts
 require 'logging/layouts/basic'

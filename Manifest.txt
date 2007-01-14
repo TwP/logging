@@ -4,12 +4,13 @@ lib/logging/appender.rb
 lib/logging/appenders/console.rb
 lib/logging/appenders/file.rb
 lib/logging/appenders/io.rb
+lib/logging/appenders/static_appender.rb
 lib/logging/layout.rb
 lib/logging/layouts/basic.rb
 lib/logging/layouts/pattern.rb
 lib/logging/log_event.rb
 lib/logging/logger.rb
-lib/logging/logger_repository.rb
+lib/logging/repository.rb
 test/appenders/test_console.rb
 test/appenders/test_file.rb
 test/appenders/test_io.rb
@@ -22,5 +23,5 @@ test/test_appender.rb
 test/test_layout.rb
 test/test_log_event.rb
 test/test_logger.rb
-test/test_logger_repository.rb
+test/test_repository.rb
 test/test_logging.rb

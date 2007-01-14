@@ -3,7 +3,7 @@
 require 'logging'
 require 'logging/appender'
 require 'logging/log_event'
-require 'logging/logger_repository'
+require 'logging/repository'
 
 
 module Logging
@@ -15,7 +15,7 @@ module Logging
   # appenders take care of sending the log events to the logging
   # destinations -- files, sockets, etc).
   #
-  # +Logger+ instances are obtained from the +LoggerRepository+ and should
+  # +Logger+ instances are obtained from the +Repository+ and should
   # not be directly created by users.
   #
   # Example:
@@ -55,7 +55,7 @@ module Logging
       #   log1.object_id == log2.object_id         # => true
       #   log2.object_id == log3.object_id         # => true
       #
-      def []( name ) ::Logging::LoggerRepository.instance[name] end
+      def []( name ) ::Logging::Repository.instance[name] end
 
       #
       # call-seq:
@@ -69,7 +69,7 @@ module Logging
       # used to retrieve the logger. When _name_ is an object the name of the
       # object's class will be used to retrieve the logger.
       #
-      def fetch( name ) ::Logging::LoggerRepository.instance.fetch(name) end
+      def fetch( name ) ::Logging::Repository.instance.fetch(name) end
 
       # :stopdoc:
 
@@ -123,11 +123,11 @@ module Logging
 
       #
       # Overrides the new method and ensures that it will only be called from
-      # the LoggerRepository class. A RuntimeError is raised if new is
+      # the Repository class. A RuntimeError is raised if new is
       # called by any other class.
       #
       def new( *args )
-        unless caller[0] =~ %r/logger_repository.rb:\d+:/
+        unless caller[0] =~ %r/repository.rb:\d+:/
           raise RuntimeError,
                 "use 'Logging::Logger[name]' to obtain Logger instances"
         end
@@ -151,7 +151,7 @@ module Logging
         raise(ArgumentError, "logger must have a name") if name.empty?
       else raise(ArgumentError, "logger name must be a String") end
 
-      repo = ::Logging::LoggerRepository.instance
+      repo = ::Logging::Repository.instance
       @name = name
       @parent = repo.parent(name)
       @appenders = []
@@ -303,7 +303,7 @@ module Logging
     #    parent = ParentLogger
     #
     # Set the parent logger for this logger. This method will be invoked by
-    # the +LoggerRepository+ class when a parent or child is added to the
+    # the +Repository+ class when a parent or child is added to the
     # hierarchy.
     #
     def parent=( parent ) @parent = parent end
@@ -357,7 +357,7 @@ module Logging
     #    RootLogger.new
     #
     # Returns a new root logger instance. This method will be called only
-    # once when the +LoggerRepository+ singleton instance is created.
+    # once when the +Repository+ singleton instance is created.
     #
     def initialize( )
       unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'

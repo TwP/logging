@@ -10,7 +10,7 @@ module TestLogging
 
     def setup
       super
-      @repo = ::Logging::LoggerRepository.instance
+      @repo = ::Logging::Repository.instance
     end
 
     def test_initialize

@@ -7,11 +7,11 @@ require 'logging/logger'
 module Logging
 
   #
-  # The LoggerRepository is a hash that stores references to all Loggers
+  # The Repository is a hash that stores references to all Loggers
   # that have been created. It provides methods to determine parent/child
   # relationships between Loggers and to retrieve Loggers from the hash.
   #
-  class LoggerRepository
+  class Repository
     include Singleton
 
     PATH_DELIMITER = '::'  # :nodoc:
@@ -20,7 +20,7 @@ module Logging
     # nodoc:
     #
     # This is a singleton class -- use the +instance+ method to obtain the
-    # +LoggerRepository+ instance.
+    # +Repository+ instance.
     #
     def initialize
       @h = Hash.new {|h,k| h.synchronize(:EX) {h[k] = ::Logging::Logger.new(k)}}
@@ -32,7 +32,7 @@ module Logging
     # call-seq:
     #    instance[key]
     #
-    # See the documentation for +LoggerRepository#[]+.
+    # See the documentation for +Logger#[]+.
     #
     def []( key ) @h[to_key(key)] end
 
@@ -40,7 +40,7 @@ module Logging
     # call-seq:
     #    fetch( key )
     #
-    # See the documentation for +LoggerRepository#fetch+.
+    # See the documentation for +Logger#fetch+.
     #
     def fetch( key ) @h.fetch(to_key(key)) end
 
@@ -50,7 +50,7 @@ module Logging
     #
     # Returns the parent logger for the logger identified by _key_ where
     # _key_ follows the same identification rules described in
-    # +LoggerRepository#[]+. A parent is returned regardless of the
+    # +Repository#[]+. A parent is returned regardless of the
     # existence of the logger referenced by _key_.
     #
     def parent( key )
@@ -73,7 +73,7 @@ module Logging
     #
     # Returns an array of the children loggers for the logger identified by
     # _key_ where _key_ follows the same identification rules described in
-    # +LoggerRepository#[]+. Children are returned regardless of the
+    # +Repository#[]+. Children are returned regardless of the
     # existence of the logger referenced by _key_.
     #
     def children( key )
@@ -100,7 +100,7 @@ module Logging
     #    to_key( key )
     #
     # Takes the given _key_ and converts it into a form that can be used to
-    # retrieve a logger from the +LoggerRepository+ hash.
+    # retrieve a logger from the +Repository+ hash.
     #
     # When _key_ is a +String+ or a +Symbol+ it will be returned "as is".
     # When _key_ is a +Class+ the class name will be returned. When _key_ is
@@ -114,7 +114,7 @@ module Logging
       end
     end
 
-  end  # class LoggerRepository
+  end  # class Repository
 end  # module Logging
 
 # EOF

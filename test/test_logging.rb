@@ -19,7 +19,7 @@ module TestLogging
       assert_equal empty, @lnames
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
-      ::Logging::LoggerRepository.instance
+      ::Logging::Repository.instance
 
       assert_equal 5, @levels.length
       assert_equal 5, @lnames.length
