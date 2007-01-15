@@ -24,6 +24,6 @@ test/test_appender.rb
 test/test_layout.rb
 test/test_log_event.rb
 test/test_logger.rb
-test/test_repository.rb
 test/test_logging.rb
+test/test_repository.rb
 test/test_root_logger.rb
