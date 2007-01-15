@@ -21,11 +21,25 @@ module TestLogging
       assert_same root, @repo[:root]
 
       a = []
+      ::Logging::Logger.new a
       assert_same @repo['Array'], @repo[Array]
       assert_same @repo['Array'], @repo[a]
 
       assert_not_same @repo['Array'], @repo[:root]
+
+      ::Logging::Logger.new 'A'
+      ::Logging::Logger.new 'A::B'
       assert_not_same @repo['A'], @repo['A::B']
+    end
+
+    def test_aset
+      root = @repo[:root]
+      @repo[:root] = 'root'
+      assert_not_same root, @repo[:root]
+
+      assert_nil @repo['blah']
+      @repo['blah'] = 'root'
+      assert_equal 'root', @repo['blah']
     end
 
     def test_fetch
@@ -34,11 +48,9 @@ module TestLogging
     end
 
     def test_parent
-      @repo['A']
-      @repo['A::B']
-      @repo['A::B::C::D']
-      @repo['A::B::C::E']
-      @repo['A::B::C::F']
+      %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
+        ::Logging::Logger.new(name)
+      end
 
       assert_same @repo[:root], @repo.parent('A')
       assert_same @repo['A'], @repo.parent('A::B')
@@ -47,54 +59,52 @@ module TestLogging
       assert_same @repo['A::B'], @repo.parent('A::B::C::E')
       assert_same @repo['A::B'], @repo.parent('A::B::C::F')
 
-      @repo['A::B::C']
+      ::Logging::Logger.new('A::B::C')
 
       assert_same @repo['A::B'], @repo.parent('A::B::C')
       assert_same @repo['A::B::C'], @repo.parent('A::B::C::D')
       assert_same @repo['A::B::C'], @repo.parent('A::B::C::E')
       assert_same @repo['A::B::C'], @repo.parent('A::B::C::F')
 
-      @repo['A::B::C::E::G']
+      ::Logging::Logger.new('A::B::C::E::G')
 
       assert_same @repo['A::B::C::E'], @repo.parent('A::B::C::E::G')
     end
 
     def test_children
-      @repo['A']
+      ::Logging::Logger.new('A')
 
       assert_equal [], @repo.children('A')
 
-      @repo['A::B']
-      a = [@repo['A::B::C::D'],
-           @repo['A::B::C::E'],
-           @repo['A::B::C::F']].sort
+      ::Logging::Logger.new('A::B')
+      a = %w(D E F).map {|name| ::Logging::Logger.new('A::B::C::'+name)}.sort
 
       assert_equal [@repo['A::B']], @repo.children('A')
       assert_equal a, @repo.children('A::B')
       assert_equal a, @repo.children('A::B::C')
 
-      @repo['A::B::C']
+      ::Logging::Logger.new('A::B::C')
 
       assert_equal [@repo['A::B::C']], @repo.children('A::B')
       assert_equal a, @repo.children('A::B::C')
 
-      @repo['A::B::C::E::G']
+      ::Logging::Logger.new('A::B::C::E::G')
 
       assert_equal a, @repo.children('A::B::C')
       assert_equal [@repo['A::B::C::E::G']], @repo.children('A::B::C::E')
     end
 
     def test_to_key
-      assert_equal :root, @repo.send(:to_key, :root)
-      assert_equal 'Object', @repo.send(:to_key, 'Object')
-      assert_equal 'Object', @repo.send(:to_key, Object)
-      assert_equal 'Object', @repo.send(:to_key, Object.new)
+      assert_equal :root, @repo.to_key(:root)
+      assert_equal 'Object', @repo.to_key('Object')
+      assert_equal 'Object', @repo.to_key(Object)
+      assert_equal 'Object', @repo.to_key(Object.new)
 
-      assert_equal 'String', @repo.send(:to_key, String)
-      assert_equal 'Array', @repo.send(:to_key, [])
+      assert_equal 'String', @repo.to_key(String)
+      assert_equal 'Array', @repo.to_key([])
 
-      assert_equal 'blah', @repo.send(:to_key, 'blah')
-      assert_equal :blah, @repo.send(:to_key, :blah)
+      assert_equal 'blah', @repo.to_key('blah')
+      assert_equal :blah, @repo.to_key(:blah)
     end
 
   end  # class TestRepository

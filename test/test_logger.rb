@@ -10,16 +10,15 @@ module TestLogging
 
     def setup
       super
-      @repo = ::Logging::Repository.instance
     end
 
     def test_initialize
-      assert_raise(RuntimeError)  {::Logging::Logger.new('test')}
       assert_raise(ArgumentError) {::Logging::Logger[:test]}
+      assert_nothing_raised {::Logging::Logger.new(Object)}
     end
 
     def test_add
-      log = @repo['A']
+      log = ::Logging::Logger.new 'A'
 
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
@@ -54,16 +53,16 @@ module TestLogging
     end
 
     def test_additive
-      root = @repo[:root]
-      log  = @repo['A']
+      root = ::Logging::Logger.new :root
+      log  = ::Logging::Logger.new 'A'
 
       assert_raise(NoMethodError) {root.additive}
       assert_equal true, log.additive
     end
 
     def test_additive_eq
-      root = @repo[:root]
-      log  = @repo['A']
+      root = ::Logging::Logger.new :root
+      log  = ::Logging::Logger.new 'A'
 
       assert_raise(NoMethodError) {root.additive = false}
       assert_equal true, log.additive
@@ -73,7 +72,7 @@ module TestLogging
     end
 
     def test_appenders_eq
-      log = @repo['42']
+      log = ::Logging::Logger.new '42'
 
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
@@ -110,13 +109,13 @@ module TestLogging
       assert_not_same ::Logging::Logger['A'], ::Logging::Logger['A::B']
     end
 
-    def test_class_fetch
-      assert_raise(IndexError) {::Logging::Logger.fetch 'A'}
-      assert_same ::Logging::Logger[:root], ::Logging::Logger.fetch(:root)
+    def test_class_root
+      root = ::Logging::Logger[:root]
+      assert_same root, ::Logging::Logger.root
     end
 
     def test_clear
-      log = @repo['Elliott']
+      log  = ::Logging::Logger.new 'Elliott'
 
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
@@ -135,9 +134,9 @@ module TestLogging
     def test_concat
       a1 = SioAppender.new 'a1'
       a2 = SioAppender.new 'a2'
-      log = @repo['A']
+      log = ::Logging::Logger.new 'A'
 
-      @repo[:root].add a1
+      ::Logging::Logger[:root].add a1
       assert_nil a1.readline
       assert_nil a2.readline
 
@@ -175,8 +174,8 @@ module TestLogging
     end
 
     def test_level
-      root = @repo[:root]
-      log  = @repo['A']
+      root = ::Logging::Logger.new :root
+      log  = ::Logging::Logger.new 'A'
 
       assert_equal 0, root.level
       assert_equal 0, log.level
@@ -195,8 +194,8 @@ module TestLogging
     end
 
     def test_level_eq
-      root = @repo[:root]
-      log  = @repo['A']
+      root = ::Logging::Logger.new :root
+      log  = ::Logging::Logger.new 'A'
 
       assert_equal 0, root.level
       assert_equal 0, log.level
@@ -253,13 +252,14 @@ module TestLogging
     end
 
     def test_log
-      @repo[:root].level = 'info'
+      root = ::Logging::Logger[:root]
+      root.level = 'info'
 
       a1 = SioAppender.new 'a1'
       a2 = SioAppender.new 'a2'
-      log = @repo['A Logger']
+      log = ::Logging::Logger.new 'A Logger'
 
-      @repo[:root].add a1
+      root.add a1
       assert_nil a1.readline
       assert_nil a2.readline
 
@@ -330,8 +330,8 @@ module TestLogging
     end
 
     def test_log_eh
-      @repo[:root].level = 'info'
-      log = @repo['A Logger']
+      ::Logging::Logger[:root].level = 'info'
+      log = ::Logging::Logger['A Logger']
 
       assert_equal false, log.debug?
       assert_equal true, log.info?
@@ -352,35 +352,35 @@ module TestLogging
     end
 
     def test_name
-      root = @repo[:root]
-      log  = @repo['A']
+      root = ::Logging::Logger.new :root
+      log  = ::Logging::Logger.new 'A'
 
       assert_equal 'root', root.name
       assert_equal 'A', log.name
     end
 
     def test_parent
-      root = @repo[:root]
+      logger = ::Logging::Logger
+      root = logger.new :root
 
       assert_raise(NoMethodError) {root.parent}
 
-      assert_same root, @repo['A'].parent
-      assert_same @repo['A'], @repo['A::B'].parent
-      assert_same @repo['A::B'], @repo['A::B::C::D'].parent
-      assert_same @repo['A::B'], @repo['A::B::C::E'].parent
-      assert_same @repo['A::B'], @repo['A::B::C::F'].parent
+      assert_same root, logger['A'].parent
+      assert_same logger['A'], logger['A::B'].parent
+      assert_same logger['A::B'], logger['A::B::C::D'].parent
+      assert_same logger['A::B'], logger['A::B::C::E'].parent
+      assert_same logger['A::B'], logger['A::B::C::F'].parent
 
+      assert_same logger['A::B'], logger['A::B::C'].parent
+      assert_same logger['A::B::C'], logger['A::B::C::D'].parent
+      assert_same logger['A::B::C'], logger['A::B::C::E'].parent
+      assert_same logger['A::B::C'], logger['A::B::C::F'].parent
 
-      assert_same @repo['A::B'], @repo['A::B::C'].parent
-      assert_same @repo['A::B::C'], @repo['A::B::C::D'].parent
-      assert_same @repo['A::B::C'], @repo['A::B::C::E'].parent
-      assert_same @repo['A::B::C'], @repo['A::B::C::F'].parent
-
-      assert_same @repo['A::B::C::E'], @repo['A::B::C::E::G'].parent
+      assert_same logger['A::B::C::E'], logger['A::B::C::E::G'].parent
     end
 
     def test_remove
-      log = @repo['X']
+      log = ::Logging::Logger['X']
 
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
@@ -417,27 +417,27 @@ module TestLogging
     def test_spaceship
       logs = %w(
         A  A::B  A::B::C  A::B::C::D  A::B::C::E  A::B::C::E::G  A::B::C::F
-      ).map {|x| @repo[x]}
-      logs.unshift @repo[:root]
+      ).map {|x| ::Logging::Logger[x]}
+      logs.unshift ::Logging::Logger[:root]
 
       logs.inject do |a,b|
         assert_equal(-1, a <=> b, "'#{a.name}' <=> '#{b.name}'")
         b
       end
 
-      assert_equal 1, logs[1] <=> @repo[:root]
+      assert_equal 1, logs[1] <=> ::Logging::Logger[:root]
       assert_raise(ArgumentError) {logs[1] <=> Object.new}
-      assert_raise(ArgumentError) {@repo[:root] <=> 'string'}
+      assert_raise(ArgumentError) {::Logging::Logger[:root] <=> 'string'}
     end
 
     def test_trace
-      log = @repo[:root]
+      log = ::Logging::Logger[:root]
       assert_equal false, log.trace
 
       log.trace = true
       assert_equal true, log.trace
 
-      log = @repo['A']
+      log = ::Logging::Logger['A']
       assert_equal false, log.trace
 
       log.trace = true

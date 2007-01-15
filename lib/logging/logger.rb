@@ -1,5 +1,6 @@
 # $Id$
 
+require 'sync'
 require 'logging'
 require 'logging/appender'
 require 'logging/log_event'
@@ -32,46 +33,42 @@ module Logging
   #
   class Logger
 
+    @mutex = Sync.new
+
     class << self
-      #
-      # call-seq:
-      #    Logger[name]
-      #
-      # Returns the +Logger+ named _name_. If the logger does not exist it
-      # will be created.
-      #
-      # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
-      # retrieve the logger. When _name_ is a +Class+ the class name will be
-      # used to retrieve the logger. When _name_ is an object the name of the
-      # object's class will be used to retrieve the logger.
-      #
-      # Example:
-      #
-      #   obj = MyClass.new
-      #   log1 = Logger[obj]
-      #   log2 = Logger[MyClass]
-      #   log3 = Logger['MyClass']
-      #
-      #   log1.object_id == log2.object_id         # => true
-      #   log2.object_id == log3.object_id         # => true
-      #
-      def []( name ) ::Logging::Repository.instance[name] end
 
       #
       # call-seq:
-      #    Logger.fetch( name )
+      #    Logger.root
       #
-      # Returns the +Logger+ named _name_. An +IndexError+ will be raised if
-      # the logger does not exist.
+      # Returns the root logger.
       #
-      # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
-      # retrieve the logger. When _name_ is a +Class+ the class name will be
-      # used to retrieve the logger. When _name_ is an object the name of the
-      # object's class will be used to retrieve the logger.
-      #
-      def fetch( name ) ::Logging::Repository.instance.fetch(name) end
+      def root
+        ::Logging::Repository.instance[:root]
+      end
 
       # :stopdoc:
+
+      #
+      # Overrides the new method such that only one Logger will be created
+      # for any given logger name.
+      #
+      def new( *args )
+        return super if args.empty?
+
+        repo = ::Logging::Repository.instance
+        name = repo.to_key(args.shift)
+
+        @mutex.synchronize(:EX) do
+          logger = repo[name]
+          if logger.nil?
+            logger = super(name, *args)
+            repo[name] = logger
+          end
+          logger
+        end
+      end
+      alias :[] :new
 
       #
       # This is where the actual logging methods are defined. Two methods
@@ -120,21 +117,9 @@ module Logging
           logger.meta_eval code
         end
       end
+      # :startdoc:
 
-      #
-      # Overrides the new method and ensures that it will only be called from
-      # the Repository class. A RuntimeError is raised if new is
-      # called by any other class.
-      #
-      def new( *args )
-        unless caller[0] =~ %r/repository.rb:\d+:/
-          raise RuntimeError,
-                "use 'Logging::Logger[name]' to obtain Logger instances"
-        end
-        super(*args)
-      end
-    end
-    # :startdoc:
+    end  # class << self
 
     attr_reader :level, :name, :parent
     attr_accessor :additive, :trace
@@ -142,8 +127,25 @@ module Logging
     #
     # call-seq:
     #    Logger.new( name )
+    #    Logger[name]
     #
-    # Returns a new logger identified by _name_.
+    # Returns the logger identified by _name_.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # retrieve the logger. When _name_ is a +Class+ the class name will be
+    # used to retrieve the logger. When _name_ is an object the name of the
+    # object's class will be used to retrieve the logger.
+    #
+    # Example:
+    #
+    #   obj = MyClass.new
+    #
+    #   log1 = Logger.new(obj)
+    #   log2 = Logger.new(MyClass)
+    #   log3 = Logger['MyClass']
+    #
+    #   log1.object_id == log2.object_id         # => true
+    #   log2.object_id == log3.object_id         # => true
     #
     def initialize( name )
       case name
@@ -338,67 +340,6 @@ module Logging
     # :startdoc:
 
   end  # class Logger
-
-
-  #
-  # The root logger exists to ensure that all loggers have a parent and a
-  # defined logging level. If a logger is additive, eventually its log
-  # events will propogate up to the root logger.
-  #
-  class RootLogger < Logger
-
-    # undefine the methods that the root logger does not need
-    %w(additive additive= parent parent=).each do |m|
-      undef_method m.intern
-    end
-
-    #
-    # call-seq:
-    #    RootLogger.new
-    #
-    # Returns a new root logger instance. This method will be called only
-    # once when the +Repository+ singleton instance is created.
-    #
-    def initialize( )
-      unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
-        ::Logging.define_levels %w(debug info warn error fatal)
-      end
-
-      @name = 'root'
-      @appenders = []
-      @additive = false
-      @trace = false
-      self.level = 0
-    end
-
-    #
-    # call-seq:
-    #    log <=> other
-    #
-    # Compares this logger by name to another logger. The normal return codes
-    # for +String+ objects apply.
-    #
-    def <=>( other )
-      case other
-      when self: 0
-      when ::Logging::Logger: -1
-      else raise ArgumentError, 'expecting a Logger instance' end
-    end
-
-    #
-    # call-seq:
-    #    level = :all
-    #
-    # Set the level for the root logger. The functionality of this method is
-    # the same as +Logger#level=+, but setting the level to +nil+ for the
-    # root logger is not allowed. The level is silently set to :all.
-    #
-    def level=( level )
-      level ||= 0
-      super
-    end
-
-  end  # class RootLogger
 end  # module Logging
 
 # EOF

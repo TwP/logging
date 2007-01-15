@@ -1,7 +1,7 @@
 # $Id$
 
 require 'singleton'
-require 'logging/logger'
+require 'logging/root_logger'
 
 
 module Logging
@@ -23,24 +23,58 @@ module Logging
     # +Repository+ instance.
     #
     def initialize
-      @h = Hash.new {|h,k| h.synchronize(:EX) {h[k] = ::Logging::Logger.new(k)}}
-      @h[:root] = ::Logging::RootLogger.new
-      @h.extend Sync_m
+      @h = {:root => ::Logging::RootLogger.new}
     end
 
     #
     # call-seq:
-    #    instance[key]
+    #    instance[name]
     #
-    # See the documentation for +Logger#[]+.
+    # Returns the +Logger+ named _name_.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # retrieve the logger. When _name_ is a +Class+ the class name will be
+    # used to retrieve the logger. When _name_ is an object the name of the
+    # object's class will be used to retrieve the logger.
+    #
+    # Example:
+    #
+    #   repo = Repository.instance
+    #   obj = MyClass.new
+    #
+    #   log1 = repo[obj]
+    #   log2 = repo[MyClass]
+    #   log3 = repo['MyClass']
+    #
+    #   log1.object_id == log2.object_id         # => true
+    #   log2.object_id == log3.object_id         # => true
     #
     def []( key ) @h[to_key(key)] end
 
     #
     # call-seq:
-    #    fetch( key )
+    #    instance[name] = logger
     #
-    # See the documentation for +Logger#fetch+.
+    # Stores the _logger_ under the given _name_.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # store the logger. When _name_ is a +Class+ the class name will be
+    # used to store the logger. When _name_ is an object the name of the
+    # object's class will be used to store the logger.
+    #
+    def []=( key, val ) @h[to_key(key)] = val end
+
+    #
+    # call-seq:
+    #    fetch( name )
+    #
+    # Returns the +Logger+ named _name_. An +IndexError+ will be raised if
+    # the logger does not exist.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # retrieve the logger. When _name_ is a +Class+ the class name will be
+    # used to retrieve the logger. When _name_ is an object the name of the
+    # object's class will be used to retrieve the logger.
     #
     def fetch( key ) @h.fetch(to_key(key)) end
 
@@ -57,14 +91,12 @@ module Logging
       key = to_key(key)
       a = key.split PATH_DELIMITER
 
-      @h.synchronize(:SH) do
-        p = @h[:root]
-        while a.slice!(-1) and !a.empty?
-          k = a.join PATH_DELIMITER
-          if @h.has_key? k then p = @h[k]; break end
-        end
-        p
+      p = @h[:root]
+      while a.slice!(-1) and !a.empty?
+        k = a.join PATH_DELIMITER
+        if @h.has_key? k then p = @h[k]; break end
       end
+      p
     end
 
     #
@@ -81,20 +113,16 @@ module Logging
       depth = key.split(PATH_DELIMITER).length
       rgxp = Regexp.new "^#{key}#{PATH_DELIMITER}"
 
-      @h.synchronize(:SH) do
-        a = @h.keys.map do |k|
-              if k =~ rgxp
-                l = @h[k]
-                d = l.parent.name.split(PATH_DELIMITER).length
-                if d <= depth then l else nil end
-              end
+      a = @h.keys.map do |k|
+            if k =~ rgxp
+              l = @h[k]
+              d = l.parent.name.split(PATH_DELIMITER).length
+              if d <= depth then l else nil end
             end
-        a.compact.sort
-      end
+          end
+      a.compact.sort
     end
 
-
-    private
     #
     # call-seq:
     #    to_key( key )

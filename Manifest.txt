@@ -11,6 +11,7 @@ lib/logging/layouts/pattern.rb
 lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
+lib/logging/root_logger.rb
 test/appenders/test_console.rb
 test/appenders/test_file.rb
 test/appenders/test_io.rb
@@ -25,3 +26,4 @@ test/test_log_event.rb
 test/test_logger.rb
 test/test_repository.rb
 test/test_logging.rb
+test/test_root_logger.rb
