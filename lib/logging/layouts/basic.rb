@@ -11,7 +11,7 @@ module Layouts
   # The +Basic+ layout class provides methods for simple formatting of log
   # events. The resulting string follows the format below.
   #
-  #     LEVEL - LoggerName - log message
+  #     LEVEL  LoggerName : log message
   #
   # _LEVEL_ is the log level of the event. _LoggerName_ is the name of the
   # logger that generated the event. <em>log message</em> is the message
@@ -29,7 +29,7 @@ module Layouts
     # class documentation for details about the formatting used.
     #
     def format( event )
-      start = sprintf("%*s - %s - ", ::Logging::MAX_LEVEL_LENGTH,
+      start = sprintf("%*s  %s : ", ::Logging::MAX_LEVEL_LENGTH,
                       ::Logging::LNAMES[event.level], event.logger)
       buf = ''
       event.data.each do |obj|

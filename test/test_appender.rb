@@ -23,7 +23,7 @@ module TestLogging
       def @appender.write( str ) @ary << str end
 
       assert_nothing_raised {@appender.append @event}
-      assert_equal "DEBUG - logger - message\n", ary.pop
+      assert_equal "DEBUG  logger : message\n", ary.pop
 
       @appender.level = :info
       @appender.append @event
@@ -31,7 +31,7 @@ module TestLogging
 
       @event.level = @levels['info']
       @appender.append @event
-      assert_equal " INFO - logger - message\n", ary.pop
+      assert_equal " INFO  logger : message\n", ary.pop
 
       @appender.close
       assert_raise(RuntimeError) {@appender.append @event}

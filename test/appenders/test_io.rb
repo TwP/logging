@@ -23,14 +23,14 @@ module TestAppenders
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [[1, 2, 3, 4]], false)
       @appender.append event
-      assert_equal " WARN - TestLogger - <Array> 1234\n", readline
+      assert_equal " WARN  TestLogger : <Array> 1234\n", readline
       assert_raise(EOFError) {readline}
 
       event.level = @levels['debug']
       event.data = ['the big log message', [1, 2, 3, 4]]
       @appender.append event
-      assert_equal "DEBUG - TestLogger - the big log message\n", readline
-      assert_equal "DEBUG - TestLogger - <Array> 1234\n", readline
+      assert_equal "DEBUG  TestLogger : the big log message\n", readline
+      assert_equal "DEBUG  TestLogger : <Array> 1234\n", readline
       assert_raise(EOFError) {readline}
 
       @appender.close

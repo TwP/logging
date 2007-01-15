@@ -33,7 +33,7 @@ module Logging
   #
   class Logger
 
-    @mutex = Sync.new
+    @mutex = Sync.new  # :nodoc:
 
     class << self
 

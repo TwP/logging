@@ -268,33 +268,33 @@ module TestLogging
       assert_nil a2.readline
 
       log.info 'this should be logged'
-      assert_equal " INFO - A Logger - this should be logged\n", a1.readline
+      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
       log.warn 'this is a warning', [1,2,3,4]
-      assert_equal " WARN - A Logger - this is a warning\n", a1.readline
-      assert_equal " WARN - A Logger - <Array> 1234\n", a1.readline
+      assert_equal " WARN  A Logger : this is a warning\n", a1.readline
+      assert_equal " WARN  A Logger : <Array> 1234\n", a1.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
       log.add a2
       log.error 'an error has occurred'
-      assert_equal "ERROR - A Logger - an error has occurred\n", a1.readline
-      assert_equal "ERROR - A Logger - an error has occurred\n", a2.readline
+      assert_equal "ERROR  A Logger : an error has occurred\n", a1.readline
+      assert_equal "ERROR  A Logger : an error has occurred\n", a2.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
       log.additive = false
       log.error 'another error has occurred'
-      assert_equal "ERROR - A Logger - another error has occurred\n", a2.readline
+      assert_equal "ERROR  A Logger : another error has occurred\n", a2.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
       log.add a1
       log.fatal 'fatal exception'
-      assert_equal "FATAL - A Logger - fatal exception\n", a1.readline
-      assert_equal "FATAL - A Logger - fatal exception\n", a2.readline
+      assert_equal "FATAL  A Logger : fatal exception\n", a1.readline
+      assert_equal "FATAL  A Logger : fatal exception\n", a2.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
@@ -317,8 +317,8 @@ module TestLogging
         str = 'a string of data'
         str
       end
-      assert_equal " WARN - A Logger - a string of data\n", a1.readline
-      assert_equal " WARN - A Logger - a string of data\n", a2.readline
+      assert_equal " WARN  A Logger : a string of data\n", a1.readline
+      assert_equal " WARN  A Logger : a string of data\n", a2.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
