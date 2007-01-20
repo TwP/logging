@@ -25,8 +25,6 @@ module Appenders
       end
 
       @io = io
-      @io.sync = true
-
       super(name, opts)
     end
 

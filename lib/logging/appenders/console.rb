@@ -8,7 +8,7 @@ module Appenders
   #
   # This class provides an Appender that can write to STDOUT.
   #
-  class StdOut< ::Logging::Appenders::IO
+  class Stdout< ::Logging::Appenders::IO
 
     #
     # call-seq:
@@ -18,15 +18,17 @@ module Appenders
     # Creates a new StdOut Appender. The name 'stdout' will always be used for
     # this appender.
     #
-    def initialize( opts = {} )
-      super('stdout', STDOUT, opts)
+    def initialize( name = nil, opts = {} )
+      name ||= 'stdout'
+      STDOUT.sync = true
+      super(name, STDOUT, opts)
     end
-  end  # class StdOut
+  end  # class Stdout
 
   #
   # This class provides an Appender that can write to STDERR.
   #
-  class StdErr< ::Logging::Appenders::IO
+  class Stderr< ::Logging::Appenders::IO
 
     #
     # call-seq:
@@ -36,10 +38,12 @@ module Appenders
     # Creates a new StdErr Appender. The name 'stderr' will always be used for
     # this appender.
     #
-    def initialize( opts = {} )
-      super('stderr', STDERR, opts)
+    def initialize( name = nil, opts = {} )
+      name ||= 'stderr'
+      STDERR.sync = true
+      super(name, STDERR, opts)
     end
-  end  # class StdErr
+  end  # class Stderr
 
 end  # module Appenders
 end  # module Logging

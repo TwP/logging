@@ -21,13 +21,13 @@ module TestLogging
 
       assert_equal :string, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new 'blah'
+      @layout = ::Logging::Layout.new 'format_as' => 'blah'
       assert_equal :string, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new :inspect
+      @layout = ::Logging::Layout.new :format_as => :inspect
       assert_equal :inspect, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new :yaml
+      @layout = ::Logging::Layout.new 'format_as' => :yaml
       assert_equal :yaml, obj_format[@layout]
 
       @layout = ::Logging::Layout.new
@@ -70,16 +70,16 @@ module TestLogging
       assert_equal '<Array> 1234', r
 
       obj = %w( one two three four )
-      @layout = ::Logging::Layout.new :inspect
+      @layout = ::Logging::Layout.new :format_as => :inspect
       r = @layout.send :format_obj, obj
       assert_equal '<Array> ["one", "two", "three", "four"]', r
 
-      @layout = ::Logging::Layout.new :yaml
+      @layout = ::Logging::Layout.new :format_as => :yaml
       r = @layout.send :format_obj, obj
       assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
     end
 
-  end  # class TestAppender
+  end  # class TestLayout
 end  # module TestLogging
 
 # EOF

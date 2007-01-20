@@ -11,6 +11,9 @@ require 'logging/appenders/static_appender'
 require 'logging/layouts/basic'
 require 'logging/layouts/pattern'
 
+# require all configurators
+require 'logging/config/yaml_configurator'
+
 
 #
 #
@@ -99,6 +102,8 @@ module Logging
     # +:inspect+, +:yaml+ is passed to this method.
     #
     def format_as( f )
+      f = f.intern if f.instance_of? String
+
       unless [:string, :inspect, :yaml].include? f
         raise ArgumentError, "unknown object format '#{f}'"
       end
@@ -119,7 +124,7 @@ module Logging
       case l
       when 'all': 0
       when 'off': LEVELS.length
-      else LEVELS[l] end
+      else begin; Integer(l); rescue ArgumentError; LEVELS[l] end end
     end
     # :startdoc:
   end

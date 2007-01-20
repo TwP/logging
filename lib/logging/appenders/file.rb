@@ -12,18 +12,22 @@ module Appenders
 
     #
     # call-seq:
-    #    File.new( filename )
-    #    File.new( filename, :truncate => true )
-    #    File.new( filename, :layout => layout )
+    #    File.new( name, :filename => 'file' )
+    #    File.new( name, :filename => 'file', :truncate => true )
+    #    File.new( name, :filename => 'file', :layout => layout )
     #
-    # Creates a new File Appender that will use the given _filename_ as the
+    # Creates a new File Appender that will use the given filename as the
     # logging destination. If the file does not already exist it will be
     # created. If the :truncate option is set to +true+ then the file will be
     # truncated before writing begins; otherwise, log messages will be appened
     # to the file.
     #
-    def initialize( filename, opts = {} )
-      mode = opts.delete(:truncate) ? 'w' : 'a'
+    def initialize( name, opts = {} )
+      filename = opts.delete(:filename) || opts.delete('filename')
+      raise ArgumentError, 'no filename was given' if filename.nil?
+
+      mode = opts.delete(:truncate) || opts.delete('truncate')
+      mode = mode ? 'w' : 'a'
 
       if ::File.exist?(filename)
         if not ::File.file?(filename)
@@ -35,7 +39,7 @@ module Appenders
         raise StandardError, "#{::File.dirname(filename)} is not writable"
       end
 
-      super(filename, ::File.new(filename, mode), opts)
+      super(name, ::File.new(filename, mode), opts)
     end
 
   end  # class FileAppender

@@ -121,8 +121,7 @@ module Logging
 
     end  # class << self
 
-    attr_reader :level, :name, :parent
-    attr_accessor :additive, :trace
+    attr_reader :level, :name, :parent, :additive, :trace
 
     #
     # call-seq:
@@ -190,6 +189,38 @@ module Logging
     def <<( msg )
       @appenders.each {|a| a << msg}
       @parent << msg if @additive
+    end
+
+    #
+    # call-seq:
+    #    additive = true
+    #
+    # Sets the additivity of the logger. Acceptable values are +true+,
+    # 'true', +false+, 'false', or +nil+. In this case +nil+ does not
+    # change the additivity
+    #
+    def additive=( val )
+      @additive = case val
+                  when TrueClass, 'true': true
+                  when FalseClass, 'false': false
+                  when nil: @additive
+                  else raise ArgumentError, 'expecting a boolean' end
+    end
+
+    #
+    # call-seq:
+    #    trace = true
+    #
+    # Sets the tracing of the logger. Acceptable values are +true+,
+    # 'true', +false+, 'false', or +nil+. In this case +nil+ does not
+    # change the tracing.
+    #
+    def trace=( val )
+      @trace = case val
+               when TrueClass, 'true': true
+               when FalseClass, 'false': false
+               when nil: @trace
+               else raise ArgumentError, 'expecting a boolean' end
     end
 
     #

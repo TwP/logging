@@ -91,7 +91,7 @@ module TestLogging
     def test_format_as
       assert_equal false, ::Logging.const_defined?('OBJ_FORMAT')
 
-      assert_raises(ArgumentError) {::Logging.format_as 'string'}
+      assert_raises(ArgumentError) {::Logging.format_as 'bob'}
       assert_raises(ArgumentError) {::Logging.format_as String}
       assert_raises(ArgumentError) {::Logging.format_as :what?}
       
@@ -110,6 +110,21 @@ module TestLogging
       remove_const[:OBJ_FORMAT]
 
       ::Logging.format_as :yaml
+      assert ::Logging.const_defined?('OBJ_FORMAT')
+      assert_equal :yaml, ::Logging::OBJ_FORMAT
+      remove_const[:OBJ_FORMAT]
+
+      ::Logging.format_as 'string'
+      assert ::Logging.const_defined?('OBJ_FORMAT')
+      assert_equal :string, ::Logging::OBJ_FORMAT
+      remove_const[:OBJ_FORMAT]
+
+      ::Logging.format_as 'inspect'
+      assert ::Logging.const_defined?('OBJ_FORMAT')
+      assert_equal :inspect, ::Logging::OBJ_FORMAT
+      remove_const[:OBJ_FORMAT]
+
+      ::Logging.format_as 'yaml'
       assert ::Logging.const_defined?('OBJ_FORMAT')
       assert_equal :yaml, ::Logging::OBJ_FORMAT
       remove_const[:OBJ_FORMAT]

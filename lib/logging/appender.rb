@@ -39,9 +39,12 @@ module Logging
     def initialize( name, opts = {} )
       @name = name.to_s
       @closed = false
-      @level = 0
-      self.layout = opts[:layout] if opts.include? :layout
+
+      layout = opts[:layout] || opts['layout']
+      self.layout = layout unless layout.nil?
       @layout ||= ::Logging::Layouts::Basic.new
+
+      self.level = opts[:level] || opts['level']
 
       @sync = Sync.new
       sync {write(@layout.header)}

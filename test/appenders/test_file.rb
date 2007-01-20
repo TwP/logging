@@ -27,19 +27,26 @@ module TestAppenders
 
     def test_initialize
       log = File.join(TMP, 'uw_dir', 'file.log')
-      assert_raise(StandardError) {::Logging::Appenders::File.new log}
+      assert_raise(StandardError) do
+        ::Logging::Appenders::File.new(nil, :filename => log)
+      end
 
       log = File.join(TMP, 'dir')
-      assert_raise(StandardError) {::Logging::Appenders::File.new log}
+      assert_raise(StandardError) do
+        ::Logging::Appenders::File.new(nil, :filename => log)
+      end
 
       log = File.join(TMP, 'uw_file')
-      assert_raise(StandardError) {::Logging::Appenders::File.new log}
+      assert_raise(StandardError) do
+        ::Logging::Appenders::File.new(nil, :filename => log)
+      end
 
       log = File.join(TMP, 'file.log')
-      appender = ::Logging::Appenders::File.new log
-      assert_equal log, appender.name
+      appender = ::Logging::Appenders::File.new 'logfile', 'filename' => log
+      assert_equal 'logfile', appender.name
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"
+      appender.flush
       File.open(log, 'r') do |file|
         assert_equal "This will be the first line\n", file.readline
         assert_equal "This will be the second line\n", file.readline
@@ -47,9 +54,10 @@ module TestAppenders
       end
       appender.close
 
-      appender = ::Logging::Appenders::File.new log
-      assert_equal log, appender.name
+      appender = ::Logging::Appenders::File.new 'logfile', :filename => log
+      assert_equal 'logfile', appender.name
       appender << "This will be the third line\n"
+      appender.flush
       File.open(log, 'r') do |file|
         assert_equal "This will be the first line\n", file.readline
         assert_equal "This will be the second line\n", file.readline
@@ -58,9 +66,11 @@ module TestAppenders
       end
       appender.close
 
-      appender = ::Logging::Appenders::File.new log, :truncate => true
-      assert_equal log, appender.name
+      appender = ::Logging::Appenders::File.new 'logfile', :filename => log,
+                                                           :truncate => true
+      assert_equal 'logfile', appender.name
       appender << "The file was truncated\n"
+      appender.flush
       File.open(log, 'r') do |file|
         assert_equal "The file was truncated\n", file.readline
         assert_raise(EOFError) {file.readline}

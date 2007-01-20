@@ -18,11 +18,10 @@ module Logging
 
     #
     # call-seq:
-    #    Layout.new
-    #    Layout.new( obj_format )
+    #    Layout.new( :format_as => :string )
     #
-    # Creates a new layout that uses the given _obj_format_ when converting
-    # objects to strings. _obj_format_ can be one of <tt>:string</tt>,
+    # Creates a new layout that will format objecs as strings using the
+    # given <tt>:format_as</tt> style. This can be one of <tt>:string</tt>,
     # <tt>:inspect</tt>, or <tt>:yaml</tt>. These formatting commands map to
     # the following object methods:
     #
@@ -30,12 +29,15 @@ module Logging
     # * :inspect => inspect
     # * :yaml    => to_yaml
     #
-    # If _obj_format_ is not given then the global object format is used
+    # If the format is not specified then the global object format is used
     # (see Logging#format_as). If the global object format is not specified
-    # then +:string+ is used.
+    # then <tt>:string</tt> is used.
     #
-    def initialize( f = nil )
+    def initialize( opts = {} )
+      f = opts[:format_as] || opts['format_as']
       f ||= ::Logging::OBJ_FORMAT if ::Logging.const_defined? 'OBJ_FORMAT'
+      f = f.intern if f.instance_of? String
+
       @obj_format = case f
                     when :inspect, :yaml: f
                     else :string end

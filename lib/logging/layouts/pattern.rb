@@ -243,14 +243,12 @@ module Layouts
     # If used, :date_method will supersede :date_pattern.
     #
     def initialize( opts = {} )
-      f = opts.delete(:obj_format)
-      super(f)
-
+      super
       @created_at = Time.now
 
-      @pattern = opts[:pattern]
-      @date_pattern = opts[:date_pattern]
-      @date_method = opts[:date_method]
+      @pattern = opts[:pattern] || opts['pattern']
+      @date_pattern = opts[:date_pattern] || opts['date_pattern']
+      @date_method = opts[:date_method] || opts['date_method']
 
       @pattern ||= "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n"
       @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
@@ -268,7 +266,7 @@ module Layouts
     # Set the message formatting pattern to be used by the layout.
     #
     def pattern=( var )
-      @pattern = var.to_s
+      @pattern = var
       Pattern.create_format_methods(self)
     end
 
@@ -280,7 +278,7 @@ module Layouts
     # in the log messages.
     #
     def date_pattern=( var )
-      @date_pattern = var.to_s
+      @date_pattern = var
       Pattern.create_date_format_methods(self)
     end
 

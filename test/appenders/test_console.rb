@@ -5,11 +5,11 @@ require 'test/setup.rb'
 module TestLogging
 module TestAppenders
 
-  class TestStdOut < Test::Unit::TestCase
+  class TestStdout < Test::Unit::TestCase
     include LoggingTestCase
 
     def test_initialize
-      appender = ::Logging::Appenders::StdOut.new
+      appender = ::Logging::Appenders::Stdout.new
       assert_equal 'stdout', appender.name
       assert_same STDOUT, appender.instance_variable_get(:@io)
 
@@ -18,12 +18,12 @@ module TestAppenders
       assert_equal false, STDOUT.closed?
     end
 
-  end  # class TestStdOut
+  end  # class TestStdout
 
-  class TestStdErr < Test::Unit::TestCase
+  class TestStderr < Test::Unit::TestCase
 
     def test_initialize
-      appender = ::Logging::Appenders::StdErr.new
+      appender = ::Logging::Appenders::Stderr.new
       assert_equal 'stderr', appender.name
       assert_same STDERR, appender.instance_variable_get(:@io)
 
@@ -32,7 +32,7 @@ module TestAppenders
       assert_equal false, STDERR.closed?
     end
 
-  end  # class TestStdErr
+  end  # class TestStderr
 
 end  # module TestAppenders
 end  # module TestLogging
