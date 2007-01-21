@@ -26,6 +26,21 @@ module Logging
   class << self
     #
     # call-seq:
+    #    Logging.configure( filename )
+    #
+    # Configures the Logging framework using the configuration information
+    # found in the given file. The file extension should be either '.yaml'
+    # or '.yml' (XML configuration is not yet supported).
+    #
+    def configure( filename )
+      case File.extname(filename)
+      when '.yaml', '.yml':
+        ::Logging::Config::YamlConfigurator.load(filename)
+      else raise ArgumentError, 'unknown configuration file format' end
+    end
+
+    #
+    # call-seq:
     #    define_levels( levels )
     #
     # Defines the levels available to the loggers. The _levels_ is an array

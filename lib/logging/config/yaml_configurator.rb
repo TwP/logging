@@ -7,16 +7,22 @@ module Logging
 module Config
 
   #
-  #
+  # The YamlConfigurator class is used to configure the Logging framework
+  # using information found in a YAML file.
   #
   class YamlConfigurator
 
-    class Error < StandardError; end
+    class Error < StandardError; end  # :nodoc:
 
     class << self
       #
       # call-seq:
-      #    load( file )
+      #    YamlConfigurator.load( file )
+      #
+      # Load the given YAML _file_ and use it to configure the Logging
+      # framework. The file can be either a filename, and open File, or an
+      # IO object. If it is the latter two, the File / IO object will not be
+      # closed by this method.
       #
       def load( file )
         io, close = nil, false
@@ -36,6 +42,9 @@ module Config
     # call-seq:
     #    YamlConfigurator.new( io )
     #
+    # Creates a new YAML configurator that will load the Logging
+    # configuration from the given _io_ stream.
+    #
     def initialize( io )
       YAML.load_documents(io) do |doc|
         @config = doc['logging_config']
@@ -52,6 +61,9 @@ module Config
     # call-seq:
     #    load
     #
+    # Loads the Logging configuration from the data loaded from the YAML
+    # file.
+    #
     def load
       pre_config @config['pre_config']
       appenders @config['appenders']
@@ -63,6 +75,9 @@ module Config
     #
     # call-seq:
     #    pre_config( config )
+    #
+    # Configures the logging levels, object format style, and root logging
+    # level.
     #
     def pre_config( config )
       # if no pre_config section was given, just create an empty hash
@@ -88,6 +103,9 @@ module Config
     # call-seq:
     #    appenders( ary )
     #
+    # Given an array of Appender configurations, this method will iterate
+    # over each and create the Appender(s).
+    #
     def appenders( ary )
       return if ary.nil?
 
@@ -97,6 +115,9 @@ module Config
     #
     # call-seq:
     #    loggers( ary )
+    #
+    # Given an array of Logger configurations, this method will iterate over
+    # each and create the Logger(s).
     #
     def loggers( ary )
       return if ary.nil?
@@ -117,7 +138,16 @@ module Config
     end
 
     #
+    # call-seq:
+    #    appender( config )
     #
+    # Creates a new Appender based on the given _config_ options (a hash).
+    # The type of Appender created is determined by the 'type' option in the
+    # config. The remaining config options are passed to the Appender
+    # initializer.
+    #
+    # The config options can also contain a 'layout' option. This should be
+    # another set of options used to create a Layout for this Appender.
     #
     def appender( config )
       return if config.nil?
@@ -136,7 +166,13 @@ module Config
     end
 
     #
+    # call-seq:
+    #    layout( config )
     #
+    # Creates a new Layout based on the given _config_ options (a hash).
+    # The type of Layout created is determined by the 'type' option in the
+    # config. The remaining config options are passed to the Layout
+    # initializer.
     #
     def layout( config )
       return if config.nil?
