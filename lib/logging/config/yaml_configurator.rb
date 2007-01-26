@@ -128,8 +128,8 @@ module Config
 
         l = Logging::Logger.new name
         l.level = config['level'] if config.has_key?('level')
-        l.additive = config['additive']
-        l.trace = config['trace']
+        l.additive = config['additive'] if l.respond_to? :additive=
+        l.trace = config['trace'] if l.respond_to? :trace=
 
         if config.has_key?('appenders')
           l.appenders = config['appenders'].map {|n| ::Logging::Appender[n]}

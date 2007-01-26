@@ -1,6 +1,6 @@
 # $Id$
 
-require 'sync'
+require 'thread'
 require 'logging'
 require 'logging/appender'
 require 'logging/log_event'
@@ -33,7 +33,7 @@ module Logging
   #
   class Logger
 
-    @mutex = Sync.new  # :nodoc:
+    @mutex = Mutex.new  # :nodoc:
 
     class << self
 
@@ -59,7 +59,7 @@ module Logging
         repo = ::Logging::Repository.instance
         name = repo.to_key(args.shift)
 
-        @mutex.synchronize(:EX) do
+        @mutex.synchronize do
           logger = repo[name]
           if logger.nil?
             logger = super(name, *args)
