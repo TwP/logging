@@ -40,8 +40,8 @@ module Appenders
     def close( *args )
       return self if @io.nil?
       super(*args)
-      @io.close unless [STDIN, STDERR, STDOUT].include?(@io)
-      @io = nil
+      io, @io = @io, nil
+      io.close unless [STDIN, STDERR, STDOUT].include?(io)
       self
     end
 
