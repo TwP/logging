@@ -1,6 +1,6 @@
 # $Id$
 
-require 'sync'
+require 'thread'
 require 'logging'
 require 'logging/logger'
 require 'logging/layout'
@@ -46,7 +46,7 @@ module Logging
 
       self.level = opts[:level] || opts['level']
 
-      @sync = Sync.new
+      @mutex = Mutex.new
       sync {write(@layout.header)}
 
       ::Logging::Appender[@name] = self
@@ -198,8 +198,7 @@ module Logging
     # can call +sync+ multiple times without hanging the thread.
     #
     def sync
-      if Thread.current == @sync.sync_ex_locker then yield
-      else @sync.synchronize(:EX) {yield} end
+      @mutex.synchronize {yield}
     end
 
   end  # class Appender
