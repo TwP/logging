@@ -5,6 +5,7 @@ lib/logging/appender.rb
 lib/logging/appenders/console.rb
 lib/logging/appenders/file.rb
 lib/logging/appenders/io.rb
+lib/logging/appenders/rolling_file.rb
 lib/logging/appenders/static_appender.rb
 lib/logging/config/yaml_configurator.rb
 lib/logging/layout.rb
@@ -17,7 +18,9 @@ lib/logging/root_logger.rb
 test/appenders/test_console.rb
 test/appenders/test_file.rb
 test/appenders/test_io.rb
+test/appenders/test_rolling_file.rb
 test/benchmark.rb
+test/config/test_yaml_configurator.rb
 test/layouts/test_basic.rb
 test/layouts/test_pattern.rb
 test/setup.rb
