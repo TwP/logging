@@ -5,6 +5,7 @@ require 'logging/repository'
 # require all appenders
 require 'logging/appenders/console'
 require 'logging/appenders/file'
+require 'logging/appenders/rolling_file'
 require 'logging/appenders/static_appender'
 
 # require all layouts

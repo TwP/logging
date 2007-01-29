@@ -36,7 +36,6 @@ module Logging
     @mutex = Mutex.new  # :nodoc:
 
     class << self
-
       #
       # call-seq:
       #    Logger.root
@@ -201,8 +200,8 @@ module Logging
     #
     def additive=( val )
       @additive = case val
-                  when TrueClass, 'true': true
-                  when FalseClass, 'false': false
+                  when true, 'true': true
+                  when false, 'false': false
                   when nil: @additive
                   else raise ArgumentError, 'expecting a boolean' end
     end
@@ -217,8 +216,8 @@ module Logging
     #
     def trace=( val )
       @trace = case val
-               when TrueClass, 'true': true
-               when FalseClass, 'false': false
+               when true, 'true': true
+               when false, 'false': false
                when nil: @trace
                else raise ArgumentError, 'expecting a boolean' end
     end

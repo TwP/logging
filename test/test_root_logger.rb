@@ -13,6 +13,14 @@ module TestLogging
       @root = ::Logging::Logger.root
     end
 
+    def test_additive
+      assert_raise(NoMethodError) {@root.additive}
+    end
+
+    def test_additive_eq
+      assert_raise(NoMethodError) {@root.additive = true}
+    end
+
     def test_level_eq
       assert_equal 0, @root.level
 
@@ -46,6 +54,14 @@ module TestLogging
 
     def test_name
       assert_equal 'root', @root.name
+    end
+
+    def test_parent
+      assert_raise(NoMethodError) {@root.parent}
+    end
+
+    def test_parent_eq
+      assert_raise(NoMethodError) {@root.parent = nil}
     end
 
     def test_spaceship

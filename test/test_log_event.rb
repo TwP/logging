@@ -4,7 +4,7 @@ require 'test/setup.rb'
 
 module TestLogging
 
-  class TestEvent < Test::Unit::TestCase
+  class TestLogEvent < Test::Unit::TestCase
     include LoggingTestCase
 
     def setup
@@ -69,7 +69,7 @@ module TestLogging
       assert_equal 'test_method', @appender.event.method
     end
 
-  end  # class TestLogger
+  end  # class TestLogEvent
 
   class EventAppender < ::Logging::Appender
     attr_reader :event

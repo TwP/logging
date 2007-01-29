@@ -68,8 +68,6 @@ module Config
       pre_config @config['pre_config']
       appenders @config['appenders']
       loggers @config['loggers']
-
-      p @config
     end
 
     #

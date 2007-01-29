@@ -13,6 +13,71 @@ module TestLogging
       @lnames = ::Logging::LNAMES
     end
 
+    def test_configure
+      assert_raise(ArgumentError) {::Logging.configure 'blah.txt'}
+
+      ::Logging.configure 'examples/logging.yaml'
+
+      names = {
+        0 => 'DEB', 1 => 'INF', 2 => 'PRT',
+        3 => 'WRN', 4 => 'ERR', 5 => 'FAT'
+      }
+      assert_equal names, ::Logging::LNAMES
+      assert_equal :inspect, ::Logging::OBJ_FORMAT
+      assert_equal 3, ::Logging::Logger.root.level
+
+      # verify the appenders
+      h = ::Logging::Appender.instance_variable_get :@appenders
+      assert_equal ['logfile', 'stderr'], h.keys.sort
+
+      # start with the File appender
+      logfile = ::Logging::Appender['logfile']
+      assert_instance_of ::Logging::Appenders::File, logfile
+      assert_equal 0, logfile.level
+      assert_equal 'temp.log', logfile.instance_variable_get(:@fn)
+
+      layout = logfile.layout
+      assert_instance_of ::Logging::Layouts::Pattern, layout
+      assert_equal '[%d] %l  %c : %m\\n', layout.pattern
+      assert_equal 'to_s', layout.date_method
+      assert_nil layout.date_pattern
+
+      # and now the Stderr appender
+      stderr = ::Logging::Appender['stderr']
+      assert_instance_of ::Logging::Appenders::Stderr, stderr
+      assert_equal 0, stderr.level
+
+      layout = stderr.layout
+      assert_instance_of ::Logging::Layouts::Basic, layout
+
+      # verify the loggers
+      h = ::Logging::Repository.instance.instance_variable_get :@h
+      assert_equal 3, h.length
+
+      # mylogger
+      mylogger = ::Logging::Logger['mylogger']
+      assert_equal 0, mylogger.level
+      assert_equal false, mylogger.additive
+      assert_equal false, mylogger.trace
+
+      appenders = mylogger.instance_variable_get :@appenders
+      assert_equal 2, appenders.length
+      assert_equal ['logfile', 'stderr'], appenders.map {|a| a.name}.sort
+
+      # yourlogger
+      yourlogger = ::Logging::Logger['yourlogger']
+      assert_equal 1, yourlogger.level
+      assert_equal true, yourlogger.additive
+      assert_equal false, yourlogger.trace
+
+      appenders = yourlogger.instance_variable_get :@appenders
+      assert_equal 2, appenders.length
+      assert_equal ['logfile', 'stderr'], appenders.map {|a| a.name}.sort
+
+      # cleanup
+      File.delete('temp.log') if File.exist?('temp.log')
+    end
+
     def test_define_levels_default
       empty = {}
       assert_equal empty, @levels

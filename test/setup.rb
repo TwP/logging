@@ -37,6 +37,8 @@ module TestLogging
           define_method(:instance, nonce::FirstInstanceCall)
         end
       end
+      
+      ::Logging::Appender.instance_variable_get(:@appenders).clear
     end
 
   end  # module LoggingTestCase

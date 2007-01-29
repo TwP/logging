@@ -69,6 +69,20 @@ module TestLogging
 
       log.additive = false
       assert_equal false, log.additive
+
+      log.additive = true
+      assert_equal true, log.additive
+
+      log.additive = 'false'
+      assert_equal false, log.additive
+
+      log.additive = 'true'
+      assert_equal true, log.additive
+
+      log.additive = nil
+      assert_equal true, log.additive
+
+      assert_raise(ArgumentError) {log.additive = Object}
     end
 
     def test_appenders_eq
@@ -442,6 +456,28 @@ module TestLogging
 
       log.trace = true
       assert_equal true, log.trace
+    end
+
+    def test_trace_eq
+      log = ::Logging::Logger.new 'A'
+      assert_equal false, log.trace
+
+      log.trace = true
+      assert_equal true, log.trace
+
+      log.trace = false
+      assert_equal false, log.trace
+
+      log.trace = 'true'
+      assert_equal true, log.trace
+
+      log.trace = 'false'
+      assert_equal false, log.trace
+
+      log.trace = nil
+      assert_equal false, log.trace
+
+      assert_raise(ArgumentError) {log.trace = Object}
     end
 
   end  # class TestLogger
