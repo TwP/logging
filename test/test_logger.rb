@@ -286,8 +286,7 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.warn 'this is a warning', [1,2,3,4]
-      assert_equal " WARN  A Logger : this is a warning\n", a1.readline
+      log.warn [1,2,3,4]
       assert_equal " WARN  A Logger : <Array> 1234\n", a1.readline
       assert_nil a1.readline
       assert_nil a2.readline

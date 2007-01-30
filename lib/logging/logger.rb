@@ -100,14 +100,14 @@ module Logging
           if logger.level > num
             code << <<-CODE
               def #{name}?( ) false end
-              def #{name}( *args ) false end
+              def #{name}( data = nil ) false end
             CODE
           else
             code << <<-CODE
               def #{name}?( ) true end
-              def #{name}( *args )
-                args.push yield if block_given?
-                log_event(::Logging::LogEvent.new(@name, #{num}, args, @trace)) unless args.empty?
+              def #{name}( data = nil )
+                data = yield if block_given?
+                log_event(::Logging::LogEvent.new(@name, #{num}, data, @trace)) unless data.nil?
                 true
               end
             CODE

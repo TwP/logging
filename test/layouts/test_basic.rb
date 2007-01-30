@@ -17,24 +17,21 @@ module TestLayouts
 
     def test_format
       event = ::Logging::LogEvent.new( 'ArrayLogger', @levels['info'],
-                                       ['log message'], false)
+                                       'log message', false)
       assert_equal " INFO  ArrayLogger : log message\n", @layout.format(event)
 
-      event.data = [[1, 2, 3, 4]]
+      event.data = [1, 2, 3, 4]
       assert_equal " INFO  ArrayLogger : <Array> 1234\n", @layout.format(event)
 
       event.level = @levels['debug']
-      event.data = [[1, 2, 3, 4], 'and some message']
-      log =  "DEBUG  ArrayLogger : <Array> 1234\n"
-      log << "DEBUG  ArrayLogger : and some message\n"
+      event.data = 'and another message'
+      log = "DEBUG  ArrayLogger : and another message\n"
       assert_equal log, @layout.format(event)
 
       event.logger = 'Test'
       event.level = @levels['fatal']
-      event.data = [[1, 2, 3, 4], 'and some message', Exception.new]
-      log =  "FATAL  Test : <Array> 1234\n"
-      log << "FATAL  Test : and some message\n"
-      log << "FATAL  Test : <Exception> Exception\n"
+      event.data = Exception.new
+      log = "FATAL  Test : <Exception> Exception\n"
       assert_equal log, @layout.format(event)
     end
 

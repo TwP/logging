@@ -29,16 +29,9 @@ module Layouts
     # class documentation for details about the formatting used.
     #
     def format( event )
-      start = sprintf("%*s  %s : ", ::Logging::MAX_LEVEL_LENGTH,
-                      ::Logging::LNAMES[event.level], event.logger)
-      buf = ''
-      event.data.each do |obj|
-        buf << start
-        buf << format_obj(obj)
-        buf << "\n"
-      end
-
-      return buf
+      obj = format_obj(event.data)
+      sprintf("%*s  %s : %s\n", ::Logging::MAX_LEVEL_LENGTH,
+              ::Logging::LNAMES[event.level], event.logger, obj)
     end
 
   end  # class Basic

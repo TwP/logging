@@ -60,27 +60,24 @@ module TestLayouts
       fmt = '\[' + @date_fmt + '\] %s -- %s : %s\n'
 
       event = ::Logging::LogEvent.new('ArrayLogger', @levels['info'],
-                                      ['log message'], false)
+                                      'log message', false)
       rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', 'log message'))
       assert_match rgxp, @layout.format(event)
 
-      event.data = [[1, 2, 3, 4]]
+      event.data = [1, 2, 3, 4]
       rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', '<Array> 1234'))
       assert_match rgxp, @layout.format(event)
 
       event.level = @levels['debug']
-      event.data = [[1, 2, 3, 4], 'and some message']
+      event.data = 'and another message'
       rgxp  = Regexp.new(
-                  sprintf(fmt, 'DEBUG', 'ArrayLogger', '<Array> 1234') +
-                  sprintf(fmt, 'DEBUG', 'ArrayLogger', 'and some message'))
+                  sprintf(fmt, 'DEBUG', 'ArrayLogger', 'and another message'))
       assert_match rgxp, @layout.format(event)
 
       event.logger = 'Test'
       event.level = @levels['fatal']
-      event.data = [[1, 2, 3, 4], 'and some message', Exception.new]
+      event.data = Exception.new
       rgxp  = Regexp.new(
-                  sprintf(fmt, 'FATAL', 'Test', '<Array> 1234') +
-                  sprintf(fmt, 'FATAL', 'Test', 'and some message') +
                   sprintf(fmt, 'FATAL', 'Test', '<Exception> Exception'))
       assert_match rgxp, @layout.format(event)
     end
@@ -105,7 +102,7 @@ module TestLayouts
 
     def test_pattern_all
       event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                      ['log message'], false)
+                                      'log message', false)
       event.instance_variable_set :@file, 'test_file.rb'
       event.instance_variable_set :@line, '123'
       event.instance_variable_set :@method, 'method_name'
@@ -161,7 +158,7 @@ module TestLayouts
       @layout.pattern = '%7.7m'
       assert_equal 'log mes', @layout.format(event)
 
-      event.data = ['tim']
+      event.data = 'tim'
       assert_equal '    tim', @layout.format(event)
 
       @layout.pattern = '%-7.7m'

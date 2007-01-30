@@ -125,7 +125,7 @@ module Layouts
       'F' => 'event.file',
       'l' => '::Logging::LNAMES[event.level]',
       'L' => 'event.line',
-      'm' => :placeholder,
+      'm' => 'format_obj(event.data)',
       'M' => 'event.method',
       'p' => 'Process.pid',
       'r' => 'Integer((Time.now-@created_at)*1000).to_s',
@@ -164,21 +164,17 @@ module Layouts
 
     #
     # call-seq:
-    #    Pattern.create_format_methods( pf )
+    #    Pattern.create_format_method( pf )
     #
-    # This method will create the +format+ and +format_str+ methods in the
-    # given Pattern Layout _pf_ based on the configured format pattern
-    # specified by the user.
+    # This method will create the +format+ method in the given Pattern
+    # Layout _pf_ based on the configured format pattern specified by the
+    # user.
     #
-    def self.create_format_methods( pf )
-      # Create the format_str(event) method. This method will return format
-      # string that can be used with +sprintf+ to format the data objects in
-      # the given _event_.
-      code = "undef :format_str if method_defined? :format_str\n"
-      code << "def format_str( event )\nsprintf(\""
+    def self.create_format_method( pf )
+      # Create the format(event) method
+      code = "undef :format if method_defined? :format\n"
+      code << "def format( event )\nsprintf(\""
       pattern = pf.pattern.dup
-      have_m_directive = false
-      have_percent = false
       args = []
 
       while true
@@ -186,12 +182,7 @@ module Layouts
         code << m[1] unless m[1].empty?
 
         case m[3]
-        when '%'
-          code << '%%%%'   # this results in a %% in the format string
-          have_percent = true
-        when 'm'
-          code << '%' + m[2] + 's'
-          have_m_directive = true
+        when '%': code << '%%'
         when *DIRECTIVE_TABLE.keys
           code << m[2] + 's'
           args << DIRECTIVE_TABLE[m[3]]
@@ -209,23 +200,6 @@ module Layouts
       code << ")\n"
       code << "end\n"
 
-      code.gsub!('%%', '%') if have_percent and not have_m_directive
-      pf.meta_eval code
-
-      # Create the format(event) method
-      code = "undef :format if method_defined? :format\n"
-      if have_m_directive
-        code << <<-CODE
-          def format( event )
-            fmt = format_str(event)
-            buf = ''
-            event.data.each {|obj| buf << sprintf(fmt, format_obj(obj))}
-            buf
-          end
-        CODE
-      else
-        code << "alias :format :format_str\n"
-      end
       pf.meta_eval code
     end
     # :startdoc:
@@ -254,7 +228,7 @@ module Layouts
       @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
 
       Pattern.create_date_format_methods(self)
-      Pattern.create_format_methods(self)
+      Pattern.create_format_method(self)
     end
 
     attr_reader :pattern, :date_pattern, :date_method
@@ -267,7 +241,7 @@ module Layouts
     #
     def pattern=( var )
       @pattern = var
-      Pattern.create_format_methods(self)
+      Pattern.create_format_method(self)
     end
 
     #

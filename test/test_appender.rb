@@ -13,7 +13,7 @@ module TestLogging
       ::Logging.define_levels %w(debug info warn error fatal)
       @levels = ::Logging::LEVELS
       @event = ::Logging::LogEvent.new('logger', @levels['debug'],
-                                       ['message'], false)
+                                       'message', false)
       @appender = ::Logging::Appender.new 'test_appender'
     end
 

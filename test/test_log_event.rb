@@ -14,17 +14,17 @@ module TestLogging
       @logger = ::Logging::Logger['TestLogger']
       @logger.add @appender
 
-      @logger.info 'message 1', %w(a b c)
+      @logger.info 'message 1'
       @event = @appender.event
     end
 
     def test_data
-      assert_equal ['message 1', %w(a b c)], @event.data
+      assert_equal 'message 1', @event.data
     end
 
     def test_data_eq
-      @event.data = ['message 2']
-      assert_equal ['message 2'], @event.data
+      @event.data = 'message 2'
+      assert_equal 'message 2', @event.data
     end
 
     def test_file
