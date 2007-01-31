@@ -37,6 +37,20 @@ module TestLogging
       assert_raise(RuntimeError) {@appender.append @event}
     end
 
+    def test_class_stderr
+      stderr = ::Logging::Appender.stderr
+      assert_instance_of ::Logging::Appenders::Stderr, stderr
+      assert_equal 'stderr', stderr.name
+      assert_same stderr, ::Logging::Appender.stderr
+    end
+
+    def test_class_stdout
+      stdout = ::Logging::Appender.stdout
+      assert_instance_of ::Logging::Appenders::Stdout, stdout
+      assert_equal 'stdout', stdout.name
+      assert_same stdout, ::Logging::Appender.stdout
+    end
+
     def test_close
       assert_equal false, @appender.closed?
 

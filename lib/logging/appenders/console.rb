@@ -12,10 +12,10 @@ module Appenders
 
     #
     # call-seq:
-    #    StdOut.new
-    #    StdOut.new( :layout => layout )
+    #    Stdout.new
+    #    Stdout.new( :layout => layout )
     #
-    # Creates a new StdOut Appender. The name 'stdout' will always be used for
+    # Creates a new Stdout Appender. The name 'stdout' will always be used for
     # this appender.
     #
     def initialize( name = nil, opts = {} )
@@ -32,10 +32,10 @@ module Appenders
 
     #
     # call-seq:
-    #    StdErr.new
-    #    StdErr.new( :layout => layout )
+    #    Stderr.new
+    #    Stderr.new( :layout => layout )
     #
-    # Creates a new StdErr Appender. The name 'stderr' will always be used for
+    # Creates a new Stderr Appender. The name 'stderr' will always be used for
     # this appender.
     #
     def initialize( name = nil, opts = {} )
