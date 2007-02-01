@@ -30,12 +30,12 @@ module Logging::Appenders
 
       if ::File.exist?(@fn)
         if not ::File.file?(@fn)
-          raise StandardError, "#{@fn} is not a regular file"
+          raise ArgumentError, "#{@fn} is not a regular file"
         elsif not ::File.writable?(@fn)
-          raise StandardError, "#{@fn} is not writeable"
+          raise ArgumentError, "#{@fn} is not writeable"
         end
       elsif not ::File.writable?(::File.dirname(@fn))
-        raise StandardError, "#{::File.dirname(@fn)} is not writable"
+        raise ArgumentError, "#{::File.dirname(@fn)} is not writable"
       end
 
       super(name, ::File.new(@fn, mode), opts)

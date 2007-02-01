@@ -21,10 +21,10 @@ module Logging::Appenders
   #    /var/log/ruby.log   =>   /var/log/ruby.1.log
   #
   # New log messages will be appended to a newly opened log file of the same
-  # name (<tt>/var/log/ruby.log</tt> in our example above). The age number for
-  # all older log files is incremented when the log file is rolled. The number
-  # of older log files to keep can be given, otherwise all the log files are
-  # kept.
+  # name (<tt>/var/log/ruby.log</tt> in our example above). The age number
+  # for all older log files is incremented when the log file is rolled. The
+  # number of older log files to keep can be given, otherwise all the log
+  # files are kept.
   #
   # The actual process of rolling all the log file names can be expensive if
   # there are many, many older log files to process.

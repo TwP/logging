@@ -10,6 +10,7 @@ module TestAppenders
     include LoggingTestCase
 
     TMP = 'tmp'
+    NAME = 'roller'
 
     def setup
       super
@@ -21,6 +22,7 @@ module TestAppenders
     end
 
     def teardown
+      cleanup
       FileUtils.rm_rf TMP
     end
 
@@ -28,28 +30,28 @@ module TestAppenders
       assert_equal [], Dir.glob(@glob)
 
       # create a new appender
-      ap = ::Logging::Appenders::RollingFile.new('test', :filename => @fn)
+      ap = ::Logging::Appenders::RollingFile.new(NAME, :filename => @fn)
       assert File.exist?(@fn)
       assert_equal 0, File.size(@fn)
 
       ap << "Just a line of text\n"   # 20 bytes
       ap.flush
       assert_equal 20, File.size(@fn)
-      ap.close
+      cleanup
 
       # make sure we append to the current file (not truncate)
-      ap = ::Logging::Appenders::RollingFile.new('test', :filename => @fn)
+      ap = ::Logging::Appenders::RollingFile.new(NAME, :filename => @fn)
       assert_equal [@fn], Dir.glob(@glob)
       assert_equal 20, File.size(@fn)
 
       ap << "Just another line of text\n"   # 26 bytes
       ap.flush
       assert_equal 46, File.size(@fn)
-      ap.close
+      cleanup
 
       # setting the truncate option to true should roll the current log file
       # and create a new one
-      ap = ::Logging::Appenders::RollingFile.new('test',
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
                :filename => @fn, :truncate => true)
 
       log1 = sprintf(@fn_fmt, 1)
@@ -60,7 +62,7 @@ module TestAppenders
       ap << "Some more text in the new file\n"   # 31 bytes
       ap.flush
       assert_equal 31, File.size(@fn)
-      ap.close
+      cleanup
     end
 
     def test_keep
@@ -73,7 +75,7 @@ module TestAppenders
       FileUtils.touch(@fn)
 
       # keep only five files
-      ap = ::Logging::Appenders::RollingFile.new('test',
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
                :filename => @fn, :keep => 5)
 
       # we still have 13 files because we did not truncate the log file,
@@ -88,29 +90,29 @@ module TestAppenders
         name = sprintf(@fn_fmt, cnt)
         assert_equal cnt-1, File.size(name)
       end
-      ap.close
+      cleanup
     end
 
     def test_max_age
       assert_equal [], Dir.glob(@glob)
 
-      ap = ::Logging::Appenders::RollingFile.new('test',
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
                :filename => @fn, :max_age => 1)
 
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 
-      sleep 1
+      sleep 1.250
       ap << "another random message\n"
       assert_equal 2, Dir.glob(@glob).length
 
-      ap.close
+      cleanup
     end
 
     def test_max_size
       assert_equal [], Dir.glob(@glob)
 
-      ap = ::Logging::Appenders::RollingFile.new('test',
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
                :filename => @fn, :max_size => 100)
 
       ap << 'X' * 100; ap.flush
@@ -131,7 +133,15 @@ module TestAppenders
       assert_equal 3, Dir.glob(@glob).length
       assert_equal 0, File.size(@fn)
 
-      ap.close
+      cleanup
+    end
+
+    private
+    def cleanup
+      unless ::Logging::Appender[NAME].nil?
+        ::Logging::Appender[NAME].close false
+        ::Logging::Appender[NAME] = nil
+      end
     end
 
   end  # class TestRollingFile

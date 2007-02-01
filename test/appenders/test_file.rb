@@ -10,6 +10,7 @@ module TestAppenders
     include LoggingTestCase
 
     TMP = 'tmp'
+    NAME = 'logfile'
 
     def setup
       super
@@ -22,27 +23,28 @@ module TestAppenders
     end
 
     def teardown
+      cleanup
       FileUtils.rm_rf TMP
     end
 
     def test_initialize
       log = File.join(TMP, 'uw_dir', 'file.log')
-      assert_raise(StandardError) do
-        ::Logging::Appenders::File.new(nil, :filename => log)
+      assert_raise(ArgumentError) do
+        ::Logging::Appenders::File.new(NAME, :filename => log)
       end
 
       log = File.join(TMP, 'dir')
-      assert_raise(StandardError) do
-        ::Logging::Appenders::File.new(nil, :filename => log)
+      assert_raise(ArgumentError) do
+        ::Logging::Appenders::File.new(NAME, :filename => log)
       end
 
       log = File.join(TMP, 'uw_file')
-      assert_raise(StandardError) do
-        ::Logging::Appenders::File.new(nil, :filename => log)
+      assert_raise(ArgumentError) do
+        ::Logging::Appenders::File.new(NAME, :filename => log)
       end
 
       log = File.join(TMP, 'file.log')
-      appender = ::Logging::Appenders::File.new 'logfile', 'filename' => log
+      appender = ::Logging::Appenders::File.new NAME, 'filename' => log
       assert_equal 'logfile', appender.name
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"
@@ -52,9 +54,9 @@ module TestAppenders
         assert_equal "This will be the second line\n", file.readline
         assert_raise(EOFError) {file.readline}
       end
-      appender.close
+      cleanup
 
-      appender = ::Logging::Appenders::File.new 'logfile', :filename => log
+      appender = ::Logging::Appenders::File.new NAME, :filename => log
       assert_equal 'logfile', appender.name
       appender << "This will be the third line\n"
       appender.flush
@@ -64,10 +66,10 @@ module TestAppenders
         assert_equal "This will be the third line\n", file.readline
         assert_raise(EOFError) {file.readline}
       end
-      appender.close
+      cleanup
 
-      appender = ::Logging::Appenders::File.new 'logfile', :filename => log,
-                                                           :truncate => true
+      appender = ::Logging::Appenders::File.new NAME, :filename => log,
+                                                      :truncate => true
       assert_equal 'logfile', appender.name
       appender << "The file was truncated\n"
       appender.flush
@@ -75,7 +77,15 @@ module TestAppenders
         assert_equal "The file was truncated\n", file.readline
         assert_raise(EOFError) {file.readline}
       end
-      appender.close
+      cleanup
+    end
+
+    private
+    def cleanup
+      unless ::Logging::Appender[NAME].nil?
+        ::Logging::Appender[NAME].close false
+        ::Logging::Appender[NAME] = nil
+      end
     end
 
   end  # class TestFile
