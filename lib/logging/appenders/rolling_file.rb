@@ -66,16 +66,17 @@ module Logging::Appenders
       @glob = "#{bn}.*#{ext}"
       @logname_fmt = "#{bn}.%d#{ext}"
 
+      @keep = opts.delete(:keep) || opts.delete('keep')
+      @keep = Integer(@keep) unless @keep.nil?
+
       # if the truncate flag was set to true, then roll 
       roll_now = opts.delete(:truncate) || opts.delete('truncate')
       roll_files if roll_now
 
       # grab out our options
-      @keep = opts.delete(:keep) || opts.delete('keep')
       @max_size = opts.delete(:max_size) || opts.delete('max_size')
       @max_age = opts.delete(:max_age) || opts.delete('max_age')
 
-      @keep = Integer(@keep) unless @keep.nil?
       @max_size = Integer(@max_size) unless @max_size.nil?
       unless @max_age.nil?
         @max_age = Integer(@max_age)
