@@ -48,10 +48,11 @@ module Logging::Appenders
     #               layout will be used if none is given.
     #  [:truncate]  When set to true any existing log files will be rolled
     #               immediately and a new, empty log file will be created.
-    #  [:max_size]  The maximum allowed size (in bytes) of a log file before
+    #  [:size]      The maximum allowed size (in bytes) of a log file before
     #               it is rolled.
-    #  [:max_age]   The maximum age (in seconds) of a log file before it is
-    #               rolled.
+    #  [:age]       The maximum age (in seconds) of a log file before it is
+    #               rolled. The age can also be given as 'daily', 'weekly',
+    #               or 'monthly'.
     #  [:keep]      The number of rolled log files to keep.
     #
     def initialize( name, opts = {} )
@@ -74,14 +75,65 @@ module Logging::Appenders
       roll_files if roll_now
 
       # grab out our options
-      @max_size = opts.delete(:max_size) || opts.delete('max_size')
-      @max_age = opts.delete(:max_age) || opts.delete('max_age')
+      @size = opts.delete(:size) || opts.delete('size')
+      @size = Integer(@size) unless @size.nil?
 
-      @max_size = Integer(@max_size) unless @max_size.nil?
-      unless @max_age.nil?
-        @max_age = Integer(@max_age)
+      code = 'def sufficiently_aged?() false end'
+
+      @age = opts.delete(:age) || opts.delete('age')
+      case @age
+      when 'daily'
         @start_time = Time.now
+        code = <<-CODE
+        def sufficiently_aged?
+          now = Time.now
+          if (now.day != @start_time.day) or (now - @start_time) > 86400
+            @start_time = now
+            return true
+          end
+          false
+        end
+        CODE
+      when 'weekly'
+        @start_time = Time.now
+        code = <<-CODE
+        def sufficiently_aged?
+          now = Time.now
+          if (now - @start_time) > 604800
+            @start_time = now
+            return true
+          end
+          false
+        end
+        CODE
+      when 'monthly'
+        @start_time = Time.now
+        code = <<-CODE
+        def sufficiently_aged?
+          now = Time.now
+          if (now.month != @start_time.month) or (now - @start_time) > 2678400
+            @start_time = now
+            return true
+          end
+          false
+        end
+        CODE
+      when Integer, String
+        @age = Integer(@age)
+        @start_time = Time.now
+        code = <<-CODE
+        def sufficiently_aged?
+          now = Time.now
+          if (now - @start_time) > @age
+            @start_time = now
+            return true
+          end
+          false
+        end
+        CODE
       end
+      meta = class << self; self end
+      meta.class_eval code
 
       @file_size = (::File.exist?(@fn) ? ::File.size(@fn) : 0)
       super(name, opts)
@@ -112,7 +164,7 @@ module Logging::Appenders
     def roll
       begin; @io.close; rescue; end
       roll_files
-      @io = ::File.new(@fn, 'w')
+      @io = ::File.new(@fn, 'a')
     end
 
     #
@@ -123,18 +175,13 @@ module Logging::Appenders
     #
     def roll_required?
       # check if max size has been exceeded
-      if @max_size and @file_size > @max_size
+      if @size and @file_size > @size
         @file_size = 0
         return true
       end
 
       # check if max age has been exceeded
-      if @max_age and (Time.now - @start_time) > @max_age
-        @start_time = Time.now
-        return true
-      end
-
-      false
+      return sufficiently_aged?
     end
 
     #

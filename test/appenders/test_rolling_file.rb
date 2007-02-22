@@ -93,12 +93,16 @@ module TestAppenders
       cleanup
     end
 
-    def test_max_age
+    def test_age
       assert_equal [], Dir.glob(@glob)
 
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :max_age => 1)
+      assert_raise(ArgumentError) do
+        ::Logging::Appenders::RollingFile.new(
+            NAME, :filename => @fn, :age => 'bob')
+      end
 
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
+               :filename => @fn, :age => 1)
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 
@@ -107,13 +111,50 @@ module TestAppenders
       assert_equal 2, Dir.glob(@glob).length
 
       cleanup
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
+               :filename => @fn, 'age' => 'daily')
+      ap << "random message\n"
+      assert_equal 2, Dir.glob(@glob).length
+
+      t = ap.instance_variable_get :@start_time
+      ap.instance_variable_set :@start_time, t - 3600 * 24
+
+      sleep 0.250
+      ap << "yet another random message\n"
+      assert_equal 3, Dir.glob(@glob).length
+
+      cleanup
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
+               :filename => @fn, :age => 'weekly')
+      ap << "random message\n"
+      assert_equal 3, Dir.glob(@glob).length
+
+      t = ap.instance_variable_get :@start_time
+      ap.instance_variable_set :@start_time, t - 3600 * 24 * 7
+
+      sleep 0.250
+      ap << "yet another random message\n"
+      assert_equal 4, Dir.glob(@glob).length
+
+      cleanup
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
+               :filename => @fn, :age => 'monthly')
+      ap << "random message\n"
+      assert_equal 4, Dir.glob(@glob).length
+
+      t = ap.instance_variable_get :@start_time
+      ap.instance_variable_set :@start_time, t - 3600 * 24 * 31
+
+      sleep 0.250
+      ap << "yet another random message\n"
+      assert_equal 5, Dir.glob(@glob).length
     end
 
-    def test_max_size
+    def test_size
       assert_equal [], Dir.glob(@glob)
 
       ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :max_size => 100)
+               :filename => @fn, :size => 100)
 
       ap << 'X' * 100; ap.flush
       assert_equal 1, Dir.glob(@glob).length

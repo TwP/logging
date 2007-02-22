@@ -47,6 +47,18 @@ module TestLogging
       assert_same @repo[:root], @repo.fetch(:root)
     end
 
+    def test_fetch
+      assert @repo.has_logger?(:root)
+      assert !@repo.has_logger?('A')
+
+      %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
+        ::Logging::Logger.new(name)
+      end
+
+      assert @repo.has_logger?('A')
+      assert @repo.has_logger?('A::B')
+    end
+
     def test_parent
       %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
         ::Logging::Logger.new(name)

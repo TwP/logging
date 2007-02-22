@@ -1,16 +1,30 @@
 # $Id$
 
 require 'test/setup.rb'
+require 'fileutils'
 
 module TestLogging
 
   class TestLogging < Test::Unit::TestCase
     include LoggingTestCase
 
+    TMP = 'tmp'
+
     def setup
       super
       @levels = ::Logging::LEVELS
       @lnames = ::Logging::LNAMES
+
+      FileUtils.rm_rf TMP
+      FileUtils.mkdir(TMP)
+      @fn = File.join(TMP, 'test.log')
+      @glob = File.join(TMP, '*.log')
+    end
+
+    def teardown
+      h = ::Logging::Repository.instance.instance_variable_get :@h
+      h.values.each {|l| l.close if l.respond_to? :close}
+      FileUtils.rm_rf TMP
     end
 
     def test_configure
@@ -76,6 +90,46 @@ module TestLogging
 
       # cleanup
       File.delete('temp.log') if File.exist?('temp.log')
+    end
+
+    def test_logger
+      assert_raise(ArgumentError) {::Logging.logger []}
+
+      logger = ::Logging.logger STDOUT
+      assert_match %r/\A-?\d+\z/, logger.name
+      assert_same logger, ::Logging.logger(STDOUT)
+
+      logger.close
+      assert !STDOUT.closed?
+
+      assert !File.exist?(@fn)
+      fd = File.new @fn, 'w'
+      logger = ::Logging.logger fd, 2, 100
+      assert_equal @fn, logger.name
+      logger.debug 'this is a debug message'
+      logger.warn 'this is a warning message'
+      logger.error 'and now we should have over 100 bytes of data ' +
+                   'in the log file'
+      logger.info 'but the log file should not roll since we provided ' +
+                  'a file descriptor -- not a file name'
+      logger.close
+      assert fd.closed?
+      assert File.exist?(@fn)
+      assert_equal 1, Dir.glob(@glob).length
+
+      FileUtils.rm_f @fn
+      assert !File.exist?(@fn)
+      logger = ::Logging.logger @fn, 2, 100
+      assert File.exist?(@fn)
+      assert_equal @fn, logger.name
+      logger.debug 'this is a debug message'
+      logger.warn 'this is a warning message'
+      logger.error 'and now we should have over 100 bytes of data ' +
+                   'in the log file'
+      logger.info 'but the log file should not roll since we provided ' +
+                  'a file descriptor -- not a file name'
+      logger.close
+      assert_equal 3, Dir.glob(@glob).length
     end
 
     def test_define_levels_default

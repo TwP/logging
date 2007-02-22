@@ -42,6 +42,68 @@ module Logging
 
     #
     # call-seq:
+    #    Logging.logger( device, keep = 7, size = 1048576 )
+    #    Logging.logger( device, age = 'weekly' )
+    #
+    def logger( *args )
+      opts = args.pop if Hash === args.last 
+      opts ||= Hash.new
+
+      dev = args.shift
+      keep = age = args.shift
+      size = args.shift
+
+      name = case dev
+             when String: dev
+             when File: dev.path
+             when IO: dev.object_id.to_s
+             else raise ArgumentError, "unknown logging device '#{dev}'" end
+
+      repo = ::Logging::Repository.instance
+      return repo[name] if repo.has_logger? name
+
+      l_opts = {
+        :pattern => "%.1l, [%d #%p] %#{::Logging::MAX_LEVEL_LENGTH}l : %m\n"
+      }
+      [:pattern, :date_pattern, :date_method].each do |o|
+        l_opts[o] = opts.delete(o) if opts.has_key? o
+      end
+      layout = ::Logging::Layouts::Pattern.new(l_opts)
+
+      a_opts = Hash.new
+      a_opts[:size] = size if Fixnum === size
+      a_opts[:age]  = age  if String === age
+      a_opts[:keep] = keep if Fixnum === keep
+      a_opts[:filename] = dev if String === dev
+      a_opts[:layout] = layout
+      a_opts.merge! opts
+
+      appender =
+          case dev
+          when String
+            ::Logging::Appenders::RollingFile.new(name, a_opts)
+          when IO
+            ::Logging::Appenders::IO.new(name, dev, a_opts)
+          end
+
+      logger = ::Logging::Logger.new(name)
+      logger.add appender
+      logger.additive = false
+
+      class << logger
+        def close
+          @appenders.each {|a| a.close}
+          h = ::Logging::Repository.instance.instance_variable_get :@h
+          h.delete(@name)
+          class << self; undef :close; end
+        end
+      end
+
+      logger
+    end
+
+    #
+    # call-seq:
     #    define_levels( levels )
     #
     # Defines the levels available to the loggers. The _levels_ is an array

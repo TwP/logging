@@ -80,6 +80,20 @@ module Logging
 
     #
     # call-seq:
+    #    has_logger?( name )
+    #
+    # Returns +true+ if the given logger exists in the repository. Returns
+    # +false+ if this is not the case.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # retrieve the logger. When _name_ is a +Class+ the class name will be
+    # used to retrieve the logger. When _name_ is an object the name of the
+    # object's class will be used to retrieve the logger.
+    #
+    def has_logger?( key ) @h.has_key?(to_key(key)) end
+
+    #
+    # call-seq:
     #    parent( key )
     #
     # Returns the parent logger for the logger identified by _key_ where
