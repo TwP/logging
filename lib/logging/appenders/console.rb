@@ -15,12 +15,11 @@ module Appenders
     #    Stdout.new
     #    Stdout.new( :layout => layout )
     #
-    # Creates a new Stdout Appender. The name 'stdout' will always be used for
-    # this appender.
+    # Creates a new Stdout Appender. The name 'stdout' will always be used
+    # for this appender.
     #
     def initialize( name = nil, opts = {} )
       name ||= 'stdout'
-      STDOUT.sync = true
       super(name, STDOUT, opts)
     end
   end  # class Stdout
@@ -35,12 +34,11 @@ module Appenders
     #    Stderr.new
     #    Stderr.new( :layout => layout )
     #
-    # Creates a new Stderr Appender. The name 'stderr' will always be used for
-    # this appender.
+    # Creates a new Stderr Appender. The name 'stderr' will always be used
+    # for this appender.
     #
     def initialize( name = nil, opts = {} )
       name ||= 'stderr'
-      STDERR.sync = true
       super(name, STDERR, opts)
     end
   end  # class Stderr
