@@ -93,7 +93,7 @@ module TestLogging
     end
 
     def test_logger
-      assert_raise(ArgumentError) {::Logging.logger []}
+      assert_raise(TypeError) {::Logging.logger []}
 
       logger = ::Logging.logger STDOUT
       assert_match %r/\A-?\d+\z/, logger.name

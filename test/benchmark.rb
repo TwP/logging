@@ -27,9 +27,8 @@ module Logging
 
       sio = StringIO.new
 
-      ::Logging::Logger[:root].level = 'warn'
-      logging = ::Logging::Logger[self]
-      logging.add ::Logging::Appenders::IO.new('benchmark', sio)
+      logging = ::Logging.logger sio
+      logging.level = :warn
 
       logger = ::Logger.new sio
       logger.level = ::Logger::WARN

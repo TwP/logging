@@ -42,8 +42,43 @@ module Logging
 
     #
     # call-seq:
-    #    Logging.logger( device, keep = 7, size = 1048576 )
+    #    Logging.logger( device, age = 7, size = 1048576 )
     #    Logging.logger( device, age = 'weekly' )
+    #
+    # This convenience method returns a Logger instance configured to behave
+    # similarly to a core Ruby Logger instance.
+    #
+    # The _device_ is the logging destination. This can be a filename
+    # (String) or an IO object (STDERR, STDOUT, an open File, etc.). The
+    # _age_ is the number of old log files to keep or the frequency of
+    # rotation (+daily+, +weekly+, or +monthly+). The _size_ is the maximum
+    # logfile size and is only used when _age_ is a number.
+    #
+    # Using the same _device_ twice will result in the same Logger instance
+    # being returned. For example, if a Logger is created using STDOUT then
+    # the same Logger instance will be returned the next time STDOUT is
+    # used. A new Logger instance can be obtained by closing the previous
+    # logger instance.
+    #
+    #    log1 = Logging.logger(STDOUT)
+    #    log2 = Logging.logger(STDOUT)
+    #    log1.object_id == log2.object_id  #=> true
+    #
+    #    log1.close
+    #    log2 = Logging.logger(STDOUT)
+    #    log1.object_id == log2.object_id  #=> false
+    #
+    # The format of the log messages can be changed using a few optional
+    # parameters. The <tt>:pattern</tt> can be used to change the log
+    # message format. The <tt>:date_pattern</tt> can be used to change how
+    # timestamps are formatted. 
+    #
+    #    log = Logging.logger(STDOUT,
+    #              :pattern => "[%d] %-5l : %m\n",
+    #              :date_pattern => "%Y-%m-%d %H:%M:%S.%s")
+    #
+    # See the documentation for the Logging::Layouts::Pattern class for a
+    # full description of the :pattern and :date_pattern formatting strings.
     #
     def logger( *args )
       opts = args.pop if Hash === args.last 
@@ -56,8 +91,7 @@ module Logging
       name = case dev
              when String: dev
              when File: dev.path
-             when IO: dev.object_id.to_s
-             else raise ArgumentError, "unknown logging device '#{dev}'" end
+             else dev.object_id.to_s end
 
       repo = ::Logging::Repository.instance
       return repo[name] if repo.has_logger? name
@@ -83,7 +117,7 @@ module Logging
           case dev
           when String
             ::Logging::Appenders::RollingFile.new(name, a_opts)
-          when IO
+          else 
             ::Logging::Appenders::IO.new(name, dev, a_opts)
           end
 
