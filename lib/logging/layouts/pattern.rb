@@ -154,9 +154,20 @@ module Layouts
     #
     def self.create_date_format_methods( pf )
       code = "undef :format_date if method_defined? :format_date\n"
-      code << "def format_date\nTime.now."
-      code << if pf.date_method.nil? then "strftime '#{pf.date_pattern}'\n"
-              else "#{pf.date_method}\n" end
+      code << "def format_date\n"
+      if pf.date_method.nil?
+        if pf.date_pattern =~ %r/%s/
+          code << <<-CODE
+            now = Time.now
+            dp = '#{pf.date_pattern}'.gsub('%s','%06d' % now.usec)
+            now.strftime dp
+          CODE
+        else
+          code << "Time.now.strftime '#{pf.date_pattern}'\n"
+        end
+      else
+        code << "Time.now.#{pf.date_method}\n"
+      end
       code << "end\n"
 
       pf.meta_eval code

@@ -313,16 +313,30 @@ module TestLogging
 
       assert_equal false, log.debug
       assert_equal true, log.info
+      assert_equal " INFO  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal " INFO  A Logger : <NilClass> nil\n", a2.readline
       assert_equal true, log.warn
+      assert_equal " WARN  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal " WARN  A Logger : <NilClass> nil\n", a2.readline
       assert_equal true, log.error
+      assert_equal "ERROR  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal "ERROR  A Logger : <NilClass> nil\n", a2.readline
       assert_equal true, log.fatal
+      assert_equal "FATAL  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal "FATAL  A Logger : <NilClass> nil\n", a2.readline
 
       log.level = :warn
       assert_equal false, log.debug
       assert_equal false, log.info
       assert_equal true, log.warn
+      assert_equal " WARN  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal " WARN  A Logger : <NilClass> nil\n", a2.readline
       assert_equal true, log.error
+      assert_equal "ERROR  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal "ERROR  A Logger : <NilClass> nil\n", a2.readline
       assert_equal true, log.fatal
+      assert_equal "FATAL  A Logger : <NilClass> nil\n", a1.readline
+      assert_equal "FATAL  A Logger : <NilClass> nil\n", a2.readline
 
       assert_raise(NoMethodError) {log.critical 'this log level does not exist'}
 

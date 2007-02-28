@@ -88,6 +88,7 @@ module Logging
           str << "\n\t" << obj.backtrace.join("\n\t")
         end
         str
+      when nil: "<#{obj.class.name}> nil"
       else
         str = "<#{obj.class.name}> "
         str << case @obj_format

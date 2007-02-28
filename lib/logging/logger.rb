@@ -107,7 +107,7 @@ module Logging
               def #{name}?( ) true end
               def #{name}( data = nil )
                 data = yield if block_given?
-                log_event(::Logging::LogEvent.new(@name, #{num}, data, @trace)) unless data.nil?
+                log_event(::Logging::LogEvent.new(@name, #{num}, data, @trace))
                 true
               end
             CODE

@@ -63,7 +63,8 @@ module Logging
       return repo[name] if repo.has_logger? name
 
       l_opts = {
-        :pattern => "%.1l, [%d #%p] %#{::Logging::MAX_LEVEL_LENGTH}l : %m\n"
+        :pattern => "%.1l, [%d #%p] %#{::Logging::MAX_LEVEL_LENGTH}l : %m\n",
+        :date_pattern => '%Y-%m-%dT%H:%M:%S.%s'
       }
       [:pattern, :date_pattern, :date_method].each do |o|
         l_opts[o] = opts.delete(o) if opts.has_key? o

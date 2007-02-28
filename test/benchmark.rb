@@ -23,7 +23,7 @@ module Logging
   class Benchmark
 
     def run
-      this_many = 100_000
+      this_many = 300_000
 
       sio = StringIO.new
 
