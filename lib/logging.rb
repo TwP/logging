@@ -139,7 +139,7 @@ module Logging
 
     #
     # call-seq:
-    #    define_levels( levels )
+    #    Logging.define_levels( levels )
     #
     # Defines the levels available to the loggers. The _levels_ is an array
     # of strings and symbols. Each element in the array is downcased and
@@ -200,7 +200,7 @@ module Logging
    
     #
     # call-seq:
-    #    format_as( obj_format )
+    #    Logging.format_as( obj_format )
     #
     # Defines the default _obj_format_ method to use when converting objects
     # into string representations for logging. _obj_format_ can be one of
