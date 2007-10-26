@@ -1,4 +1,7 @@
+History.txt
+Manifest.txt
 README.txt
+Rakefile
 data/logging.yaml
 lib/logging.rb
 lib/logging/appender.rb
@@ -15,6 +18,13 @@ lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
 lib/logging/root_logger.rb
+tasks/doc.rake
+tasks/gem.rake
+tasks/manifest.rake
+tasks/rubyforge.rake
+tasks/setup.rb
+tasks/test.rake
+tasks/website.rake
 test/appenders/test_console.rb
 test/appenders/test_file.rb
 test/appenders/test_io.rb

@@ -14,11 +14,12 @@ PROJ.description = paragraphs_of('README.txt', 3).join("\n\n")
 PROJ.changes = paragraphs_of('History.txt', 0..1).join("\n\n")
 PROJ.rubyforge_name = 'logging'
 PROJ.rdoc_dir = 'doc/rdoc'
-PROJ.rdoc_remote_dir = 'rdoc'
+PROJ.rdoc_remote_dir = ''
 PROJ.version = Logging::VERSION
 
 PROJ.exclude << '^(\.\/|\/)?website/output'
 PROJ.exclude << '^(\.\/|\/)?doc'
+PROJ.exclude << '^(\.\/|\/)?tags$'
 PROJ.rdoc_exclude << '^(\.\/|\/)?data'
 PROJ.rdoc_exclude << '^(\.\/|\/)?website'
 

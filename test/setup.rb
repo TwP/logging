@@ -1,7 +1,15 @@
 # $Id$
 
 require 'test/unit'
-require 'logging'
+
+begin
+  require 'logging'
+rescue LoadError
+  path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+  raise if $:.include? path
+  $: << path
+  retry
+end
 
 begin
   require 'turn'
