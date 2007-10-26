@@ -1,5 +1,5 @@
 README.txt
-examples/logging.yaml
+data/logging.yaml
 lib/logging.rb
 lib/logging/appender.rb
 lib/logging/appenders/console.rb
@@ -24,7 +24,6 @@ test/config/test_yaml_configurator.rb
 test/layouts/test_basic.rb
 test/layouts/test_pattern.rb
 test/setup.rb
-test/test_all.rb
 test/test_appender.rb
 test/test_layout.rb
 test/test_log_event.rb

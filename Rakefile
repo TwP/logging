@@ -1,34 +1,25 @@
+# $Id$
 
-require 'rubygems'
-require 'hoe'
+load './tasks/setup.rb'
+require 'logging'
 
-PKG_VERSION = ENV['VERSION'] || '0.0.0'
+task :default => 'test:run'
 
-Hoe.new('logging', PKG_VERSION) do |proj|
-  proj.rubyforge_name = 'logging'
-  proj.author = 'Tim Pease'
-  proj.email = 'tim.pease@gmail.com'
-  proj.url = 'http://logging.rubyforge.org/'
-  proj.extra_deps = []
-  proj.clean_globs << 'coverage'
-  proj.summary = 'A flexible and extendable logging library for Ruby.'
-  proj.description = <<-DESC
-Logging is a flexible logging library for use in Ruby programs based on the
-design of Java's log4j library. It features a hierarchical logging system,
-custom level names, multiple output destinations per log event, custom
-formatting, and more.
-  DESC
-  proj.changes = <<-CHANGES
-Version 0.1.0 / 2007-01-12
-  * initial release
-  CHANGES
-end
+PROJ.name = 'logging'
+PROJ.summary = 'A flexible and extendable logging library for Ruby'
+PROJ.authors = 'Tim Pease'
+PROJ.email = 'tim.pease@gmail.com'
+PROJ.url = 'http://logging.rubyforge.org/'
+PROJ.description = paragraphs_of('README.txt', 3).join("\n\n")
+PROJ.changes = paragraphs_of('History.txt', 0..1).join("\n\n")
+PROJ.rubyforge_name = 'logging'
+PROJ.rdoc_dir = 'doc/rdoc'
+PROJ.rdoc_remote_dir = 'rdoc'
+PROJ.version = Logging::VERSION
 
-# --------------------------------------------------------------------------
-desc 'Run rcov on the unit tests'
-task :coverage do
-  opts = "-x turn\\\\.rb\\\\z -T --sort coverage --no-html"
-  sh "rcov -Ilib test/test_all.rb #{opts}"
-end
+PROJ.exclude << '^(\.\/|\/)?website/output'
+PROJ.exclude << '^(\.\/|\/)?doc'
+PROJ.rdoc_exclude << '^(\.\/|\/)?data'
+PROJ.rdoc_exclude << '^(\.\/|\/)?website'
 
 # EOF

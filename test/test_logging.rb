@@ -30,7 +30,7 @@ module TestLogging
     def test_configure
       assert_raise(ArgumentError) {::Logging.configure 'blah.txt'}
 
-      ::Logging.configure 'examples/logging.yaml'
+      ::Logging.configure 'data/logging.yaml'
 
       names = {
         0 => 'DEB', 1 => 'INF', 2 => 'PRT',

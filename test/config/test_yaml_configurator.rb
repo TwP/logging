@@ -20,7 +20,7 @@ module TestConfig
       }
 
       begin
-        fd = File.open('examples/logging.yaml','r')
+        fd = File.open('data/logging.yaml','r')
         assert_nothing_raised {
           ::Logging::Config::YamlConfigurator.load(fd)
         }
