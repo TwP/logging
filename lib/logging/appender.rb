@@ -8,7 +8,6 @@ require 'logging/layouts/basic'
 
 module Logging
 
-  #
   # The +Appender+ class is provides methods for appending log events to a
   # logging destination. The log events are formatted into strings using a
   # Layout.
@@ -26,7 +25,6 @@ module Logging
 
     attr_reader :name, :layout, :level
 
-    #
     # call-seq:
     #    Appender.new( name )
     #    Appender.new( name, :layout => layout )
@@ -52,7 +50,6 @@ module Logging
       ::Logging::Appender[@name] = self
     end
 
-    #
     # call-seq:
     #    append( event )
     #
@@ -69,7 +66,6 @@ module Logging
       self
     end
 
-    #
     # call-seq:
     #    appender << string
     #
@@ -86,7 +82,6 @@ module Logging
       self
     end
 
-    #
     # call-seq:
     #    level = :all
     #
@@ -129,7 +124,6 @@ module Logging
       @level = lvl
     end
 
-    #
     # call-seq
     #    appender.layout = Logging::Layouts::Basic.new
     #
@@ -143,7 +137,6 @@ module Logging
       @layout = layout
     end
 
-    #
     # call-seq:
     #    close( footer = true )
     #
@@ -159,7 +152,6 @@ module Logging
       self
     end
 
-    #
     # call-seq:
     #    closed?
     #
@@ -169,7 +161,6 @@ module Logging
     #
     def closed?( ) @closed end
 
-    #
     # call-seq:
     #    flush
     #
@@ -180,7 +171,7 @@ module Logging
 
 
     private 
-    #
+
     # call-seq:
     #    write( str )
     #
@@ -189,7 +180,6 @@ module Logging
     #
     def write( str ) nil end
 
-    #
     # call-seq:
     #    sync { block }
     #

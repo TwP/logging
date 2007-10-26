@@ -6,7 +6,6 @@ require 'logging/layout'
 module Logging
 module Layouts
 
-  #
   # A flexible layout configurable with pattern string.
   #
   # The goal of this class is to format a LogEvent and return the results as
@@ -144,7 +143,6 @@ module Layouts
     # default date format
     ISO8601 = "%Y-%m-%d %H:%M:%S"
 
-    #
     # call-seq:
     #    Pattern.create_date_format_methods( pf )
     #
@@ -173,7 +171,6 @@ module Layouts
       pf.meta_eval code
     end
 
-    #
     # call-seq:
     #    Pattern.create_format_method( pf )
     #
@@ -215,7 +212,6 @@ module Layouts
     end
     # :startdoc:
 
-    #
     # call-seq:
     #    Pattern.new( opts )
     #
@@ -244,7 +240,6 @@ module Layouts
 
     attr_reader :pattern, :date_pattern, :date_method
 
-    #
     # call-seq:
     #    appender.pattern = "[%d] %-5l -- %c : %m\n"
     #
@@ -255,7 +250,6 @@ module Layouts
       Pattern.create_format_method(self)
     end
 
-    #
     # call-seq:
     #    appender.date_pattern = "%Y-%m-%d %H:%M:%S"
     #
@@ -267,7 +261,6 @@ module Layouts
       Pattern.create_date_format_methods(self)
     end
 
-    #
     # call-seq:
     #    appender.date_method = 'to_s'
     #    appender.date_method = :usec
@@ -283,7 +276,6 @@ module Layouts
 
     # :stopdoc:
 
-    #
     # call-seq:
     #    meta_eval( code )
     #

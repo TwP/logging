@@ -5,7 +5,6 @@ require 'logging/logger'
 
 module Logging
 
-  #
   # The root logger exists to ensure that all loggers have a parent and a
   # defined logging level. If a logger is additive, eventually its log
   # events will propogate up to the root logger.
@@ -17,7 +16,6 @@ module Logging
       undef_method m.intern
     end
 
-    #
     # call-seq:
     #    RootLogger.new
     #
@@ -36,7 +34,6 @@ module Logging
       self.level = 0
     end
 
-    #
     # call-seq:
     #    log <=> other
     #
@@ -50,7 +47,6 @@ module Logging
       else raise ArgumentError, 'expecting a Logger instance' end
     end
 
-    #
     # call-seq:
     #    level = :all
     #

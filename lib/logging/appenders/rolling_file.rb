@@ -4,7 +4,6 @@ require 'logging/appenders/file'
 
 module Logging::Appenders
 
-  #
   # An appender that writes to a file and ensures that the file size or age
   # never exceeds some user specified level.
   #
@@ -31,7 +30,6 @@ module Logging::Appenders
   #
   class RollingFile < ::Logging::Appenders::File
 
-    #
     # call-seq:
     #    RollingFile.new( name, opts )
     #
@@ -139,8 +137,9 @@ module Logging::Appenders
       super(name, opts)
     end
 
+
     private
-    #
+
     # call-seq:
     #    write( str )
     #
@@ -154,7 +153,6 @@ module Logging::Appenders
       roll if roll_required?  # the file IO stream is probably not being 
     end                       # flushed to disk immediately
 
-    #
     # call-seq:
     #    roll
     #
@@ -167,7 +165,6 @@ module Logging::Appenders
       @io = ::File.new(@fn, 'a')
     end
 
-    #
     # call-seq:
     #    roll_required?
     #
@@ -184,7 +181,6 @@ module Logging::Appenders
       return sufficiently_aged?
     end
 
-    #
     # call-seq:
     #    roll_files
     #

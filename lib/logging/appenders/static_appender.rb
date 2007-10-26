@@ -9,7 +9,6 @@ class Appender
 
   class << self
 
-    #
     # call-seq:
     #    Appender[name]
     #
@@ -18,7 +17,6 @@ class Appender
     #
     def []( name ) @appenders[name] end
 
-    #
     # call-seq:
     #    Appender[name] = appender
     #
@@ -27,7 +25,6 @@ class Appender
     #
     def []=( name, val ) @appenders[name] = val end
 
-    #
     # call-seq:
     #    Appender.stdout
     #
@@ -39,7 +36,6 @@ class Appender
     #
     def stdout( ) self['stdout'] || ::Logging::Appenders::Stdout.new end
 
-    #
     # call-seq:
     #    Appender.stderr
     #

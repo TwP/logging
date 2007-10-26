@@ -7,7 +7,6 @@ require 'logging/layout'
 module Logging
 module Layouts
 
-  #
   # The +Basic+ layout class provides methods for simple formatting of log
   # events. The resulting string follows the format below.
   #
@@ -21,7 +20,6 @@ module Layouts
   #
   class Basic < ::Logging::Layout
 
-    #
     # call-seq:
     #    format( event )
     #

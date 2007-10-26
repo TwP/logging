@@ -9,7 +9,6 @@ require 'logging/repository'
 
 module Logging
 
-  #
   # The +Logger+ class is the primary interface to the +Logging+ framework.
   # It provides the logging methods that will be called from user methods,
   # and it generates logging events that are sent to the appenders (the
@@ -22,7 +21,7 @@ module Logging
   # Example:
   #
   #    log = Logging::Logger['my logger']
-  #    log.add( Logging::Appenders::StdOut.new )   # append to STDOUT
+  #    log.add( Logging::Appenders::Stdout.new )   # append to STDOUT
   #    log.level = :info                           # log 'info' and above
   #
   #    log.info 'starting foo operation'
@@ -36,7 +35,7 @@ module Logging
     @mutex = Mutex.new  # :nodoc:
 
     class << self
-      #
+
       # call-seq:
       #    Logger.root
       #
@@ -48,7 +47,6 @@ module Logging
 
       # :stopdoc:
 
-      #
       # Overrides the new method such that only one Logger will be created
       # for any given logger name.
       #
@@ -69,7 +67,6 @@ module Logging
       end
       alias :[] :new
 
-      #
       # This is where the actual logging methods are defined. Two methods
       # are created for each log level. The first is a query method used to
       # determine if that perticular logging level is enabled. The second is
@@ -122,7 +119,6 @@ module Logging
 
     attr_reader :level, :name, :parent, :additive, :trace
 
-    #
     # call-seq:
     #    Logger.new( name )
     #    Logger[name]
@@ -162,7 +158,6 @@ module Logging
       repo.children(name).each {|c| c.parent = self}
     end
 
-    #
     # call-seq:
     #    log <=> other
     #
@@ -177,7 +172,6 @@ module Logging
       else raise ArgumentError, 'expecting a Logger instance' end
     end
 
-    #
     # call-seq:
     #    log << "message"
     #
@@ -190,7 +184,6 @@ module Logging
       @parent << msg if @additive
     end
 
-    #
     # call-seq:
     #    additive = true
     #
@@ -206,7 +199,6 @@ module Logging
                   else raise ArgumentError, 'expecting a boolean' end
     end
 
-    #
     # call-seq:
     #    trace = true
     #
@@ -222,7 +214,6 @@ module Logging
                else raise ArgumentError, 'expecting a boolean' end
     end
 
-    #
     # call-seq:
     #    level = :all
     #
@@ -269,7 +260,6 @@ module Logging
       @level
     end
 
-    #
     # call-seq:
     #    appenders = app
     #
@@ -281,7 +271,6 @@ module Logging
       add(*args) unless args.nil?
     end
 
-    #
     # call-seq:
     #    add( appenders )
     #
@@ -298,7 +287,6 @@ module Logging
       end
     end
 
-    #
     # call-seq:
     #    remove( appenders )
     #
@@ -320,7 +308,6 @@ module Logging
       end
     end
 
-    #
     # call-seq:
     #    clear
     #
@@ -330,7 +317,7 @@ module Logging
 
 
     protected
-    #
+
     # call-seq:
     #    parent = ParentLogger
     #
@@ -340,7 +327,6 @@ module Logging
     #
     def parent=( parent ) @parent = parent end
 
-    #
     # call-seq:
     #    log_event( event )
     #
@@ -355,7 +341,6 @@ module Logging
 
     # :stopdoc:
 
-    #
     # call-seq:
     #    meta_eval( code )
     #

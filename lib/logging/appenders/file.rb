@@ -4,12 +4,10 @@ require 'logging/appenders/io'
 
 module Logging::Appenders
 
-  #
   # This class provides an Appender that can write to a File.
   #
   class File < ::Logging::Appenders::IO
 
-    #
     # call-seq:
     #    File.new( name, :filename => 'file' )
     #    File.new( name, :filename => 'file', :truncate => true )

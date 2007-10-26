@@ -5,13 +5,11 @@ require 'logging/appender'
 module Logging
 module Appenders
 
-  #
   # This class provides an Appender that can write to any IO stream
   # configured for writing.
   #
   class IO < ::Logging::Appender
 
-    #
     # call-seq:
     #    IO.new( name, io )
     #    IO.new( name, io, :layout => layout )
@@ -29,7 +27,6 @@ module Appenders
       super(name, opts)
     end
 
-    #
     # call-seq:
     #    close( footer = true )
     #
@@ -46,7 +43,6 @@ module Appenders
       self
     end
 
-    #
     # call-seq:
     #    flush
     #
@@ -61,7 +57,7 @@ module Appenders
 
 
     private
-    #
+
     # call-seq:
     #    write( str )
     #

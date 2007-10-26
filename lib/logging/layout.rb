@@ -5,7 +5,6 @@ require 'logging'
 
 module Logging
 
-  #
   # The +Layout+ class provides methods for formatting log events into a
   # string representation. Layouts are used by Appenders to format log
   # events before writing them to the logging destination.
@@ -16,7 +15,6 @@ module Logging
   #
   class Layout
 
-    #
     # call-seq:
     #    Layout.new( :format_as => :string )
     #
@@ -43,7 +41,6 @@ module Logging
                     else :string end
     end
 
-    #
     # call-seq:
     #    format( event )
     #
@@ -52,7 +49,6 @@ module Logging
     #
     def format( event ) nil end
 
-    #
     # call-seq:
     #    header
     #
@@ -61,7 +57,6 @@ module Logging
     #
     def header( ) '' end
 
-    #
     # call-seq:
     #    footer
     #
@@ -71,7 +66,7 @@ module Logging
 
 
     protected
-    #
+
     # call-seq:
     #    format_obj( obj )
     #

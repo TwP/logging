@@ -6,7 +6,6 @@ require 'logging/root_logger'
 
 module Logging
 
-  #
   # The Repository is a hash that stores references to all Loggers
   # that have been created. It provides methods to determine parent/child
   # relationships between Loggers and to retrieve Loggers from the hash.
@@ -16,7 +15,6 @@ module Logging
 
     PATH_DELIMITER = '::'  # :nodoc:
 
-    #
     # nodoc:
     #
     # This is a singleton class -- use the +instance+ method to obtain the
@@ -26,7 +24,6 @@ module Logging
       @h = {:root => ::Logging::RootLogger.new}
     end
 
-    #
     # call-seq:
     #    instance[name]
     #
@@ -51,7 +48,6 @@ module Logging
     #
     def []( key ) @h[to_key(key)] end
 
-    #
     # call-seq:
     #    instance[name] = logger
     #
@@ -64,7 +60,6 @@ module Logging
     #
     def []=( key, val ) @h[to_key(key)] = val end
 
-    #
     # call-seq:
     #    fetch( name )
     #
@@ -78,7 +73,6 @@ module Logging
     #
     def fetch( key ) @h.fetch(to_key(key)) end
 
-    #
     # call-seq:
     #    has_logger?( name )
     #
@@ -92,7 +86,6 @@ module Logging
     #
     def has_logger?( key ) @h.has_key?(to_key(key)) end
 
-    #
     # call-seq:
     #    parent( key )
     #
@@ -113,7 +106,6 @@ module Logging
       p
     end
 
-    #
     # call-seq:
     #    children( key )
     #
@@ -137,7 +129,6 @@ module Logging
       a.compact.sort
     end
 
-    #
     # call-seq:
     #    to_key( key )
     #

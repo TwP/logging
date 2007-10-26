@@ -18,14 +18,15 @@ require 'logging/config/yaml_configurator'
 
 #
 #
-#
 module Logging
+
+  VERSION = '0.4.0'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:
 
   class << self
-    #
+
     # call-seq:
     #    Logging.configure( filename )
     #
@@ -40,7 +41,6 @@ module Logging
       else raise ArgumentError, 'unknown configuration file format' end
     end
 
-    #
     # call-seq:
     #    Logging.logger( device, age = 7, size = 1048576 )
     #    Logging.logger( device, age = 'weekly' )
@@ -137,7 +137,6 @@ module Logging
       logger
     end
 
-    #
     # call-seq:
     #    Logging.define_levels( levels )
     #
@@ -198,7 +197,6 @@ module Logging
       levels.keys
     end
    
-    #
     # call-seq:
     #    Logging.format_as( obj_format )
     #

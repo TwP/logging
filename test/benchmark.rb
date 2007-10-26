@@ -3,12 +3,15 @@
 begin
   require 'logging'
 rescue LoadError
-  require 'rubygems'
-  require 'logging'
+  path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
+  raise if $:.include? path
+  $: << path
+  retry
 end
 
 begin
   require 'rubygems'
+  gem 'log4r'
   require 'log4r'
   $log4r = true
 rescue LoadError

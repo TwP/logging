@@ -2,7 +2,6 @@
 
 module Logging
 
-  #
   # This class defines a logging event.
   #
   class LogEvent
@@ -17,7 +16,6 @@ module Logging
     CALLER_RGXP = %r/([\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
     # :startdoc:
 
-    #
     # call-seq:
     #    LogEvent.new( logger, level, [data], trace )
     #
@@ -49,4 +47,4 @@ module Logging
   end  # class LogEvent
 end  # module Logging
 
-#EOF
+# EOF

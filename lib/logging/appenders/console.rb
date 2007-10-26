@@ -5,12 +5,10 @@ require 'logging/appenders/io'
 module Logging
 module Appenders
 
-  #
   # This class provides an Appender that can write to STDOUT.
   #
-  class Stdout< ::Logging::Appenders::IO
+  class Stdout < ::Logging::Appenders::IO
 
-    #
     # call-seq:
     #    Stdout.new
     #    Stdout.new( :layout => layout )
@@ -24,12 +22,10 @@ module Appenders
     end
   end  # class Stdout
 
-  #
   # This class provides an Appender that can write to STDERR.
   #
-  class Stderr< ::Logging::Appenders::IO
+  class Stderr < ::Logging::Appenders::IO
 
-    #
     # call-seq:
     #    Stderr.new
     #    Stderr.new( :layout => layout )

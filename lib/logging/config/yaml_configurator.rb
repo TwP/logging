@@ -6,7 +6,6 @@ require 'logging'
 module Logging
 module Config
 
-  #
   # The YamlConfigurator class is used to configure the Logging framework
   # using information found in a YAML file.
   #
@@ -15,7 +14,7 @@ module Config
     class Error < StandardError; end  # :nodoc:
 
     class << self
-      #
+
       # call-seq:
       #    YamlConfigurator.load( file )
       #
@@ -38,7 +37,6 @@ module Config
       end
     end  # class << self
 
-    #
     # call-seq:
     #    YamlConfigurator.new( io )
     #
@@ -57,7 +55,6 @@ module Config
     end
     private :initialize
 
-    #
     # call-seq:
     #    load
     #
@@ -70,7 +67,6 @@ module Config
       loggers @config['loggers']
     end
 
-    #
     # call-seq:
     #    pre_config( config )
     #
@@ -97,7 +93,6 @@ module Config
       end
     end
 
-    #
     # call-seq:
     #    appenders( ary )
     #
@@ -110,7 +105,6 @@ module Config
       ary.each {|h| appender(h)}
     end
 
-    #
     # call-seq:
     #    loggers( ary )
     #
@@ -135,7 +129,6 @@ module Config
       end
     end
 
-    #
     # call-seq:
     #    appender( config )
     #
@@ -163,7 +156,6 @@ module Config
       clazz.new(name, config)
     end
 
-    #
     # call-seq:
     #    layout( config )
     #
