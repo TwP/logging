@@ -119,12 +119,11 @@ def depend_on( name, version = nil )
   PROJ.dependencies << (version.nil? ? [name] : [name, ">= #{version}"])
 end
 
-# See if the 'lib' and 'ext' directories are included in the path
+# Adds the given _path_ to the include path if it is not already there
 #
-path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
-$: << path if test(?d, path) and not $:.include?(path)
-
-path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'ext'))
-$: << path if test(?d, path) and not $:.include?(path)
+def ensure_in_path( path )
+  path = File.expand_path(path)
+  $: << path if test(?d, path) and not $:.include?(path)
+end
 
 # EOF
