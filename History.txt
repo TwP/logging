@@ -1,3 +1,7 @@
+== 0.5.0 / 2007-??-??
+
+* Added the ability to write to the syslog utility
+
 == 0.4.0 / 2007-03-21
 
 * Mystery Meat Release

@@ -7,6 +7,7 @@ require 'logging/appenders/console'
 require 'logging/appenders/file'
 require 'logging/appenders/rolling_file'
 require 'logging/appenders/static_appender'
+require 'logging/appenders/syslog'
 
 # require all layouts
 require 'logging/layouts/basic'
@@ -20,7 +21,7 @@ require 'logging/config/yaml_configurator'
 #
 module Logging
 
-  VERSION = '0.4.0'   # :nodoc:
+  VERSION = '0.5.0'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:
