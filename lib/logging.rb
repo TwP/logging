@@ -224,6 +224,8 @@ module Logging
     end
 
     # :stopdoc:
+
+    # Convert the given level into a connaconical form - a lowercase string.
     def levelify( level )
       case level
       when String: level.downcase
@@ -231,6 +233,7 @@ module Logging
       else raise ArgumentError, "levels must be a String or Symbol" end
     end
 
+    # Convert the given level into a level number.
     def level_num( level )
       l = levelify level
       case l
