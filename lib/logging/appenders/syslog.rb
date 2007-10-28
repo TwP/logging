@@ -88,7 +88,7 @@ module Appenders
     def initialize( name, opts = {} )
       super
 
-      ident = opts[:ident] || opts['ident'] || name 
+      ident = opts[:ident] || opts['ident'] || name
       logopt = opts[:logopt] || opts['logopt'] || (LOG_PID | LOG_CONS)
       facility = opts[:facility] || opts['facility'] || LOG_USER
       @syslog = ::Syslog.open(ident, Integer(logopt), Integer(facility))

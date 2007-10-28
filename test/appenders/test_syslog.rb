@@ -8,6 +8,7 @@ module TestAppenders
 
   class TestSyslog < Test::Unit::TestCase
     include LoggingTestCase
+    include ::Syslog::Constants
 
     def setup
       super
@@ -37,6 +38,14 @@ module TestAppenders
         event.data = 'the big log message'
         appender.append event
 
+        appender.level = :warn
+        event.level = @levels['info']
+        event.data = 'this message should not get logged'
+        appender.append event
+        event.level = @levels['warn']
+        event.data = 'this is your last warning'
+        appender.append event
+
         exit!
       end
 
@@ -46,6 +55,8 @@ module TestAppenders
       assert_equal("syslog_test:  INFO  TestLogger : <Array> 1234\n",
                    stderr[0].gets)
       assert_equal("syslog_test: DEBUG  TestLogger : the big log message\n",
+                   stderr[0].gets)
+      assert_equal("syslog_test:  WARN  TestLogger : this is your last warning\n",
                    stderr[0].gets)
     end
 
@@ -69,18 +80,28 @@ module TestAppenders
 
     def test_concat
       return if RUBY_PLATFORM =~ %r/cygwin/
-#     @appender << "this is a test message\n"
-#     assert_equal "this is a test message\n", readline
-#     assert_raise(EOFError) {readline}
-#
-#     @appender << "this is another message\n"
-#     @appender << "some other line\n"
-#     assert_equal "this is another message\n", readline
-#     assert_equal "some other line\n", readline
-#     assert_raise(EOFError) {readline}
-#
-#     @appender.close
-#     assert_raise(RuntimeError) {@appender << 'message'}
+
+      stderr = IO::pipe
+
+      pid = fork do
+        stderr[0].close
+        STDERR.reopen(stderr[1])
+        stderr[1].close
+
+        appender = create_syslog
+        appender << 'this is a test message'
+        appender << 'this is another message'
+        appender << 'some other line'
+
+        exit!
+      end
+
+      stderr[1].close
+      Process.waitpid(pid)
+
+      assert_equal("syslog_test: this is a test message\n", stderr[0].gets)
+      assert_equal("syslog_test: this is another message\n", stderr[0].gets)
+      assert_equal("syslog_test: some other line\n", stderr[0].gets)
     end
 
     def test_concat_error
@@ -89,6 +110,28 @@ module TestAppenders
 
       assert_raise(RuntimeError) {appender << 'oopsy'}
       assert_equal true, appender.closed?
+    end
+
+    def test_map_eq
+      appender = create_syslog
+
+      assert_equal(
+        [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT],
+        map_from(appender)
+      )
+
+      appender.map = {
+        :debug => LOG_DEBUG,
+        :info  => LOG_NOTICE,
+        :warn  => LOG_WARNING,
+        :error => LOG_ERR,
+        :fatal => LOG_ALERT
+      }
+
+      assert_equal(
+        [LOG_DEBUG, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_ALERT],
+        map_from(appender)
+      )
     end
 
 
@@ -102,6 +145,10 @@ module TestAppenders
           :facility => ::Syslog::LOG_USER,
           :layout => layout
       )
+    end
+
+    def map_from( syslog )
+      syslog.instance_variable_get :@map
     end
 
   end  # class TestIO
