@@ -1,10 +1,14 @@
 == 0.5.0 / 2007-??-??
 
-* Added the ability to write to the syslog utility
+* Added the ability to log via the syslog daemon
 
 == 0.4.0 / 2007-03-21
 
-* Mystery Meat Release
+* Added a microsecond flag to the Pattern layout
+* All appenders write immediately upon receipt of a logging event
+* Added a basic logging method tha returns a logger object configured in the
+  same manner as the standard Ruby logger
+* Fixed a bug caused by nil log messages
 
 == 0.3.1 / 2007-02-08
 
@@ -12,11 +16,14 @@
 
 == 0.3.0 / 2007-02-01
 
-* The 0.3.0 Release
+* Remove the ability to log multiple objects from a single log method call
 
 == 0.2.0 / 2007-01-29
 
 * The "once every four years" release
+* Storage and retrieveal of appenders by name
+* YAML configuration support
+* Rolling file appender
 
 == 0.1.0 / 2007-01-12
 

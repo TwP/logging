@@ -1,7 +1,6 @@
 # $Id$
 
 require 'test/setup.rb'
-require 'stringio'
 
 module TestLogging
 module TestAppenders
@@ -117,7 +116,7 @@ module TestAppenders
 
       assert_equal(
         [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT],
-        map_from(appender)
+        get_map_from(appender)
       )
 
       appender.map = {
@@ -130,7 +129,7 @@ module TestAppenders
 
       assert_equal(
         [LOG_DEBUG, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_ALERT],
-        map_from(appender)
+        get_map_from(appender)
       )
     end
 
@@ -147,7 +146,7 @@ module TestAppenders
       )
     end
 
-    def map_from( syslog )
+    def get_map_from( syslog )
       syslog.instance_variable_get :@map
     end
 
