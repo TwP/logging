@@ -11,18 +11,65 @@ design of Java's log4j library. It features a hierarchical logging system,
 custom level names, multiple output destinations per log event, custom
 formatting, and more.
 
-== FEATURES:
-
-* obtaining a logger
-* where to log
-* log statements
-* changing the log level
- 
 == INSTALL:
 
-  sudo gem install logging
+   sudo gem install logging
 
 == EXAMPLE:
+
+This example configures a logger to output messages in a format similar to the
+core ruby Logger class. Only log messages that are warnings or higher will be
+logged.
+
+   require 'logging'
+
+   logger = Logging.logger(STDOUT)
+   logger.level = :warn
+
+   logger.debug "this debug message will not be output by the logger"
+   logger.warn "this is your last warning"
+
+In this example, a single logger is crated that will append to STDOUT and to a file. Only log messages that are informational or higher will be logged.
+
+   reqruie 'logging'
+
+   logger = Logging::Logger['example_logger']
+   logger.add  Logging::Appender.stdout
+   logger.add  Logging::Appenders::File.new('example.log')
+   logger.level = :info
+
+   logger.debug "this debug message will not be output by the logger"
+   logger.info "just some friendly advice"
+
+The Logging library was created to allow each class in a program to have its
+own configurable logger. The logging level for a particular class can be
+changed independently of all other loggers in the system. This example shows
+the recommended way of accomplishing this.
+
+   require 'logging'
+
+   Logging::Logger['FirstClass'].level = :warn
+   Logging::Logger['SecondClass'].level = :debug
+
+   class FirstClass
+     def initialize
+       @log = Logging::Logger[self]
+     end
+
+     def some_method
+       @log.debug = "some method was called on #{self.inspect}"
+     end
+   end
+
+   class SecondClass
+     def initialize
+       @log = Logging::Logger[self]
+     end
+
+     def another_method
+       @log.debug = "another method was called on #{self.inspect}"
+     end
+   end
 
 == NOTES:
 

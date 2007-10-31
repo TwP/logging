@@ -121,14 +121,48 @@ module TestAppenders
 
       appender.map = {
         :debug => LOG_DEBUG,
-        :info  => LOG_NOTICE,
-        :warn  => LOG_WARNING,
-        :error => LOG_ERR,
-        :fatal => LOG_ALERT
+        :info  => 'LOG_NOTICE',
+        :warn  => :LOG_WARNING,
+        :error => 'log_err',
+        :fatal => :log_alert
       }
 
       assert_equal(
         [LOG_DEBUG, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_ALERT],
+        get_map_from(appender)
+      )
+    end
+
+    def test_map_eq_error
+      appender = create_syslog
+
+      # Object is not a valid syslog level
+      assert_raise(ArgumentError) do
+        appender.map = {:debug => Object}
+      end
+
+      # there is no syslog level named "info"
+      # it should be "log_info"
+      assert_raise(NameError) do
+        appender.map = {:info => 'lg_info'}
+      end
+    end
+
+    def test_initialize_map
+      appender = ::Logging::Appenders::Syslog.new(
+        'syslog_test',
+        :logopt => ::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY,
+        :map => {
+          :debug  =>  :log_debug,
+          :info   =>  :log_info,
+          :warn   =>  :log_warning,
+          :error  =>  :log_err,
+          :fatal  =>  :log_alert
+        }
+      )
+
+      assert_equal(
+        [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_ALERT],
         get_map_from(appender)
       )
     end

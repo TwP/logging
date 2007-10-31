@@ -39,7 +39,13 @@ module Logging
       log4r = if $log4r
         x = ::Log4r::Logger.new('benchmark')
         x.level = ::Log4r::WARN
-        x.add ::Log4r::IOOutputter.new('benchmark', sio)
+        x.add ::Log4r::IOOutputter.new(
+          'benchmark', sio,
+          :formatter => ::Log4r::PatternFormatter.new(
+            :pattern => "%.1l, [%d #\#{Process.pid}] %5l : %M\n",
+            :date_pattern => "%Y-%m-%dT%H:%M:%S.\#{Time.now.usec}"
+          )
+        )
         x
       end
 

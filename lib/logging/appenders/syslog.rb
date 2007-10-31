@@ -96,6 +96,10 @@ module Appenders
       # provides a mapping from the default Logging levels
       # to the syslog levels
       @map = [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT]
+
+      if opts.has_key?('map') or opts.has_key?(:map)
+        self.map = opts[:map] || opts['map']
+      end
     end
 
     # call-seq:
@@ -116,7 +120,7 @@ module Appenders
       map = []
       levels.keys.each do |lvl|
         num = ::Logging.level_num(lvl)
-        map[num] = levels[lvl]
+        map[num] = syslog_level_num(levels[lvl])
       end
       @map = map
     end
@@ -176,6 +180,26 @@ module Appenders
 
       sync {@syslog.log(LOG_DEBUG, '%s', str)}
       self
+    end
+
+
+    private
+
+    # call-seq:
+    #    syslog_level_num( level )    => integer
+    #
+    # Takes the given _level_ as a string, symbol, or integer and returns
+    # the corresponding syslog level number.
+    #
+    def syslog_level_num( level )
+      case level
+      when Integer: level
+      when String, Symbol:
+        level = level.to_s.upcase
+        self.class.const_get level
+      else
+        raise ArgumentError, "unkonwn level '#{level}'"
+      end
     end
 
   end  # class Syslog

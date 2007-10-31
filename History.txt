@@ -1,6 +1,7 @@
 == 0.5.0 / 2007-??-??
 
 * Added the ability to log via the syslog daemon
+* Can send messages to the Growl notification system on Mac OS X
 
 == 0.4.0 / 2007-03-21
 

@@ -20,7 +20,7 @@ module Logging::Appenders
     # appened to the file.
     #
     def initialize( name, opts = {} )
-      @fn = opts.delete(:filename) || opts.delete('filename')
+      @fn = opts.delete(:filename) || opts.delete('filename') || name
       raise ArgumentError, 'no filename was given' if @fn.nil?
 
       mode = opts.delete(:truncate) || opts.delete('truncate')
