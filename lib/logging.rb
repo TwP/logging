@@ -242,6 +242,21 @@ module Logging
       when 'off': LEVELS.length
       else begin; Integer(l); rescue ArgumentError; LEVELS[l] end end
     end
+
+    # Helper method for retrieving options from a hash.
+    def options( opts = {} )
+      lambda do |*args|
+        keys, default, ignored = args
+        catch('opt') do
+          Array(keys).each do |key|
+            [key, key.to_s, key.to_s.intern].each do |key|
+              throw 'opt', opts[key] if opts.has_key?(key)
+            end
+          end
+          default
+        end
+      end
+    end
     # :startdoc:
   end
 

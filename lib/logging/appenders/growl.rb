@@ -1,7 +1,6 @@
 # $Id$
 
 require 'logging/appender'
-require 'logging/stelan/ruby-growl'
 
 module Logging
 module Appenders
@@ -9,34 +8,31 @@ module Appenders
   # This class provides an Appender that can send notifications to the Growl
   # notification system on Mac OS X.
   #
+  # +growlnotify+ must be installed somewhere in the path in order for the
+  # appender to function properly.
+  #
   class Growl < ::Logging::Appender
 
     # call-seq:
     #    Growl.new( name, opts = {} )
     #
     # Create an appender that will log messages to the Growl framework on a
-    # Mac OS X machine. The options that can be used to configure the
-    # appender are as follows:
-    #
-    #    :host      => where to send Growl notifications (localhost)
-    #    :password  => password for Growl (if needed)
+    # Mac OS X machine.
     #
     def initialize( name, opts = {} )
       super
 
-      host = opts[:host] || opts['host'] || 'localhost'
-      password = opts[:password] || opts['password'] || nil
-      @type = "#{name} Notification"
+      @growl = "growlnotify -n '#{@name}' -t '%s' -m '%s' -p %d"
 
-      @growl = ::Growl.new(host, name, [@type], [@type], password)
+      getopt = ::Logging.options(opts)
+      @coalesce = getopt[:coalesce, false]
 
       # provides a mapping from the default Logging levels
       # to the Growl notification levels
       @map = [-2, -1, 0, 1, 2]
 
-      if opts.has_key?('map') or opts.has_key?(:map)
-        self.map = opts[:map] || opts['map']
-      end
+      map = getopt[:map]
+      self.map = map unless map.nil?
     end
 
     # call-seq:
@@ -80,7 +76,7 @@ module Appenders
         title = ''
         message = @layout.format(event)
         priority = @map[event.level]
-        @growl.notify(@type, title, message, priority, false)
+        growl(title, message, priority)
       end unless @level > event.level
       self
     end
@@ -100,7 +96,7 @@ module Appenders
 
       title = ''
       message = str
-      sync {@growl.notify(@type, title, message, 0, false)}
+      sync {growl(title, message, 0)}
       self
     end
 
@@ -122,6 +118,13 @@ module Appenders
         raise ArgumentError, "level '#{level}' is not in range -2..2"
       end
       level
+    end
+
+    # call-seq:
+    #    growl( title, message, priority )
+    #
+    def growl( title, message, priority )
+      system @growl % [title, message, priority]
     end
 
   end  # class Growl
