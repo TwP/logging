@@ -26,6 +26,7 @@ module Appenders
 
       getopt = ::Logging.options(opts)
       @coalesce = getopt[:coalesce, false]
+      @title_sep = getopt[:separator]
 
       # provides a mapping from the default Logging levels
       # to the Growl notification levels
@@ -33,6 +34,8 @@ module Appenders
 
       map = getopt[:map]
       self.map = map unless map.nil?
+
+      setup_coalescing if @coalesce
     end
 
     # call-seq:
@@ -76,6 +79,12 @@ module Appenders
         title = ''
         message = @layout.format(event)
         priority = @map[event.level]
+
+        if @title_sep
+          title, message = message.split(@title_sep)
+          title, message = message, title if message.nil?
+        end
+
         growl(title, message, priority)
       end unless @level > event.level
       self
@@ -96,6 +105,12 @@ module Appenders
 
       title = ''
       message = str
+
+      if @title_sep
+        title, message = message.split(@title_sep)
+        title, message = message, title if message.nil?
+      end
+
       sync {growl(title, message, 0)}
       self
     end
@@ -123,8 +138,64 @@ module Appenders
     # call-seq:
     #    growl( title, message, priority )
     #
+    # Send the _message_ to the growl notifier using the given _title_ and
+    # _priority_.
+    #
     def growl( title, message, priority )
-      system @growl % [title, message, priority]
+      if @coalesce then coalesce(title, message, priority)
+      else system @growl % [title, message, priority] end
+    end
+
+    # call-seq:
+    #    coalesce( title, message, priority )
+    #
+    # Attempt to coalesce the given _message_ with any that might be pending
+    # in the queue to send to the growl notifier. Messages are coalesced
+    # with any in the queue that have the same _title_ and _priority_.
+    #
+    # There can be only one message in the queue, so if the _title_ and/or
+    # _priority_ don't match, the message in the queue is sent immediately
+    # to the growl notifier, and the current _message_ is queued.
+    #
+    def coalesce( *msg )
+      @c_mutex.synchronize do
+        if @c_message.nil? or @c_message.first != msg.first or @c_message.last  != msg.last
+          @c_message, msg = msg, @c_message
+          @c_thread.run
+
+        else
+          @c_message[1] << "\n" << msg[1]
+          msg = nil
+        end
+      end
+
+      system @growl % msg unless msg.nil?
+      Thread.pass
+    end
+
+    # call-seq:
+    #    setup_coalescing
+    #
+    # Setup the appender to handle coalescing of messages before sending
+    # them to the growl notifier. This requires the creation of a thread and
+    # mutex for passing messages from the appender thread to the growl
+    # notifier thread.
+    #
+    def setup_coalescing
+      @c_mutex = Mutex.new
+      @c_message = nil
+
+      @c_thread = Thread.new do
+        loop do
+          Thread.stop
+          sleep 0.5
+          @c_mutex.synchronize do
+            break if @c_message.nil?
+            system @growl % @c_message
+            @c_message = nil
+          end
+        end   # loop
+      end   # Thread.new
     end
 
   end  # class Growl
