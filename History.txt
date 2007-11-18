@@ -1,7 +1,8 @@
-== 0.5.0 / 2007-??-??
+== 0.5.0 / 2007-11-18
 
 * Added the ability to log via the syslog daemon
 * Can send messages to the Growl notification system on Mac OS X
+* The Growl appender can coalesce messages of the same title/priority
 
 == 0.4.0 / 2007-03-21
 

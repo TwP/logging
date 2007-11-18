@@ -20,7 +20,6 @@ lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
 lib/logging/root_logger.rb
-lib/logging/stelan/ruby-growl.rb
 tasks/doc.rake
 tasks/gem.rake
 tasks/manifest.rake
