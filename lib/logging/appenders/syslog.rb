@@ -1,7 +1,17 @@
 # $Id$
 
-require 'logging/appender'
-require 'syslog'
+begin
+  require 'logging/appender'
+  require 'syslog'
+  HAVE_SYSLOG = true
+rescue LoadError
+  HAVE_SYSLOG = false
+end
+
+# only load this class if we have the syslog library
+# Windows does not have syslog
+#
+if HAVE_SYSLOG
 
 module Logging
 module Appenders
@@ -206,5 +216,7 @@ module Appenders
 
 end  # module Appenders
 end  # module Logging
+
+end  # HAVE_SYSLOG
 
 # EOF

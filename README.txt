@@ -57,7 +57,7 @@ the recommended way of accomplishing this.
      end
 
      def some_method
-       @log.debug = "some method was called on #{self.inspect}"
+       @log.debug "some method was called on #{self.inspect}"
      end
    end
 
@@ -67,7 +67,7 @@ the recommended way of accomplishing this.
      end
 
      def another_method
-       @log.debug = "another method was called on #{self.inspect}"
+       @log.debug "another method was called on #{self.inspect}"
      end
    end
 

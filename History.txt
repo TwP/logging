@@ -1,3 +1,7 @@
+== 0.5.1 / 2007-11-18
+
+* Fixed a bug on Windows when attempting to load the syslog library
+
 == 0.5.0 / 2007-11-18
 
 * Added the ability to log via the syslog daemon
