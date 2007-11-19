@@ -2,6 +2,8 @@
 
 require 'test/setup.rb'
 
+if HAVE_SYSLOG
+
 module TestLogging
 module TestAppenders
 
@@ -188,5 +190,7 @@ module TestAppenders
 
 end  # module TestAppenders
 end  # module TestLogging
+
+end  # HAVE_SYSLOG
 
 # EOF
