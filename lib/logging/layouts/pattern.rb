@@ -190,11 +190,11 @@ module Layouts
         code << m[1] unless m[1].empty?
 
         case m[3]
-        when '%': code << '%%'
+        when '%'; code << '%%'
         when *DIRECTIVE_TABLE.keys
           code << m[2] + 's'
           args << DIRECTIVE_TABLE[m[3]]
-        when nil: break
+        when nil; break
         else
           raise ArgumentError, "illegal format character - '#{m[3]}'"
         end

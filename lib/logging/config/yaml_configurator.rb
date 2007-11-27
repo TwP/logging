@@ -29,7 +29,7 @@ module Config
         when String
           io = File.open(file, 'r')
           close = true
-        when IO: io = file
+        when IO; io = file
         else raise Error, 'expecting a filename or a File' end
 
         begin new(io).load; ensure; io.close if close end

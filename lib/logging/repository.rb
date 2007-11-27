@@ -141,9 +141,9 @@ module Logging
     #
     def to_key( key )
       case key
-      when Symbol, String: key
-      when Class: key.name
-      when Object: key.class.name
+      when Symbol, String; key
+      when Class; key.name
+      when Object; key.class.name
       end
     end
 

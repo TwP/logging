@@ -37,7 +37,7 @@ module Logging
       f = f.intern if f.instance_of? String
 
       @obj_format = case f
-                    when :inspect, :yaml: f
+                    when :inspect, :yaml; f
                     else :string end
     end
 
@@ -76,19 +76,19 @@ module Logging
     #
     def format_obj( obj )
       case obj
-      when String: obj
-      when Exception: 
+      when String; obj
+      when Exception 
         str = "<#{obj.class.name}> #{obj.message}"
         unless obj.backtrace.nil?
           str << "\n\t" << obj.backtrace.join("\n\t")
         end
         str
-      when nil: "<#{obj.class.name}> nil"
+      when nil; "<#{obj.class.name}> nil"
       else
         str = "<#{obj.class.name}> "
         str << case @obj_format
-               when :inspect: obj.inspect
-               when :yaml: "\n#{obj.to_yaml}"
+               when :inspect; obj.inspect
+               when :yaml; "\n#{obj.to_yaml}"
                else obj.to_s end
         str
       end

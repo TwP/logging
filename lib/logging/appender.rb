@@ -110,9 +110,9 @@ module Logging
     #
     def level=( level )
       lvl = case level
-            when String, Symbol: ::Logging::level_num(level)
-            when Fixnum: level
-            when nil: 0
+            when String, Symbol; ::Logging::level_num(level)
+            when Fixnum; level
+            when nil; 0
             else
               raise ArgumentError,
                     "level must be a String, Symbol, or Integer"

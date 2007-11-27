@@ -33,10 +33,14 @@ module LoggingTestCase
     end
 
     ::Logging::Repository.class_eval do
-      @__instance__ = nil
-      class << self
-        nonce = class << Singleton; self; end
-        define_method(:instance, nonce::FirstInstanceCall)
+      if defined?(@singleton__instance__)
+        @singleton__instance__ = nil
+      else
+        @__instance__ = nil
+        class << self
+          nonce = class << Singleton; self; end
+          define_method(:instance, nonce::FirstInstanceCall)
+        end
       end
     end
     

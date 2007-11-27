@@ -38,7 +38,7 @@ module Logging
     #
     def configure( filename )
       case File.extname(filename)
-      when '.yaml', '.yml':
+      when '.yaml', '.yml'
         ::Logging::Config::YamlConfigurator.load(filename)
       else raise ArgumentError, 'unknown configuration file format' end
     end
@@ -91,8 +91,8 @@ module Logging
       size = args.shift
 
       name = case dev
-             when String: dev
-             when File: dev.path
+             when String; dev
+             when File; dev.path
              else dev.object_id.to_s end
 
       repo = ::Logging::Repository.instance
@@ -229,8 +229,8 @@ module Logging
     # Convert the given level into a connaconical form - a lowercase string.
     def levelify( level )
       case level
-      when String: level.downcase
-      when Symbol: level.to_s.downcase
+      when String; level.downcase
+      when Symbol; level.to_s.downcase
       else raise ArgumentError, "levels must be a String or Symbol" end
     end
 
@@ -238,8 +238,8 @@ module Logging
     def level_num( level )
       l = levelify level
       case l
-      when 'all': 0
-      when 'off': LEVELS.length
+      when 'all'; 0
+      when 'off'; LEVELS.length
       else begin; Integer(l); rescue ArgumentError; LEVELS[l] end end
     end
 

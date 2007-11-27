@@ -126,8 +126,8 @@ module Appenders
     #
     def growl_level_num( level )
       level = case level
-              when Integer: level
-              when String: Integer(level)
+              when Integer; level
+              when String; Integer(level)
               else raise ArgumentError, "unkonwn level '#{level}'" end
       if level < -2 or level > 2
         raise ArgumentError, "level '#{level}' is not in range -2..2"

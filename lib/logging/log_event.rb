@@ -32,7 +32,7 @@ module Logging
 
       if trace
         t = Kernel.caller(3)[0]
-        break if t.nil?
+        return if t.nil?
 
         m = CALLER_RGXP.match(t)
         @file = m[1]

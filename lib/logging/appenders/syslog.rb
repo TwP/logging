@@ -203,8 +203,8 @@ module Appenders
     #
     def syslog_level_num( level )
       case level
-      when Integer: level
-      when String, Symbol:
+      when Integer; level
+      when String, Symbol
         level = level.to_s.upcase
         self.class.const_get level
       else

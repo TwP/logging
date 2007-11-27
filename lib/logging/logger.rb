@@ -143,7 +143,7 @@ module Logging
     #
     def initialize( name )
       case name
-      when String:
+      when String
         raise(ArgumentError, "logger must have a name") if name.empty?
       else raise(ArgumentError, "logger name must be a String") end
 
@@ -166,9 +166,9 @@ module Logging
     #
     def <=>( other )
       case other
-      when self: 0
-      when ::Logging::RootLogger: 1
-      when ::Logging::Logger: @name <=> other.name
+      when self; 0
+      when ::Logging::RootLogger; 1
+      when ::Logging::Logger; @name <=> other.name
       else raise ArgumentError, 'expecting a Logger instance' end
     end
 
@@ -193,9 +193,9 @@ module Logging
     #
     def additive=( val )
       @additive = case val
-                  when true, 'true': true
-                  when false, 'false': false
-                  when nil: @additive
+                  when true, 'true'; true
+                  when false, 'false'; false
+                  when nil; @additive
                   else raise ArgumentError, 'expecting a boolean' end
     end
 
@@ -208,9 +208,9 @@ module Logging
     #
     def trace=( val )
       @trace = case val
-               when true, 'true': true
-               when false, 'false': false
-               when nil: @trace
+               when true, 'true'; true
+               when false, 'false'; false
+               when nil; @trace
                else raise ArgumentError, 'expecting a boolean' end
     end
 
@@ -244,9 +244,9 @@ module Logging
     #
     def level=( level )
       lvl = case level
-            when String, Symbol: ::Logging::level_num(level)
-            when Fixnum: level
-            when nil: @parent.level
+            when String, Symbol; ::Logging::level_num(level)
+            when Fixnum; level
+            when nil; @parent.level
             else
               raise ArgumentError,
                     "level must be a String, Symbol, or Integer"
@@ -299,8 +299,8 @@ module Logging
       args.each do |arg|
         @appenders.delete_if do |a|
           case arg
-          when String: arg == a.name
-          when ::Logging::Appender: arg.object_id == a.object_id
+          when String; arg == a.name
+          when ::Logging::Appender; arg.object_id == a.object_id
           else
             raise TypeError, "#{arg.inspect} is not a 'Logging::Appender'"
           end

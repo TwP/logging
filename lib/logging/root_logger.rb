@@ -42,8 +42,8 @@ module Logging
     #
     def <=>( other )
       case other
-      when self: 0
-      when ::Logging::Logger: -1
+      when self; 0
+      when ::Logging::Logger; -1
       else raise ArgumentError, 'expecting a Logger instance' end
     end
 
