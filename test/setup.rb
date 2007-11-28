@@ -2,6 +2,11 @@
 
 require 'test/unit'
 
+# This line is needed for Ruby 1.9 -- hashes throw a "KeyError" in 1.9
+# whereas they throw an "IndexError" in 1.8
+#
+KeyError = IndexError if not defined? KeyError
+
 begin
   require 'logging'
 rescue LoadError

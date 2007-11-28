@@ -47,7 +47,7 @@ module TestLogging
       assert_same @repo[:root], @repo.fetch(:root)
 
       assert !@repo.has_logger?('A')
-      assert_raise(IndexError) {@repo.fetch 'A'}
+      assert_raise(KeyError) {@repo.fetch 'A'}
 
       %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
         ::Logging::Logger.new(name)

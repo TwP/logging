@@ -31,7 +31,7 @@ module Logging
       @file = @line = @method = ''
 
       if trace
-        t = Kernel.caller(3)[0]
+        t = Kernel.caller[2]
         return if t.nil?
 
         m = CALLER_RGXP.match(t)

@@ -53,7 +53,7 @@ module TestAppenders
       stderr[1].close
       Process.waitpid(pid)
 
-      assert_equal("syslog_test:  INFO  TestLogger : <Array> 1234\n",
+      assert_equal("syslog_test:  INFO  TestLogger : <Array> #{[1,2,3,4]}\n",
                    stderr[0].gets)
       assert_equal("syslog_test: DEBUG  TestLogger : the big log message\n",
                    stderr[0].gets)

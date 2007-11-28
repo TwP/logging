@@ -67,7 +67,7 @@ module TestLogging
 
       obj = [1, 2, 3, 4]
       r = @layout.send :format_obj, obj
-      assert_equal '<Array> 1234', r
+      assert_equal "<Array> #{[1,2,3,4]}", r
 
       obj = %w( one two three four )
       @layout = ::Logging::Layout.new :format_as => :inspect

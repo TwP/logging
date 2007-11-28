@@ -65,7 +65,8 @@ module TestLayouts
       assert_match rgxp, @layout.format(event)
 
       event.data = [1, 2, 3, 4]
-      rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', '<Array> 1234'))
+      rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger',
+                                 Regexp.escape("<Array> #{[1,2,3,4]}")))
       assert_match rgxp, @layout.format(event)
 
       event.level = @levels['debug']

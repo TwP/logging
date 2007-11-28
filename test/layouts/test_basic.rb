@@ -21,7 +21,8 @@ module TestLayouts
       assert_equal " INFO  ArrayLogger : log message\n", @layout.format(event)
 
       event.data = [1, 2, 3, 4]
-      assert_equal " INFO  ArrayLogger : <Array> 1234\n", @layout.format(event)
+      assert_equal(" INFO  ArrayLogger : <Array> #{[1,2,3,4]}\n",
+                   @layout.format(event))
 
       event.level = @levels['debug']
       event.data = 'and another message'
