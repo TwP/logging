@@ -22,7 +22,7 @@ module Appenders
     def initialize( name, opts = {} )
       super
 
-      @growl = "growlnotify -n '#{@name}' -t '%s' -m '%s' -p %d"
+      @growl = "growlnotify -w -n '#{@name}' -t '%s' -m '%s' -p %d &"
 
       getopt = ::Logging.options(opts)
       @coalesce = getopt[:coalesce, false]
@@ -82,7 +82,8 @@ module Appenders
 
         if @title_sep
           title, message = message.split(@title_sep)
-          title, message = message, title if message.nil?
+          title, message = '', title if message.nil?
+          title.strip!
         end
 
         growl(title, message, priority)
@@ -108,7 +109,8 @@ module Appenders
 
       if @title_sep
         title, message = message.split(@title_sep)
-        title, message = message, title if message.nil?
+        title, message = '', title if message.nil?
+        title.strip!
       end
 
       sync {growl(title, message, 0)}
@@ -159,17 +161,20 @@ module Appenders
     #
     def coalesce( *msg )
       @c_mutex.synchronize do
-        if @c_message.nil? or @c_message.first != msg.first or @c_message.last  != msg.last
-          @c_message, msg = msg, @c_message
+        if @c_queue.empty?
+          @c_queue << msg
           @c_thread.run
 
         else
-          @c_message[1] << "\n" << msg[1]
-          msg = nil
+          qmsg = @c_queue.last
+          if qmsg.first != msg.first or qmsg.last != msg.last
+            @c_queue << msg
+          else 
+            qmsg[1] << "\n" << msg[1]
+          end
         end
       end
 
-      system @growl % msg unless msg.nil?
       Thread.pass
     end
 
@@ -183,19 +188,18 @@ module Appenders
     #
     def setup_coalescing
       @c_mutex = Mutex.new
-      @c_message = nil
+      @c_queue = []
 
       @c_thread = Thread.new do
+        Thread.stop
         loop do
-          Thread.stop
           sleep 0.5
-          @c_mutex.synchronize do
-            break if @c_message.nil?
-            system @growl % @c_message
-            @c_message = nil
-          end
-        end   # loop
-      end   # Thread.new
+          @c_mutex.synchronize {
+            system(@growl % @c_queue.shift) until @c_queue.empty?
+          }
+          Thread.stop if @c_queue.empty?
+        end  # loop
+      end  # Thread.new
     end
 
   end  # class Growl

@@ -1,6 +1,7 @@
 == 0.5.2 / 2007-11-28
 
 * Updated the library to work with Ruby 1.9
+* Fixed coalescing with the growl appender
 
 == 0.5.1 / 2007-11-18
 

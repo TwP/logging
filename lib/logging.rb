@@ -247,10 +247,10 @@ module Logging
     def options( opts = {} )
       lambda do |*args|
         keys, default, ignored = args
-        catch('opt') do
+        catch(:opt) do
           Array(keys).each do |key|
             [key, key.to_s, key.to_s.intern].each do |k|
-              throw 'opt', opts[k] if opts.has_key?(k)
+              throw :opt, opts[k] if opts.has_key?(k)
             end
           end
           default
