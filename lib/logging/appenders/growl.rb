@@ -22,7 +22,7 @@ module Appenders
     def initialize( name, opts = {} )
       super
 
-      @growl = "growlnotify -w -n '#{@name}' -t '%s' -m '%s' -p %d &"
+      @growl = "growlnotify -w -n \"#{@name}\" -t \"%s\" -m \"%s\" -p %d &"
 
       getopt = ::Logging.options(opts)
       @coalesce = getopt[:coalesce, false]
