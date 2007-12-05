@@ -29,7 +29,8 @@ logged.
    logger.debug "this debug message will not be output by the logger"
    logger.warn "this is your last warning"
 
-In this example, a single logger is crated that will append to STDOUT and to a file. Only log messages that are informational or higher will be logged.
+In this example, a single logger is crated that will append to STDOUT and to a
+file. Only log messages that are informational or higher will be logged.
 
    reqruie 'logging'
 

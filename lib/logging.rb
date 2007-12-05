@@ -22,7 +22,7 @@ require 'logging/config/yaml_configurator'
 #
 module Logging
 
-  VERSION = '0.5.2'   # :nodoc:
+  VERSION = '0.5.3'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:
