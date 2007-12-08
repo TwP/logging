@@ -1,4 +1,4 @@
-== 0.5.3 / 2007-12-05
+== 0.5.3 / 2007-12-08
 
 * Fixed the quoting for messages sent to the growl appender
 

@@ -144,6 +144,7 @@ module Appenders
     # _priority_.
     #
     def growl( title, message, priority )
+      message.tr!("`", "'")
       if @coalesce then coalesce(title, message, priority)
       else system @growl % [title, message, priority] end
     end
