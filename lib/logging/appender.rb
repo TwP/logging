@@ -38,11 +38,9 @@ module Logging
       @name = name.to_s
       @closed = false
 
-      layout = opts[:layout] || opts['layout']
-      self.layout = layout unless layout.nil?
-      @layout ||= ::Logging::Layouts::Basic.new
-
-      self.level = opts[:level] || opts['level']
+      getopt = ::Logging.options(opts)
+      self.layout = getopt[:layout, ::Logging::Layouts::Basic.new]
+      self.level = getopt[:level]
 
       @mutex = Mutex.new
       sync {write(@layout.header)}

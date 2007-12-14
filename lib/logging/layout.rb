@@ -32,8 +32,11 @@ module Logging
     # then <tt>:string</tt> is used.
     #
     def initialize( opts = {} )
-      f = opts[:format_as] || opts['format_as']
-      f ||= ::Logging::OBJ_FORMAT if ::Logging.const_defined? 'OBJ_FORMAT'
+      default = ::Logging.const_defined?('OBJ_FORMAT') ?
+                ::Logging::OBJ_FORMAT : nil
+
+      getopt = ::Logging.options(opts)
+      f = getopt[:format_as, default]
       f = f.intern if f.instance_of? String
 
       @obj_format = case f

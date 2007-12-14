@@ -1,3 +1,7 @@
+== 0.6.0 /
+
+* Using the new 'options' method for handling option hashes
+
 == 0.5.3 / 2007-12-08
 
 * Fixed the quoting for messages sent to the growl appender

@@ -22,7 +22,7 @@ require 'logging/config/yaml_configurator'
 #
 module Logging
 
-  VERSION = '0.5.3'   # :nodoc:
+  VERSION = '0.6.0'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:
@@ -247,10 +247,10 @@ module Logging
     def options( opts = {} )
       lambda do |*args|
         keys, default, ignored = args
-        catch(:opt) do
+        catch(:found) do
           Array(keys).each do |key|
             [key, key.to_s, key.to_s.intern].each do |k|
-              throw :opt, opts[k] if opts.has_key?(k)
+              throw :found, opts[k] if opts.has_key?(k)
             end
           end
           default

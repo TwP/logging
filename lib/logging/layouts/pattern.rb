@@ -227,12 +227,13 @@ module Layouts
       super
       @created_at = Time.now
 
-      @pattern = opts[:pattern] || opts['pattern']
-      @date_pattern = opts[:date_pattern] || opts['date_pattern']
-      @date_method = opts[:date_method] || opts['date_method']
-
-      @pattern ||= "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n"
+      getopt = ::Logging.options(opts)
+      @date_pattern = getopt[:date_pattern]
+      @date_method = getopt[:date_method]
       @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
+
+      @pattern = getopt[:pattern,
+          "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n"]
 
       Pattern.create_date_format_methods(self)
       Pattern.create_format_method(self)
