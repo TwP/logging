@@ -1,6 +1,7 @@
 # $Id$
 
 require 'logging/appenders/file'
+require 'lockfile'
 
 module Logging::Appenders
 
@@ -28,7 +29,7 @@ module Logging::Appenders
   # The actual process of rolling all the log file names can be expensive if
   # there are many, many older log files to process.
   #
-  class RollingFile < ::Logging::Appenders::File
+  class RollingFile < ::Logging::Appenders::IO
 
     # call-seq:
     #    RollingFile.new( name, opts )
@@ -52,11 +53,18 @@ module Logging::Appenders
     #               rolled. The age can also be given as 'daily', 'weekly',
     #               or 'monthly'.
     #  [:keep]      The number of rolled log files to keep.
+    #  [:safe]      When set to true, extra checks are made to ensure that
+    #               only once process can roll the log files; this option
+    #               should only be used when multiple processes will be
+    #               logging to the same log file (does not work on Windows)
     #
     def initialize( name, opts = {} )
+      getopt = ::Logging.options(opts)
+
       # raise an error if a filename was not given
-      @fn = opts[:filename] || opts['filename']
+      @fn = getopt[:filename, name]
       raise ArgumentError, 'no filename was given' if @fn.nil?
+      ::Logging::Appenders::File.assert_valid_logfile(@fn)
 
       # grab the information we need to properly roll files
       ext = ::File.extname(@fn)
@@ -65,21 +73,24 @@ module Logging::Appenders
       @glob = "#{bn}.*#{ext}"
       @logname_fmt = "#{bn}.%d#{ext}"
 
-      @keep = opts.delete(:keep) || opts.delete('keep')
+      # grab our options
+      @keep = getopt[:keep]
       @keep = Integer(@keep) unless @keep.nil?
 
-      # if the truncate flag was set to true, then roll 
-      roll_now = opts.delete(:truncate) || opts.delete('truncate')
-      roll_files if roll_now
-
-      # grab out our options
-      @size = opts.delete(:size) || opts.delete('size')
+      @size = getopt[:size]
       @size = Integer(@size) unless @size.nil?
+
+      @lockfile = if getopt[:safe, false] and !(%r/win32/ =~ RUBY_PLATFORM)
+        Lockfile.new(
+            @fn + '.lck',
+            :retries => 1,
+            :timeout => 2
+        )
+      end
 
       code = 'def sufficiently_aged?() false end'
 
-      @age = opts.delete(:age) || opts.delete('age')
-      case @age
+      case @age = getopt[:age]
       when 'daily'
         @start_time = Time.now
         code = <<-CODE
@@ -133,8 +144,11 @@ module Logging::Appenders
       meta = class << self; self end
       meta.class_eval code
 
-      @file_size = (::File.exist?(@fn) ? ::File.size(@fn) : 0)
-      super(name, opts)
+      # if the truncate flag was set to true, then roll 
+      roll_now = getopt[:truncate, false]
+      roll_files if roll_now
+
+      super(name, open_logfile, opts)
     end
 
 
@@ -148,10 +162,21 @@ module Logging::Appenders
     # maximum age.
     #
     def write( str )
+      check_logfile
       super
-      @file_size += str.size  # keep track of the size internally since
-      roll if roll_required?  # the file IO stream is probably not being 
-    end                       # flushed to disk immediately
+
+      if roll_required?(str)
+        return roll unless @lockfile
+
+        begin
+          @lockfile.lock
+          check_logfile
+          roll if roll_required?
+        ensure
+          @lockfile.unlock
+        end
+      end
+    end
 
     # call-seq:
     #    roll
@@ -160,25 +185,28 @@ module Logging::Appenders
     # new log file.
     #
     def roll
-      begin; @io.close; rescue; end
+      @io.close rescue nil
       roll_files
-      @io = ::File.new(@fn, 'a')
+      open_logfile
     end
 
     # call-seq:
-    #    roll_required?
+    #    roll_required?( str )    => true or false
     #
     # Returns +true+ if the log file needs to be rolled.
     #
-    def roll_required?
+    def roll_required?( str = nil )
       # check if max size has been exceeded
-      if @size and @file_size > @size
-        @file_size = 0
-        return true
+      s = if @size 
+        @file_size = @stat.size if @stat.size > @file_size
+        @file_size += str.size if str
+        @file_size > @size
       end
 
       # check if max age has been exceeded
-      return sufficiently_aged?
+      a = sufficiently_aged?
+
+      return (s || a)
     end
 
     # call-seq:
@@ -202,7 +230,7 @@ module Logging::Appenders
     #
     def roll_files
       return unless ::File.exist?(@fn)
-
+#puts "rolling log file"
       files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
       unless files.empty?
         # sort the files in revese order based on their count number
@@ -225,6 +253,41 @@ module Logging::Appenders
 
       # finally reanme the base log file
       ::File.rename(@fn, sprintf(@logname_fmt, 1))
+    end
+
+    # call-seq:
+    #    open_logfile    => io
+    #
+    # Opens the logfile and stores the current file szie and inode.
+    #
+    def open_logfile
+#puts "opening log file"
+      @io = ::File.new(@fn, 'a')
+      @io.sync = true
+
+      @stat = ::File.stat(@fn)
+      @file_size = @stat.size
+      @inode = @stat.ino
+
+      return @io
+    end
+
+    #
+    #
+    def check_logfile
+      retry_cnt ||= 0
+
+      @stat = ::File.stat(@fn)
+      return unless @lockfile
+      return if @inode == @stat.ino
+
+      @io.close rescue nil
+      open_logfile
+    rescue SystemCallError
+      raise if retry_cnt > 3
+      retry_cnt += 1
+      sleep 0.08
+      retry
     end
 
   end  # class RollingFile

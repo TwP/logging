@@ -9,6 +9,29 @@ module Logging::Appenders
   class File < ::Logging::Appenders::IO
 
     # call-seq:
+    #    File.assert_valid_logfile( filename )    => true
+    #
+    # Asserts that the given _filename_ can be used as a log file by ensuring
+    # that if the file exists it is a regular file and it is writable. If
+    # the file does not exist, then the directory is checked to see if it is
+    # writable.
+    #
+    # An +ArgumentError+ is raised if any of these assertions fail.
+    #
+    def self.assert_valid_logfile( fn )
+      if ::File.exist?(fn)
+        if not ::File.file?(fn)
+          raise ArgumentError, "#{fn} is not a regular file"
+        elsif not ::File.writable?(fn)
+          raise ArgumentError, "#{fn} is not writeable"
+        end
+      elsif not ::File.writable?(::File.dirname(fn))
+        raise ArgumentError, "#{::File.dirname(fn)} is not writable"
+      end
+      true
+    end
+
+    # call-seq:
     #    File.new( name, :filename => 'file' )
     #    File.new( name, :filename => 'file', :truncate => true )
     #    File.new( name, :filename => 'file', :layout => layout )
@@ -20,21 +43,12 @@ module Logging::Appenders
     # appened to the file.
     #
     def initialize( name, opts = {} )
-      @fn = opts.delete(:filename) || opts.delete('filename') || name
+      getopt = ::Logging.options(opts)
+
+      @fn = getopt[:filename, name]
       raise ArgumentError, 'no filename was given' if @fn.nil?
-
-      mode = opts.delete(:truncate) || opts.delete('truncate')
-      mode = mode ? 'w' : 'a'
-
-      if ::File.exist?(@fn)
-        if not ::File.file?(@fn)
-          raise ArgumentError, "#{@fn} is not a regular file"
-        elsif not ::File.writable?(@fn)
-          raise ArgumentError, "#{@fn} is not writeable"
-        end
-      elsif not ::File.writable?(::File.dirname(@fn))
-        raise ArgumentError, "#{::File.dirname(@fn)} is not writable"
-      end
+      self.class.assert_valid_logfile(@fn)
+      mode = getopt[:truncate] ? 'w' : 'a'
 
       super(name, ::File.new(@fn, mode), opts)
     end

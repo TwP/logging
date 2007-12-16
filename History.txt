@@ -1,6 +1,7 @@
 == 0.6.0 /
 
 * Using the new 'options' method for handling option hashes
+* Rolling file appender is safe for multiple processes
 
 == 0.5.3 / 2007-12-08
 
