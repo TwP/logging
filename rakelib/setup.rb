@@ -56,9 +56,6 @@ PROJ.dependencies = []
 PROJ.need_tar = true
 PROJ.need_zip = false
 
-# Import the rake tasks
-FileList['tasks/*.rake'].each {|task| import task}
-
 # Setup some constants
 WIN32 = %r/win32/ =~ RUBY_PLATFORM unless defined? WIN32
 

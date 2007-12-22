@@ -14,8 +14,8 @@ namespace :doc do
     excl = Regexp.new(PROJ.rdoc_exclude.join('|'))
     files = PROJ.files.find_all do |fn|
               case fn
-              when excl: false
-              when incl: true
+              when excl; false
+              when incl; true
               else false end
             end
     rd.rdoc_files.push(*files)

@@ -1,6 +1,6 @@
 # $Id$
 
-load './tasks/setup.rb'
+load 'rakelib/setup.rb'
 ensure_in_path 'lib'
 
 require 'logging'
