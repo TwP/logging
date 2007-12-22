@@ -98,17 +98,16 @@ module Appenders
     def initialize( name, opts = {} )
       super
 
-      getopt = ::Logging.options(opts)
-      ident = getopt[:ident, name]
-      logopt = getopt[:logopt, (LOG_PID | LOG_CONS)]
-      facility = getopt[:facility, LOG_USER]
+      ident = opts.getopt(:ident, name)
+      logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS))
+      facility = opts.getopt(:facility, LOG_USER)
       @syslog = ::Syslog.open(ident, Integer(logopt), Integer(facility))
 
       # provides a mapping from the default Logging levels
       # to the syslog levels
       @map = [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT]
 
-      map = getopt[:map]
+      map = opts.getopt(:map)
       self.map = map unless map.nil?
     end
 

@@ -43,12 +43,10 @@ module Logging::Appenders
     # appened to the file.
     #
     def initialize( name, opts = {} )
-      getopt = ::Logging.options(opts)
-
-      @fn = getopt[:filename, name]
+      @fn = opts.getopt(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
       self.class.assert_valid_logfile(@fn)
-      mode = getopt[:truncate] ? 'w' : 'a'
+      mode = opts.getopt(:truncate) ? 'w' : 'a'
 
       super(name, ::File.new(@fn, mode), opts)
     end

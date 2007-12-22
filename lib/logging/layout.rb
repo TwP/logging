@@ -35,8 +35,7 @@ module Logging
       default = ::Logging.const_defined?('OBJ_FORMAT') ?
                 ::Logging::OBJ_FORMAT : nil
 
-      getopt = ::Logging.options(opts)
-      f = getopt[:format_as, default]
+      f = opts.getopt(:format_as, default)
       f = f.intern if f.instance_of? String
 
       @obj_format = case f

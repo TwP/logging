@@ -24,15 +24,14 @@ module Appenders
 
       @growl = "growlnotify -w -n \"#{@name}\" -t \"%s\" -m \"%s\" -p %d &"
 
-      getopt = ::Logging.options(opts)
-      @coalesce = getopt[:coalesce, false]
-      @title_sep = getopt[:separator]
+      @coalesce = opts.getopt(:coalesce, false)
+      @title_sep = opts.getopt(:separator)
 
       # provides a mapping from the default Logging levels
       # to the Growl notification levels
       @map = [-2, -1, 0, 1, 2]
 
-      map = getopt[:map]
+      map = opts.getopt(:map)
       self.map = map unless map.nil?
 
       setup_coalescing if @coalesce

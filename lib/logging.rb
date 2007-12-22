@@ -1,5 +1,6 @@
 # $Id$
 
+require 'logging/utils'
 require 'logging/repository'
 
 # require all appenders
@@ -241,21 +242,6 @@ module Logging
       when 'all'; 0
       when 'off'; LEVELS.length
       else begin; Integer(l); rescue ArgumentError; LEVELS[l] end end
-    end
-
-    # Helper method for retrieving options from a hash.
-    def options( opts = {} )
-      lambda do |*args|
-        keys, default, ignored = args
-        catch(:found) do
-          Array(keys).each do |key|
-            [key, key.to_s, key.to_s.intern].each do |k|
-              throw :found, opts[k] if opts.has_key?(k)
-            end
-          end
-          default
-        end
-      end
     end
     # :startdoc:
   end

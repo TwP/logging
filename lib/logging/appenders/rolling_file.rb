@@ -59,10 +59,8 @@ module Logging::Appenders
     #               logging to the same log file (does not work on Windows)
     #
     def initialize( name, opts = {} )
-      getopt = ::Logging.options(opts)
-
       # raise an error if a filename was not given
-      @fn = getopt[:filename, name]
+      @fn = opts.getopt(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
       ::Logging::Appenders::File.assert_valid_logfile(@fn)
 
@@ -74,13 +72,13 @@ module Logging::Appenders
       @logname_fmt = "#{bn}.%d#{ext}"
 
       # grab our options
-      @keep = getopt[:keep]
+      @keep = opts.getopt(:keep)
       @keep = Integer(@keep) unless @keep.nil?
 
-      @size = getopt[:size]
+      @size = opts.getopt(:size)
       @size = Integer(@size) unless @size.nil?
 
-      @lockfile = if getopt[:safe, false] and !(%r/win32/ =~ RUBY_PLATFORM)
+      @lockfile = if opts.getopt(:safe, false) and !(%r/win32/ =~ RUBY_PLATFORM)
         Lockfile.new(
             @fn + '.lck',
             :retries => 1,
@@ -90,7 +88,7 @@ module Logging::Appenders
 
       code = 'def sufficiently_aged?() false end'
 
-      case @age = getopt[:age]
+      case @age = opts.getopt(:age)
       when 'daily'
         @start_time = Time.now
         code = <<-CODE
@@ -145,7 +143,7 @@ module Logging::Appenders
       meta.class_eval code
 
       # if the truncate flag was set to true, then roll 
-      roll_now = getopt[:truncate, false]
+      roll_now = opts.getopt(:truncate, false)
       roll_files if roll_now
 
       super(name, open_logfile, opts)
