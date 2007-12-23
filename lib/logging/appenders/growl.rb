@@ -2,8 +2,7 @@
 
 require 'logging/appender'
 
-module Logging
-module Appenders
+module Logging::Appenders
 
   # This class provides an Appender that can send notifications to the Growl
   # notification system on Mac OS X.
@@ -204,7 +203,6 @@ module Appenders
 
   end  # class Growl
 
-end  # module Appenders
-end  # module Logging
+end  # module Logging::Appenders
 
 # EOF

@@ -13,8 +13,7 @@ end
 #
 if HAVE_SYSLOG
 
-module Logging
-module Appenders
+module Logging::Appenders
 
   # This class provides an Appender that can write to the UNIX syslog
   # daemon.
@@ -99,9 +98,9 @@ module Appenders
       super
 
       ident = opts.getopt(:ident, name)
-      logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS))
-      facility = opts.getopt(:facility, LOG_USER)
-      @syslog = ::Syslog.open(ident, Integer(logopt), Integer(facility))
+      logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS), :as => Integer)
+      facility = opts.getopt(:facility, LOG_USER, :as => Integer)
+      @syslog = ::Syslog.open(ident, logopt, facility)
 
       # provides a mapping from the default Logging levels
       # to the syslog levels
@@ -213,9 +212,7 @@ module Appenders
 
   end  # class Syslog
 
-end  # module Appenders
-end  # module Logging
-
+end  # module Logging::Appenders
 end  # HAVE_SYSLOG
 
 # EOF

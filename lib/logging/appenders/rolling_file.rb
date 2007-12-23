@@ -72,11 +72,8 @@ module Logging::Appenders
       @logname_fmt = "#{bn}.%d#{ext}"
 
       # grab our options
-      @keep = opts.getopt(:keep)
-      @keep = Integer(@keep) unless @keep.nil?
-
-      @size = opts.getopt(:size)
-      @size = Integer(@size) unless @size.nil?
+      @keep = opts.getopt(:keep, :as => Integer)
+      @size = opts.getopt(:size, :as => Integer)
 
       @lockfile = if opts.getopt(:safe, false) and !(%r/win32/ =~ RUBY_PLATFORM)
         Lockfile.new(
@@ -228,7 +225,7 @@ module Logging::Appenders
     #
     def roll_files
       return unless ::File.exist?(@fn)
-#puts "rolling log file"
+
       files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
       unless files.empty?
         # sort the files in revese order based on their count number
@@ -259,7 +256,6 @@ module Logging::Appenders
     # Opens the logfile and stores the current file szie and inode.
     #
     def open_logfile
-#puts "opening log file"
       @io = ::File.new(@fn, 'a')
       @io.sync = true
 

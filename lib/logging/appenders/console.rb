@@ -2,8 +2,7 @@
 
 require 'logging/appenders/io'
 
-module Logging
-module Appenders
+module Logging::Appenders
 
   # This class provides an Appender that can write to STDOUT.
   #
@@ -39,7 +38,6 @@ module Appenders
     end
   end  # class Stderr
 
-end  # module Appenders
-end  # module Logging
+end  # module Logging::Appenders
 
 # EOF

@@ -2,8 +2,7 @@
 
 require 'logging/appender'
 
-module Logging
-module Appenders
+module Logging::Appenders
 
   # This class provides an Appender that can write to any IO stream
   # configured for writing.
@@ -74,7 +73,6 @@ module Appenders
     end
 
   end  # class IO
-end  # module Appenders
-end  # module Logging
+end  # module Logging::Appenders
 
 # EOF

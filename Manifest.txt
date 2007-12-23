@@ -6,6 +6,7 @@ data/logging.yaml
 lib/logging.rb
 lib/logging/appender.rb
 lib/logging/appenders/console.rb
+lib/logging/appenders/email.rb
 lib/logging/appenders/file.rb
 lib/logging/appenders/growl.rb
 lib/logging/appenders/io.rb
@@ -45,3 +46,4 @@ test/test_logger.rb
 test/test_logging.rb
 test/test_repository.rb
 test/test_root_logger.rb
+test/test_utils.rb
