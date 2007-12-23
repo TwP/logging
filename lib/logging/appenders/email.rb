@@ -49,43 +49,55 @@ class Email < ::Logging::Appender
   # call-seq:
   #    flush
   #
-  # Send out an email with the current buffer.
+  # Create and send an email containing the current message buffer.
   #
   def flush
     synch { send_mail }
   end
 
-
-  private
-
+  # call-seq:
+  #    append( event )
+  #
+  # Write the given _event_ to the e-mail message buffer. The log event will
+  # be processed through the Layout associated with this appender.
+  #
   def append( event )
     if closed?
       raise RuntimeError,
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    sync do
+    sync {
       @buff << @layout.format(event)
       send_mail if @buff.size >= @buffsize or @immediate[event.level]
-    end unless @level > event.level
-
+    } unless @level > event.level
     self
   end
 
+  # call-seq:
+  #    appender << string
+  #
+  # Write the given _string_ to the e-mail message buffer "as is" -- no
+  # layout formatting will be performed.
+  #
   def <<( str )
     if closed?
       raise RuntimeError,
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    sync do
+    sync {
       @buff << str
       send_mail if @buff.size >= @buffsize
-    end
-
+    }
     self
   end
 
+
+  private
+
+  # Connect to the mail server and send out any buffered messages.
+  #
   def send_mail
     return if @buff.empty?
 
