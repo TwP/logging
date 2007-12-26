@@ -33,7 +33,13 @@ module Logging::Appenders
       map = opts.getopt(:map)
       self.map = map unless map.nil?
 
-      setup_coalescing if @coalesce
+      # make sure the growlnotify command can be called
+      if system('growlnotify -v 2&>1 > /dev/null')
+        setup_coalescing if @coalesce
+      else
+        self.level = :off
+        # TODO - log that the growl notification is turned off
+      end
     end
 
     # call-seq:
@@ -60,50 +66,31 @@ module Logging::Appenders
       @map = map
     end
 
-    # call-seq:
-    #    append( event )
-    #
-    # Send the given _event_ to the Growl framework. The log event will be
-    # processed through the Layout assciated with this appender. The message
-    # will be logged at the level specified by the event.
-    #
-    def append( event )
-      if closed?
-        raise RuntimeError,
-              "appender '<#{self.class.name}: #{@name}>' is closed"
-      end
 
-      sync do
-        title = ''
-        message = @layout.format(event)
-        priority = @map[event.level]
-
-        if @title_sep
-          title, message = message.split(@title_sep)
-          title, message = '', title if message.nil?
-          title.strip!
-        end
-
-        growl(title, message, priority)
-      end unless @level > event.level
-      self
-    end
+    private
 
     # call-seq:
-    #    syslog << string
+    #    write( event, do_layout = true )
     #
-    # Write the given _string_ to the Growl framework "as is" -- no
-    # layout formatting will be performed. The string will be logged at the
-    # 0 notification level of the Growl framework.
+    # Write the given _event_ to the growl notification facility. The log
+    # event will be processed through the Layout assciated with this
+    # appender if the _do_layout_ flag is set to +true+. The message will be
+    # logged at the level specified by the event.
     #
-    def <<( str )
-      if closed?
-        raise RuntimeError,
-              "appender '<#{self.class.name}: #{@name}>' is closed"
-      end
-
+    # If the _do_layout_ flag is set to +false+, the _event_ will be
+    # converted to a string and wirtten to the growl notification facility
+    # "as is" -- no layout formatting will be performed. The string will be
+    # logged at the 0 notification level of the Growl framework.
+    #
+    def write( event, do_layout = true )
       title = ''
-      message = str
+      priority = 0
+      message = if do_layout
+          priority = @map[event.level]
+          @layout.format(event)
+        else
+          event.to_s
+        end
 
       if @title_sep
         title, message = message.split(@title_sep)
@@ -111,12 +98,9 @@ module Logging::Appenders
         title.strip!
       end
 
-      sync {growl(title, message, 0)}
+      growl(title, message, priority)
       self
     end
-
-
-    private
 
     # call-seq:
     #    growl_level_num( level )    => integer

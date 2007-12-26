@@ -24,7 +24,7 @@ class Email < ::Logging::Appender
     # an e-mail is sent as soon as possible
     @immediate = []
     opts.getopt(:immediate_at, '').split(',').each do |lvl|
-      num = ::Logging.level_num(lvl)
+      num = ::Logging.level_num(lvl.strip)
       next if num.nil?
       @immediate[num] = true
     end
@@ -53,48 +53,29 @@ class Email < ::Logging::Appender
   #
   def flush
     synch { send_mail }
-  end
-
-  # call-seq:
-  #    append( event )
-  #
-  # Write the given _event_ to the e-mail message buffer. The log event will
-  # be processed through the Layout associated with this appender.
-  #
-  def append( event )
-    if closed?
-      raise RuntimeError,
-            "appender '<#{self.class.name}: #{@name}>' is closed"
-    end
-
-    sync {
-      @buff << @layout.format(event)
-      send_mail if @buff.size >= @buffsize or @immediate[event.level]
-    } unless @level > event.level
-    self
-  end
-
-  # call-seq:
-  #    appender << string
-  #
-  # Write the given _string_ to the e-mail message buffer "as is" -- no
-  # layout formatting will be performed.
-  #
-  def <<( str )
-    if closed?
-      raise RuntimeError,
-            "appender '<#{self.class.name}: #{@name}>' is closed"
-    end
-
-    sync {
-      @buff << str
-      send_mail if @buff.size >= @buffsize
-    }
     self
   end
 
 
   private
+
+  # call-seq:
+  #    write( event, do_layout = true )
+  #
+  # Write the given _event_ to the e-mail message buffer. The log event will
+  # be processed through the Layout associated with this appender.
+  #
+  # If the _do_layout_ flag is set to false, the _event_ will be converted
+  # to a string and then written to the e-mail message buffer "as is" -- no
+  # layout formatting will be performed.
+  #
+  def write( event, do_layout = true )
+    str = do_layout ? @layout.format(event) : event.to_s
+    @buff << str
+    send_mail if @buff.length >= @buffsize ||
+                 (do_layout && @immediate[event.level])
+    self
+  end
 
   # Connect to the mail server and send out any buffered messages.
   #
@@ -114,6 +95,7 @@ class Email < ::Logging::Appender
       Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
     rescue Exception => e
       self.level = :off
+      # TODO - log that e-mail notification has been turned off
     ensure
       @buff.clear
     end

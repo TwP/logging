@@ -20,7 +20,10 @@ module TestLogging
     def test_append
       ary = []
       @appender.instance_variable_set :@ary, ary
-      def @appender.write( str ) @ary << str end
+      def @appender.write( event, do_layout = true )
+        str = do_layout ? @layout.format(event) : event.to_s
+        @ary << str
+      end
 
       assert_nothing_raised {@appender.append @event}
       assert_equal "DEBUG  logger : message\n", ary.pop
@@ -68,14 +71,17 @@ module TestLogging
     def test_concat
       ary = []
       @appender.instance_variable_set :@ary, ary
-      def @appender.write( str ) @ary << str end
+      def @appender.write( event, do_layout = true )
+        str = do_layout ? @layout.format(event) : event.to_s
+        @ary << str
+      end
 
       assert_nothing_raised {@appender << 'log message'}
       assert_equal 'log message', ary.pop
 
       @appender.level = :off
       @appender << 'another log message'
-      assert_equal 'another log message', ary.pop
+      assert_nil ary.pop
 
       layout = @appender.layout
       def layout.footer() 'this is the footer' end
@@ -83,6 +89,10 @@ module TestLogging
       @appender.close
       assert_raise(RuntimeError)  {@appender << 'log message'}
       assert_equal 'this is the footer', ary.pop
+    end
+
+    def test_flush
+      assert_same @appender, @appender.flush
     end
 
     def test_initialize

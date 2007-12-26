@@ -42,7 +42,8 @@ module Logging
       self.level = opts.getopt(:level)
 
       @mutex = Mutex.new
-      sync {write(@layout.header)}
+      header = @layout.header
+      sync {write(header, false)} unless header.nil? || header.empty?
 
       ::Logging::Appender[@name] = self
     end
@@ -59,7 +60,7 @@ module Logging
               "appender '<#{self.class.name}: #{@name}>' is closed"
       end
 
-      sync {write(@layout.format(event))} unless @level > event.level
+      sync {write(event, true)} unless @level > event.level
       self
     end
 
@@ -75,7 +76,7 @@ module Logging
               "appender '<#{self.class.name}: #{@name}>' is closed"
       end
 
-      sync {write(str)}
+      sync {write(str, false)} unless @level >= ::Logging::LEVELS.length
       self
     end
 
@@ -145,7 +146,7 @@ module Logging
     def close( footer = true )
       return self if @closed
       @closed = true
-      sync {write(@layout.footer)} if footer
+      sync {write(@layout.footer, false)} if footer
       self
     end
 
@@ -156,7 +157,9 @@ module Logging
     # otherwise. When an appender is closed, no more log events can be
     # written to the logging destination.
     #
-    def closed?( ) @closed end
+    def closed?
+      @closed
+    end
 
     # call-seq:
     #    flush
@@ -164,18 +167,25 @@ module Logging
     # Call +flush+ to force an appender to write out any buffered log events.
     # Similar to IO#flush, so use in a similar fashion.
     #
-    def flush( ) self end
+    def flush
+      self
+    end
 
 
     private 
 
     # call-seq:
-    #    write( str )
+    #    write( event, do_layout = true )
     #
-    # Writes the given string to the logging destination. Subclasses should
-    # provide an implementation of this method.
+    # Writes the given _event_ to the logging destination. Subclasses should
+    # provide an implementation of this method. If the _do_layout_ flag is
+    # set to +true+, then the event will be formatted using the configured
+    # layout object. If set to false, then the event will be stringiied and
+    # appended to the logging destination.
     #
-    def write( str ) nil end
+    def write( event, do_layout = true )
+      nil
+    end
 
     # call-seq:
     #    sync { block }

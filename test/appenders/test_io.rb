@@ -41,7 +41,8 @@ module TestAppenders
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
       assert_raise(IOError) {@appender.append event}
-      assert_equal true, @appender.closed?
+      assert_equal false, @appender.closed?
+      assert_equal 5, @appender.level
     end
 
     def test_close
@@ -78,7 +79,8 @@ module TestAppenders
     def test_concat_error
       @sio.close
       assert_raise(IOError) {@appender << 'oopsy'}
-      assert_equal true, @appender.closed?
+      assert_equal false, @appender.closed?
+      assert_equal 5, @appender.level
     end
 
     def test_flush

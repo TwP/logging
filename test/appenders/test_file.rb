@@ -14,6 +14,8 @@ module TestAppenders
 
     def setup
       super
+      ::Logging.define_levels %w(debug info warn error fatal)
+
       FileUtils.rm_rf TMP if File.exist?(TMP)
       FileUtils.mkdir(TMP)
       FileUtils.mkdir [File.join(TMP, 'dir'), File.join(TMP, 'uw_dir')]
@@ -27,24 +29,29 @@ module TestAppenders
       FileUtils.rm_rf TMP
     end
 
-    def test_initialize
+    def test_class_assert_valid_logfile
       log = File.join(TMP, 'uw_dir', 'file.log')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.new(NAME, :filename => log)
+        ::Logging::Appenders::File.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'dir')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.new(NAME, :filename => log)
+        ::Logging::Appenders::File.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'uw_file')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.new(NAME, :filename => log)
+        ::Logging::Appenders::File.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'file.log')
-      appender = ::Logging::Appenders::File.new NAME, 'filename' => log
+      assert ::Logging::Appenders::File.assert_valid_logfile(log)
+    end
+
+    def test_initialize
+      log = File.join(TMP, 'file.log')
+      appender = ::Logging::Appenders::File.new(NAME, 'filename' => log)
       assert_equal 'logfile', appender.name
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"

@@ -95,8 +95,6 @@ module Logging::Appenders
     #                  through LOG_LOCAL7.
     #
     def initialize( name, opts = {} )
-      super
-
       ident = opts.getopt(:ident, name)
       logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS), :as => Integer)
       facility = opts.getopt(:facility, LOG_USER, :as => Integer)
@@ -108,6 +106,8 @@ module Logging::Appenders
 
       map = opts.getopt(:map)
       self.map = map unless map.nil?
+
+      super
     end
 
     # call-seq:
@@ -152,46 +152,34 @@ module Logging::Appenders
       !@syslog.opened?
     end
 
+
+    private
+
     # call-seq:
-    #    append( event )
+    #    write( event, do_layout = true )
     #
     # Write the given _event_ to the syslog facility. The log event will be
-    # processed through the Layout assciated with this appender. The message
-    # will be logged at the level specified by the event.
+    # processed through the Layout assciated with this appender if the
+    # _do_layout_ flag is set to +true+. The message will be logged at the
+    # level specified by the event.
     #
-    def append( event )
-      if closed?
-        raise RuntimeError,
-              "appender '<#{self.class.name}: #{@name}>' is closed"
-      end
-
-      sync do
-        msg = @layout.format(event)
-        pri = @map[event.level]
-        @syslog.log(pri, '%s', msg)
-      end unless @level > event.level
-      self
-    end
-
-    # call-seq:
-    #    syslog << string
-    #
-    # Write the given _string_ to the syslog facility "as is" -- no
+    # If the _do_layout_ flag is set to +false+, the _event_ will be
+    # converted to a string and wirtten to the syslog facility "as is" -- no
     # layout formatting will be performed. The string will be logged at the
     # LOG_DEBUG level of the syslog facility.
     #
-    def <<( str )
-      if closed?
-        raise RuntimeError,
-              "appender '<#{self.class.name}: #{@name}>' is closed"
-      end
+    def write( event, do_layout = true )
+      pri = LOG_DEBUG
+      msg = if do_layout
+          pri = @map[event.level]
+          @layout.format(event)
+        else
+          event.to_s
+        end
 
-      sync {@syslog.log(LOG_DEBUG, '%s', str)}
+      @syslog.log(pri, '%s', msg)
       self
     end
-
-
-    private
 
     # call-seq:
     #    syslog_level_num( level )    => integer

@@ -150,15 +150,21 @@ module Logging::Appenders
     private
 
     # call-seq:
-    #    write( str )
+    #    write( event, do_layout = true )
     #
-    # Write the given string to the log file. The log file will be rolled
+    # Write the given _event_ to the log file. The log file will be rolled
     # if the maximum file size is exceeded or if the file is older than the
     # maximum age.
     #
-    def write( str )
+    # If the _do_layout_ flag is set to +true+, then the event will be
+    # formatted using the configured layout object. If set to false, then
+    # the event will be stringiied and appended to the current log file.
+    #
+    def write( event, do_layout = true )
       check_logfile
-      super
+
+      str = do_layout ? @layout.format(event) : event.to_s
+      super(str, false)
 
       if roll_required?(str)
         return roll unless @lockfile

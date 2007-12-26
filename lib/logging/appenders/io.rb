@@ -58,16 +58,21 @@ module Logging::Appenders
     private
 
     # call-seq:
-    #    write( str )
+    #    write( event, do_layout = true )
     #
-    # Writes the given string to the IO stream. If an +IOError+ is detected,
-    # than this appender will be closed and the error reported.
+    # Writes the given _event_ to the IO stream. If an +IOError+ is detected,
+    # than this appender will be turned off and the error reported.
     #
-    def write( str )
+    # If the _do_layout_ flag is set to +true+, then the event will be
+    # formatted using the configured layout object. If set to false, then
+    # the event will be stringiied and appended to the IO stream.
+    #
+    def write( event, do_layout = true )
       begin
+        str = do_layout ? @layout.format(event) : event.to_s
         @io.print str
       rescue IOError
-        close false
+        self.level = :off
         raise
       end
     end

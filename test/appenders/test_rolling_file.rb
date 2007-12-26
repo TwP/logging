@@ -14,6 +14,8 @@ module TestAppenders
 
     def setup
       super
+      ::Logging.define_levels %w(debug info warn error fatal)
+
       FileUtils.rm_rf TMP if File.exist?(TMP)
       FileUtils.mkdir(TMP)
       @fn = File.join(TMP, 'test.log')
