@@ -48,7 +48,7 @@ module TestLogging
       logfile = ::Logging::Appender['logfile']
       assert_instance_of ::Logging::Appenders::File, logfile
       assert_equal 0, logfile.level
-      assert_equal 'temp.log', logfile.instance_variable_get(:@fn)
+      assert_equal 'tmp/temp.log', logfile.instance_variable_get(:@fn)
 
       layout = logfile.layout
       assert_instance_of ::Logging::Layouts::Pattern, layout
@@ -87,9 +87,6 @@ module TestLogging
       appenders = yourlogger.instance_variable_get :@appenders
       assert_equal 2, appenders.length
       assert_equal ['logfile', 'stderr'], appenders.map {|a| a.name}.sort
-
-      # cleanup
-      File.delete('temp.log') if File.exist?('temp.log')
     end
 
     def test_logger

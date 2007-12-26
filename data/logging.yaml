@@ -47,7 +47,7 @@ logging_config:
     - type          : File
       name          : logfile
       level         : DEB
-      filename      : 'temp.log'
+      filename      : 'tmp/temp.log'
       truncate      : true
       layout:
         type        : Pattern
