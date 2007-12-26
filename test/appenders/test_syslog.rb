@@ -17,10 +17,6 @@ module TestAppenders
       @levels = ::Logging::LEVELS
     end
 
-    def teardown
-      ::Syslog.close if ::Syslog.opened?
-    end
-
     def test_append
       return if RUBY_PLATFORM =~ %r/cygwin/
 
@@ -63,7 +59,7 @@ module TestAppenders
 
     def test_append_error
       appender = create_syslog
-      appender.close
+      appender.close false
 
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
@@ -75,7 +71,7 @@ module TestAppenders
       appender = create_syslog
       assert_equal false, appender.closed?
 
-      appender.close
+      appender.close false
       assert_equal true, appender.closed?
     end
 
@@ -107,7 +103,7 @@ module TestAppenders
 
     def test_concat_error
       appender = create_syslog
-      appender.close
+      appender.close false
 
       assert_raise(RuntimeError) {appender << 'oopsy'}
       assert_equal true, appender.closed?

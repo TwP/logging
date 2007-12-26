@@ -8,23 +8,13 @@ module TestLogging
   class TestLogging < Test::Unit::TestCase
     include LoggingTestCase
 
-    TMP = 'tmp'
-
     def setup
       super
       @levels = ::Logging::LEVELS
       @lnames = ::Logging::LNAMES
 
-      FileUtils.rm_rf TMP
-      FileUtils.mkdir(TMP)
       @fn = File.join(TMP, 'test.log')
       @glob = File.join(TMP, '*.log')
-    end
-
-    def teardown
-      h = ::Logging::Repository.instance.instance_variable_get :@h
-      h.values.each {|l| l.close if l.respond_to? :close}
-      FileUtils.rm_rf TMP
     end
 
     def test_configure

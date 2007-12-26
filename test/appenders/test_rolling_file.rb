@@ -9,23 +9,15 @@ module TestAppenders
   class TestRollingFile < Test::Unit::TestCase
     include LoggingTestCase
 
-    TMP = 'tmp'
     NAME = 'roller'
 
     def setup
       super
       ::Logging.define_levels %w(debug info warn error fatal)
 
-      FileUtils.rm_rf TMP if File.exist?(TMP)
-      FileUtils.mkdir(TMP)
       @fn = File.join(TMP, 'test.log')
       @fn_fmt = File.join(TMP, 'test.%d.log')
       @glob = File.join(TMP, '*.log')
-    end
-
-    def teardown
-      cleanup
-      FileUtils.rm_rf TMP
     end
 
     def test_initialize

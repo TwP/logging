@@ -10,19 +10,6 @@ module TestConfig
   class TestYamlConfigurator < Test::Unit::TestCase
     include LoggingTestCase
 
-    TMP = 'tmp'
-
-    def setup
-      super
-      FileUtils.rm_rf TMP
-      FileUtils.mkdir TMP
-    end
-
-    def teardown
-      super
-      FileUtils.rm_rf TMP
-    end
-
     def test_class_load
       assert_raise(::Logging::Config::YamlConfigurator::Error) {
         ::Logging::Config::YamlConfigurator.load(Object.new)

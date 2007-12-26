@@ -39,7 +39,9 @@ module Logging::Appenders
       super(*args)
       io, @io = @io, nil
       io.close unless [STDIN, STDERR, STDOUT].include?(io)
-      self
+    rescue IOError => err
+    ensure
+      return self
     end
 
     # call-seq:

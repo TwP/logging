@@ -138,8 +138,10 @@ module Logging::Appenders
     #
     # Closes the connetion to the syslog facility.
     #
-    def close
+    def close( footer = true )
+      super
       @syslog.close
+      self
     end
 
     # call-seq:

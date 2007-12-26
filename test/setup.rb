@@ -28,8 +28,13 @@ end
 module TestLogging
 module LoggingTestCase
 
+  TMP = 'tmp'
+
   def setup
     super
+
+    FileUtils.rm_rf TMP
+    FileUtils.mkdir TMP
 
     ::Logging.module_eval do
       ::Logging::LEVELS.clear
@@ -49,8 +54,14 @@ module LoggingTestCase
         end
       end
     end
+  end
     
-    ::Logging::Appender.instance_variable_get(:@appenders).clear
+  def teardown
+    super
+    h = ::Logging::Appender.instance_variable_get(:@appenders)
+    h.each_value {|a| a.close(false) unless a.nil? || a.closed?}
+    h.clear
+    FileUtils.rm_rf TMP
   end
 
 end  # module LoggingTestCase

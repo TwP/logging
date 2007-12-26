@@ -9,24 +9,16 @@ module TestAppenders
   class TestFile < Test::Unit::TestCase
     include LoggingTestCase
 
-    TMP = 'tmp'
     NAME = 'logfile'
 
     def setup
       super
       ::Logging.define_levels %w(debug info warn error fatal)
 
-      FileUtils.rm_rf TMP if File.exist?(TMP)
-      FileUtils.mkdir(TMP)
       FileUtils.mkdir [File.join(TMP, 'dir'), File.join(TMP, 'uw_dir')]
       FileUtils.chmod 0555, File.join(TMP, 'uw_dir')
       FileUtils.touch File.join(TMP, 'uw_file')
       FileUtils.chmod 0444, File.join(TMP, 'uw_file')
-    end
-
-    def teardown
-      cleanup
-      FileUtils.rm_rf TMP
     end
 
     def test_class_assert_valid_logfile
