@@ -1,12 +1,13 @@
 # $Id$
 
 require 'test/setup.rb'
-require 'flexmock/test_unit'
+require 'flexmock'
 
 module TestLogging
 module TestAppenders
 
   class TestEmail < Test::Unit::TestCase
+    include FlexMock::TestCase
     include LoggingTestCase
 
     def setup

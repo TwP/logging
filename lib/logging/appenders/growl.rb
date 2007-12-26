@@ -32,11 +32,10 @@ module Logging::Appenders
 
       map = opts.getopt(:map)
       self.map = map unless map.nil?
+      setup_coalescing if @coalesce
 
       # make sure the growlnotify command can be called
-      if system('growlnotify -v 2&>1 > /dev/null')
-        setup_coalescing if @coalesce
-      else
+      unless system('growlnotify -v 2>&1 > /dev/null')
         self.level = :off
         # TODO - log that the growl notification is turned off
       end
@@ -109,10 +108,7 @@ module Logging::Appenders
     # corresponding Growl notification level number.
     #
     def growl_level_num( level )
-      level = case level
-              when Integer; level
-              when String; Integer(level)
-              else raise ArgumentError, "unkonwn level '#{level}'" end
+      level = Integer(level)
       if level < -2 or level > 2
         raise ArgumentError, "level '#{level}' is not in range -2..2"
       end
