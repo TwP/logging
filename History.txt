@@ -1,6 +1,6 @@
 == 0.6.0 / 2007-12-26
 
-* Using the new 'options' method for handling option hashes
+* Using the new 'getopt' method for handling option hashes
 * Rolling file appender is safe for multiple processes
 * Added an e-mail appender from Jeremy Hinegardner
 * Updated tests for the appenders
