@@ -52,8 +52,28 @@ class Email < ::Logging::Appender
   # Create and send an email containing the current message buffer.
   #
   def flush
-    synch { send_mail }
+    sync { send_mail }
     self
+  end
+
+  # call-seq:
+  #    close( footer = true )
+  #
+  # Close the e-mail appender and then flush the message buffer. This will
+  # ensure that a final e-mail is sent with any remaining messages.
+  #
+  def close( footer = true )
+    super
+    flush
+  end
+
+  # cal-seq:
+  #    queued_messages    => integer
+  #
+  # Returns the number of messages in the buffer.
+  #
+  def queued_messages
+    @buff.length
   end
 
 

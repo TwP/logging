@@ -26,6 +26,7 @@ PROJ.exclude << '^(\.\/|\/)?tags$'
 PROJ.rdoc_exclude << '^(\.\/|\/)?data'
 PROJ.rdoc_exclude << '^(\.\/|\/)?website'
 
+depend_on 'flexmock'
 depend_on 'lockfile'
 
 # EOF
