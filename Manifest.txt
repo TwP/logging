@@ -32,6 +32,7 @@ rakelib/website.rake
 test/appenders/test_console.rb
 test/appenders/test_email.rb
 test/appenders/test_file.rb
+test/appenders/test_growl.rb
 test/appenders/test_io.rb
 test/appenders/test_rolling_file.rb
 test/appenders/test_syslog.rb
