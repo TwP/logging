@@ -20,11 +20,11 @@ PROJ.rdoc_dir = 'doc/rdoc'
 PROJ.rdoc_remote_dir = ''
 PROJ.version = Logging::VERSION
 
-PROJ.exclude << '^(\.\/|\/)?website/output'
-PROJ.exclude << '^(\.\/|\/)?doc'
-PROJ.exclude << '^(\.\/|\/)?tags$'
-PROJ.rdoc_exclude << '^(\.\/|\/)?data'
-PROJ.rdoc_exclude << '^(\.\/|\/)?website'
+PROJ.exclude << '^website/output'
+PROJ.exclude << '^doc'
+PROJ.exclude << '^tags$'
+PROJ.rdoc_exclude << '^data'
+PROJ.rdoc_exclude << '^website'
 
 depend_on 'flexmock'
 depend_on 'lockfile'

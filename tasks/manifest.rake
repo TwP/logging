@@ -1,4 +1,4 @@
-# $Id: manifest.rake 11 2007-08-23 15:45:16Z tim_pease $
+# $Id$
 
 require 'find'
 
@@ -10,9 +10,10 @@ namespace :manifest do
     files = []
     exclude = Regexp.new(PROJ.exclude.join('|'))
     Find.find '.' do |path|
+      path.sub! %r/^(\.\/|\/)/o, ''
       next unless test ?f, path
       next if path =~ exclude
-      files << path[2..-1]
+      files << path
     end
 
     File.open(fn, 'w') {|fp| fp.puts files.sort}
@@ -26,9 +27,10 @@ namespace :manifest do
     files = []
     exclude = Regexp.new(PROJ.exclude.join('|'))
     Find.find '.' do |path|
+      path.sub! %r/^(\.\/|\/)/o, ''
       next unless test ?f, path
       next if path =~ exclude
-      files << path[2..-1]
+      files << path
     end
 
     files << fn unless test ?f, fn

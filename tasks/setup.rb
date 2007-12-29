@@ -56,6 +56,9 @@ PROJ.dependencies = []
 PROJ.need_tar = true
 PROJ.need_zip = false
 
+# Load the other rake files in the tasks folder
+Dir.glob('tasks/*.rake').sort.each {|fn| import fn}
+
 # Setup some constants
 WIN32 = %r/win32/ =~ RUBY_PLATFORM unless defined? WIN32
 
@@ -86,7 +89,7 @@ SUDO = if WIN32 then ''
 RCOV = WIN32 ? 'rcov.cmd'  : 'rcov'
 GEM  = WIN32 ? 'gem.cmd'   : 'gem'
 
-%w(rcov spec rubyforge).each do |lib|
+%w(rcov spec rubyforge bones).each do |lib|
   begin
     require lib
     Object.instance_eval {const_set "HAVE_#{lib.upcase}", true}
@@ -120,7 +123,7 @@ end
 #
 def ensure_in_path( path )
   path = File.expand_path(path)
-  $: << path if test(?d, path) and not $:.include?(path)
+  $:.unshift(path) if test(?d, path) and not $:.include?(path)
 end
 
 # EOF

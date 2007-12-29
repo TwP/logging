@@ -1,4 +1,4 @@
-# $Id: rubyforge.rake 11 2007-08-23 15:45:16Z tim_pease $
+# $Id$
 
 if PROJ.rubyforge_name && HAVE_RUBYFORGE
 

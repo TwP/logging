@@ -1,4 +1,4 @@
-# $Id: gem.rake 11 2007-08-23 15:45:16Z tim_pease $
+# $Id$
 
 require 'rake/gempackagetask'
 
@@ -18,7 +18,6 @@ namespace :gem do
     PROJ.dependencies.each do |dep|
       s.add_dependency(*dep)
     end
-    s.add_dependency('rake', ">= #{RAKEVERSION}")
 
     s.files = PROJ.files
     s.executables = PROJ.executables.map {|fn| File.basename(fn)}
@@ -79,6 +78,9 @@ namespace :gem do
   end
 
 end  # namespace :gem
+
+desc 'Alias to gem:package'
+task :gem => 'gem:package'
 
 task :clobber => 'gem:clobber_package'
 
