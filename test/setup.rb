@@ -7,15 +7,7 @@ require 'test/unit'
 #
 KeyError = IndexError if not defined? KeyError
 
-begin
-  require 'rubygems'
-  require 'logging'
-rescue LoadError
-  path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
-  raise if $:.include? path
-  $: << path
-  retry
-end
+require File.join(File.dirname(__FILE__), '..', 'lib', 'logging')
 
 begin
   require 'turn'

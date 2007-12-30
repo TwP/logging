@@ -1,8 +1,5 @@
 # $Id$
 
-require 'logging'
-require 'logging/logger'
-
 module Logging
 
   # The root logger exists to ensure that all loggers have a parent and a

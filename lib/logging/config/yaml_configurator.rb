@@ -1,7 +1,6 @@
 # $Id$
 
 require 'yaml'
-require 'logging'
 
 module Logging
 module Config

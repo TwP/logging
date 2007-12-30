@@ -1,10 +1,6 @@
 # $Id$
 
 require 'thread'
-require 'logging'
-require 'logging/logger'
-require 'logging/layout'
-require 'logging/layouts/basic'
 
 module Logging
 

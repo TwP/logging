@@ -1,11 +1,6 @@
 # $Id$
 
 require 'thread'
-require 'logging'
-require 'logging/appender'
-require 'logging/log_event'
-require 'logging/repository'
-
 
 module Logging
 

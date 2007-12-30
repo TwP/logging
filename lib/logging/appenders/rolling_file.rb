@@ -1,7 +1,11 @@
 # $Id$
 
-require 'logging/appenders/file'
-require 'lockfile'
+begin
+  require 'lockfile'
+rescue LoadError
+  require 'rubygems'
+  require 'lockfile'
+end
 
 module Logging::Appenders
 

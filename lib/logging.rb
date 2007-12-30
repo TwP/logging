@@ -1,15 +1,21 @@
 # $Id$
 
 require 'logging/utils'
+require 'logging/log_event'
+require 'logging/logger'
+require 'logging/root_logger'
 require 'logging/repository'
+require 'logging/appender'
+require 'logging/layout'
 
 # require all appenders
+require 'logging/appenders/static_appender'
+require 'logging/appenders/io'
 require 'logging/appenders/console'
 require 'logging/appenders/email'
 require 'logging/appenders/file'
 require 'logging/appenders/growl'
 require 'logging/appenders/rolling_file'
-require 'logging/appenders/static_appender'
 require 'logging/appenders/syslog'
 
 # require all layouts

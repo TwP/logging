@@ -1,7 +1,5 @@
 # $Id$
 
-require 'logging/appenders/io'
-
 module Logging::Appenders
 
   # This class provides an Appender that can write to a File.

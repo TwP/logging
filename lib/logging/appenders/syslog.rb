@@ -1,7 +1,6 @@
 # $Id$
 
 begin
-  require 'logging/appender'
   require 'syslog'
   HAVE_SYSLOG = true
 rescue LoadError

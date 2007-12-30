@@ -1,7 +1,5 @@
 # $Id$
 
-require 'logging/appender'
-
 module Logging::Appenders
 
   # This class provides an Appender that can write to any IO stream

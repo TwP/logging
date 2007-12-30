@@ -1,8 +1,6 @@
 # $Id$
 
 require 'singleton'
-require 'logging/root_logger'
-
 
 module Logging
 

@@ -1,8 +1,5 @@
 # $Id$
 
-require 'logging'
-require 'logging/layout'
-
 module Logging
 module Layouts
 

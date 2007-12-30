@@ -1,7 +1,5 @@
 # $Id$
 
-require 'logging/appenders/console'
-
 module Logging
 class Appender
 
