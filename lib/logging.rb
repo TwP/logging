@@ -30,7 +30,7 @@ require 'logging/config/yaml_configurator'
 #
 module Logging
 
-  VERSION = '0.7.0'   # :nodoc:
+  VERSION = '0.6.1'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:

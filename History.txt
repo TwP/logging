@@ -1,6 +1,7 @@
-== 0.2.0 / 2008-01-26
+== 0.6.1 /
 
-* Fixed include order to avoid double loading when testing
+1 bugfix
+  - Fixed include order to avoid double loading when testing
 
 == 0.6.0 / 2007-12-26
 
