@@ -1,4 +1,4 @@
-== 0.6.1 /
+== 0.6.1 / 2008-01-01
 
 1 bugfix
   - Fixed include order to avoid double loading when testing
