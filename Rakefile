@@ -19,7 +19,7 @@ PROJ.rdoc_dir = 'doc/rdoc'
 PROJ.rdoc_remote_dir = ''
 PROJ.version = Logging::VERSION
 
-PROJ.exclude << '^tags$'
+PROJ.exclude << '^tags$' << '^tasks/archive'
 PROJ.rdoc_exclude << '^data'
 
 depend_on 'flexmock'
