@@ -84,4 +84,6 @@ task :gem => 'gem:package'
 
 task :clobber => 'gem:clobber_package'
 
+remove_desc_for_task %w(gem:clobber_package)
+
 # EOF

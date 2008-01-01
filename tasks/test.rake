@@ -30,6 +30,11 @@ namespace :test do
 
 end  # namespace :test
 
+desc 'Alias to test:run'
+task :test => 'test:run'
+
 task :clobber => 'test:clobber_rcov' if HAVE_RCOV
+
+remove_desc_for_task %w(test:clobber_rcov)
 
 # EOF

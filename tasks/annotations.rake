@@ -4,23 +4,24 @@ if HAVE_BONES
 
 desc "Enumerate all annotations"
 task :notes do
-  Bones::AnnotationExtractor.enumerate "OPTIMIZE|FIXME|TODO", :tag => true
+  Bones::AnnotationExtractor.enumerate(
+      PROJ, "OPTIMIZE|FIXME|TODO", :tag => true)
 end
 
 namespace :notes do
   desc "Enumerate all OPTIMIZE annotations"
   task :optimize do
-    Bones::AnnotationExtractor.enumerate "OPTIMIZE"
+    Bones::AnnotationExtractor.enumerate(PROJ, "OPTIMIZE")
   end
 
   desc "Enumerate all FIXME annotations"
   task :fixme do
-    Bones::AnnotationExtractor.enumerate "FIXME"
+    Bones::AnnotationExtractor.enumerate(PROJ, "FIXME")
   end
 
   desc "Enumerate all TODO annotations"
   task :todo do
-    Bones::AnnotationExtractor.enumerate "TODO"
+    Bones::AnnotationExtractor.enumerate(PROJ, "TODO")
   end
 end
 

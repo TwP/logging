@@ -4,7 +4,7 @@ require 'find'
 
 namespace :manifest do
 
-  desc 'Verify the manfiest'
+  desc 'Verify the manifest'
   task :check do
     fn = 'Manifest.tmp'
     files = []

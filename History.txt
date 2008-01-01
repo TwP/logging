@@ -1,3 +1,7 @@
+== 0.2.0 / 2008-01-26
+
+* Fixed include order to avoid double loading when testing
+
 == 0.6.0 / 2007-12-26
 
 * Using the new 'getopt' method for handling option hashes

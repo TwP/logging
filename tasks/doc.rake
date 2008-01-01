@@ -44,4 +44,6 @@ task :doc => 'doc:rdoc'
 desc 'Remove all build products'
 task :clobber => %w(doc:clobber_rdoc doc:clobber_ri)
 
+remove_desc_for_task %w(doc:clobber_rdoc doc:clobber_ri)
+
 # EOF
