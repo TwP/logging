@@ -45,7 +45,7 @@ namespace :doc do
 
     host = "#{config['username']}@rubyforge.org"
     remote_dir = "/var/www/gforge-projects/#{PROJ.rubyforge_name}/"
-    remote_dir << PROJ.rdoc_remote_dir || PROJ.name
+    remote_dir << PROJ.rdoc_remote_dir if PROJ.rdoc_remote_dir
     local_dir = PROJ.rdoc_dir
 
     Rake::SshDirPublisher.new(host, remote_dir, local_dir).upload

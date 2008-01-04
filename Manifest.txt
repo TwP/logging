@@ -28,6 +28,7 @@ tasks/gem.rake
 tasks/manifest.rake
 tasks/rubyforge.rake
 tasks/setup.rb
+tasks/svn.rake
 tasks/test.rake
 test/appenders/test_console.rb
 test/appenders/test_email.rb

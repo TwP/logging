@@ -21,6 +21,7 @@ PROJ.version = Logging::VERSION
 
 PROJ.exclude << '^tags$' << '^tasks/archive' << '^coverage'
 PROJ.rdoc_exclude << '^data'
+PROJ.svn = true
 
 depend_on 'flexmock'
 depend_on 'lockfile'

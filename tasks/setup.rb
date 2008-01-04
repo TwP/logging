@@ -16,7 +16,7 @@ PROJ.email = nil
 PROJ.url = nil
 PROJ.version = ENV['VERSION'] || '0.0.0'
 PROJ.rubyforge_name = nil
-PROJ.exclude = %w(tmp$ bak$ ~$ CVS \.svn ^pkg ^doc)
+PROJ.exclude = %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/)
 
 # Rspec
 PROJ.specs = FileList['spec/**/*_spec.rb']
@@ -32,8 +32,8 @@ PROJ.rcov_opts = ['--sort', 'coverage', '-T']
 
 # Rdoc
 PROJ.rdoc_opts = []
-PROJ.rdoc_include = %w(^lib ^bin ^ext txt$)
-PROJ.rdoc_exclude = %w(extconf\.rb$ ^Manifest\.txt$)
+PROJ.rdoc_include = %w(^lib/ ^bin/ ^ext/ .txt$)
+PROJ.rdoc_exclude = %w(extconf.rb$ ^Manifest.txt$)
 PROJ.rdoc_main = 'README.txt'
 PROJ.rdoc_dir = 'doc'
 PROJ.rdoc_remote_dir = nil
@@ -59,6 +59,13 @@ PROJ.need_zip = false
 # File Annotations
 PROJ.annotation_exclude = []
 PROJ.annotation_extensions = %w(.txt .rb .erb) << ''
+
+# Subversion Repository
+PROJ.svn = false
+PROJ.svn_root = nil
+PROJ.svn_trunk = 'trunk'
+PROJ.svn_tags = 'tags'
+PROJ.svn_branches = 'branches'
 
 # Load the other rake files in the tasks folder
 Dir.glob('tasks/*.rake').sort.each {|fn| import fn}
