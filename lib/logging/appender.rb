@@ -39,7 +39,7 @@ module Logging
 
       @mutex = Mutex.new
       header = @layout.header
-      sync {write(header, false)} unless header.nil? || header.empty?
+      sync {write(header)} unless header.nil? || header.empty?
 
       ::Logging::Appender[@name] = self
     end
@@ -56,7 +56,7 @@ module Logging
               "appender '<#{self.class.name}: #{@name}>' is closed"
       end
 
-      sync {write(event, true)} unless @level > event.level
+      sync {write(event)} unless @level > event.level
       self
     end
 
@@ -72,7 +72,7 @@ module Logging
               "appender '<#{self.class.name}: #{@name}>' is closed"
       end
 
-      sync {write(str, false)} unless @level >= ::Logging::LEVELS.length
+      sync {write(str)} unless @level >= ::Logging::LEVELS.length
       self
     end
 
@@ -141,8 +141,12 @@ module Logging
     #
     def close( footer = true )
       return self if @closed
+      ::Logging::Appender.remove(@name)
       @closed = true
-      sync {write(@layout.footer, false)} if footer
+      if footer
+        footer = @layout.footer
+        sync {write(footer)} unless footer.nil? || footer.empty?
+      end
       self
     end
 
@@ -171,15 +175,14 @@ module Logging
     private 
 
     # call-seq:
-    #    write( event, do_layout = true )
+    #    write( event )
     #
     # Writes the given _event_ to the logging destination. Subclasses should
-    # provide an implementation of this method. If the _do_layout_ flag is
-    # set to +true+, then the event will be formatted using the configured
-    # layout object. If set to false, then the event will be stringiied and
-    # appended to the logging destination.
+    # provide an implementation of this method. The _event_ can be either a
+    # LogEvent or a String. If a LogEvent, then it will be formatted using
+    # the layout given to the appender when it was created.
     #
-    def write( event, do_layout = true )
+    def write( event )
       nil
     end
 

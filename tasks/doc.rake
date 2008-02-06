@@ -7,7 +7,6 @@ namespace :doc do
   desc 'Generate RDoc documentation'
   Rake::RDocTask.new do |rd|
     rd.main = PROJ.rdoc_main
-    rd.options << '-d' if !WIN32 and `which dot` =~ %r/\/dot/
     rd.rdoc_dir = PROJ.rdoc_dir
 
     incl = Regexp.new(PROJ.rdoc_include.join('|'))
@@ -24,6 +23,7 @@ namespace :doc do
     title = "#{PROJ.rubyforge_name}'s " + title if PROJ.rubyforge_name != title
 
     rd.options << "-t #{title}"
+    rd.options.concat(PROJ.rdoc_opts)
   end
 
   desc 'Generate ri locally for testing'

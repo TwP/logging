@@ -80,20 +80,23 @@ class Email < ::Logging::Appender
   private
 
   # call-seq:
-  #    write( event, do_layout = true )
+  #    write( event )
   #
   # Write the given _event_ to the e-mail message buffer. The log event will
   # be processed through the Layout associated with this appender.
   #
-  # If the _do_layout_ flag is set to false, the _event_ will be converted
-  # to a string and then written to the e-mail message buffer "as is" -- no
-  # layout formatting will be performed.
-  #
-  def write( event, do_layout = true )
-    str = do_layout ? @layout.format(event) : event.to_s
+  def write( event )
+    immediate = false
+    str = if ::Logging::LogEvent === event
+        immediate = @immediate[event.level]
+        @layout.format(event)
+      else
+        event.to_s
+      end
+    return if str.empty?
+
     @buff << str
-    send_mail if @buff.length >= @buffsize ||
-                 (do_layout && @immediate[event.level])
+    send_mail if @buff.length >= @buffsize || immediate
     self
   end
 

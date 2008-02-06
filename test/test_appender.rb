@@ -20,8 +20,8 @@ module TestLogging
     def test_append
       ary = []
       @appender.instance_variable_set :@ary, ary
-      def @appender.write( event, do_layout = true )
-        str = do_layout ? @layout.format(event) : event.to_s
+      def @appender.write( event )
+        str = ::Logging::LogEvent === event ? @layout.format(event) : event.to_s
         @ary << str
       end
 
@@ -71,8 +71,8 @@ module TestLogging
     def test_concat
       ary = []
       @appender.instance_variable_set :@ary, ary
-      def @appender.write( event, do_layout = true )
-        str = do_layout ? @layout.format(event) : event.to_s
+      def @appender.write( event )
+        str = ::Logging::LogEvent === event ? @layout.format(event) : event.to_s
         @ary << str
       end
 

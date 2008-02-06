@@ -30,7 +30,7 @@ require 'logging/config/yaml_configurator'
 #
 module Logging
 
-  VERSION = '0.6.1'   # :nodoc:
+  VERSION = '0.6.2'   # :nodoc:
 
   LEVELS = {}  # :nodoc:
   LNAMES = {}  # :nodoc:
@@ -254,5 +254,15 @@ module Logging
   end
 
 end  # module Logging
+
+# This exit handler will close all the appenders that exist in the system.
+# This is needed for closing IO streams and connections to the syslog server
+# or e-mail servers, etc.
+#
+at_exit {
+  Logging::Appender.instance_variable_get(:@appenders).values.each do |ap|
+    ap.close
+  end
+}
 
 # EOF

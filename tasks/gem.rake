@@ -69,12 +69,12 @@ namespace :gem do
 
   desc 'Install the gem'
   task :install => [:clobber, :package] do
-    sh "#{SUDO} #{GEM} install pkg/#{PROJ.spec.file_name}"
+    sh "#{SUDO} #{GEM} install pkg/#{PROJ.spec.full_name}"
   end
 
   desc 'Uninstall the gem'
   task :uninstall do
-    sh "#{SUDO} #{GEM} uninstall -v '#{PROJ.version}' #{PROJ.name}"
+    sh "#{SUDO} #{GEM} uninstall -v '#{PROJ.version}' -x #{PROJ.name}"
   end
 
 end  # namespace :gem

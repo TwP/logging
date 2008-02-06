@@ -26,6 +26,7 @@ tasks/annotations.rake
 tasks/doc.rake
 tasks/gem.rake
 tasks/manifest.rake
+tasks/post_load.rake
 tasks/rubyforge.rake
 tasks/setup.rb
 tasks/svn.rake

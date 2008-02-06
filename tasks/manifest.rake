@@ -17,7 +17,18 @@ namespace :manifest do
     end
 
     File.open(fn, 'w') {|fp| fp.puts files.sort}
-    system "#{DIFF} -du Manifest.txt #{fn}"
+    lines = %x(#{DIFF} -du Manifest.txt #{fn}).split("\n")
+    if HAVE_FACETS_ANSICODE and ENV.has_key?('TERM')
+      lines.map! do |line|
+        case line
+        when %r/^(-{3}|\+{3})/; nil
+        when %r/^@/; Console::ANSICode.blue line
+        when %r/^\+/; Console::ANSICode.green line
+        when %r/^\-/; Console::ANSICode.red line
+        else line end
+      end
+    end
+    puts lines.compact
     rm fn rescue nil
   end
 
@@ -36,6 +47,9 @@ namespace :manifest do
     files << fn unless test ?f, fn
     File.open(fn, 'w') {|fp| fp.puts files.sort}
   end
-end
+end  # namespace :manifest
+
+desc 'Alias to manifest:check'
+task :manifest => 'manifest:check'
 
 # EOF

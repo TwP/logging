@@ -157,28 +157,23 @@ module Logging::Appenders
     private
 
     # call-seq:
-    #    write( event, do_layout = true )
+    #    write( event )
     #
     # Write the given _event_ to the syslog facility. The log event will be
-    # processed through the Layout assciated with this appender if the
-    # _do_layout_ flag is set to +true+. The message will be logged at the
-    # level specified by the event.
+    # processed through the Layout assciated with this appender. The message
+    # will be logged at the level specified by the event.
     #
-    # If the _do_layout_ flag is set to +false+, the _event_ will be
-    # converted to a string and wirtten to the syslog facility "as is" -- no
-    # layout formatting will be performed. The string will be logged at the
-    # LOG_DEBUG level of the syslog facility.
-    #
-    def write( event, do_layout = true )
+    def write( event )
       pri = LOG_DEBUG
-      msg = if do_layout
+      message = if ::Logging::LogEvent === event
           pri = @map[event.level]
           @layout.format(event)
         else
           event.to_s
         end
+      return if message.empty?
 
-      @syslog.log(pri, '%s', msg)
+      @syslog.log(pri, '%s', message)
       self
     end
 

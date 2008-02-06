@@ -68,10 +68,12 @@ PROJ.svn_tags = 'tags'
 PROJ.svn_branches = 'branches'
 
 # Load the other rake files in the tasks folder
-Dir.glob('tasks/*.rake').sort.each {|fn| import fn}
+rakefiles = Dir.glob('tasks/*.rake').sort
+rakefiles.unshift(rakefiles.delete('tasks/post_load.rake')).compact!
+import(*rakefiles)
 
 # Setup some constants
-WIN32 = %r/win32/ =~ RUBY_PLATFORM unless defined? WIN32
+WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM unless defined? WIN32
 
 DEV_NULL = WIN32 ? 'NUL:' : '/dev/null'
 
@@ -100,7 +102,7 @@ SUDO = if WIN32 then ''
 RCOV = WIN32 ? 'rcov.cmd'  : 'rcov'
 GEM  = WIN32 ? 'gem.cmd'   : 'gem'
 
-%w(rcov spec/rake/spectask rubyforge bones).each do |lib|
+%w(rcov spec/rake/spectask rubyforge bones facets/ansicode).each do |lib|
   begin
     require lib
     Object.instance_eval {const_set "HAVE_#{lib.tr('/','_').upcase}", true}
@@ -115,8 +117,28 @@ end
 #    changes = paragraphs_of('History.txt', 0..1).join("\n\n")
 #    summary, *description = paragraphs_of('README.txt', 3, 3..8)
 #
-def paragraphs_of(path, *paragraphs)
-  File.read(path).delete("\r").split(/\n\n+/).values_at(*paragraphs)
+def paragraphs_of( path, *paragraphs )
+  title = String === paragraphs.first ? paragraphs.shift : nil
+  ary = File.read(path).delete("\r").split(/\n\n+/)
+
+  result = if title
+    tmp, matching = [], false
+    rgxp = %r/^=+\s*#{Regexp.escape(title)}/i
+    paragraphs << (0..-1) if paragraphs.empty?
+
+    ary.each do |val|
+      if val =~ rgxp
+        break if matching
+        matching = true
+        rgxp = %r/^=+/i
+      elsif matching
+        tmp << val
+      end
+    end
+    tmp
+  else ary end
+
+  result.values_at(*paragraphs)
 end
 
 # Adds the given gem _name_ to the current project's dependency list. An
@@ -130,11 +152,13 @@ def depend_on( name, version = nil )
   PROJ.dependencies << (version.nil? ? [name] : [name, ">= #{version}"])
 end
 
-# Adds the given _path_ to the include path if it is not already there
+# Adds the given arguments to the include path if they are not already there
 #
-def ensure_in_path( path )
-  path = File.expand_path(path)
-  $:.unshift(path) if test(?d, path) and not $:.include?(path)
+def ensure_in_path( *args )
+  args.each do |path|
+    path = File.expand_path(path)
+    $:.unshift(path) if test(?d, path) and not $:.include?(path)
+  end
 end
 
 # Find a rake task using the task name and remove any description text. This
@@ -145,6 +169,20 @@ def remove_desc_for_task( names )
     task = Rake.application.tasks.find {|t| t.name == task_name}
     next if task.nil?
     task.instance_variable_set :@comment, nil
+  end
+end
+
+# Change working directories to _dir_, call the _block_ of code, and then
+# change back to the original working directory (the current directory when
+# this method was called).
+#
+def in_directory( dir, &block )
+  curdir = pwd
+  begin
+    cd dir
+    return block.call
+  ensure
+    cd curdir
   end
 end
 

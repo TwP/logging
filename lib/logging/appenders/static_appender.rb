@@ -24,6 +24,14 @@ class Appender
     def []=( name, val ) @appenders[name] = val end
 
     # call-seq:
+    #    Appenders.remove( name )
+    #
+    # Removes the appender instance stored in the Appender hash under the
+    # key _name_.
+    #
+    def remove( name ) @appenders.delete(name) end
+
+    # call-seq:
     #    Appender.stdout
     #
     # Returns an instance of the Stdout Appender. Unless the user explicitly

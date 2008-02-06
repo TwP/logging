@@ -67,27 +67,23 @@ module Logging::Appenders
     private
 
     # call-seq:
-    #    write( event, do_layout = true )
+    #    write( event )
     #
     # Write the given _event_ to the growl notification facility. The log
     # event will be processed through the Layout assciated with this
-    # appender if the _do_layout_ flag is set to +true+. The message will be
-    # logged at the level specified by the event.
+    # appender. The message will be logged at the level specified by the
+    # event.
     #
-    # If the _do_layout_ flag is set to +false+, the _event_ will be
-    # converted to a string and wirtten to the growl notification facility
-    # "as is" -- no layout formatting will be performed. The string will be
-    # logged at the 0 notification level of the Growl framework.
-    #
-    def write( event, do_layout = true )
+    def write( event )
       title = ''
       priority = 0
-      message = if do_layout
+      message = if ::Logging::LogEvent === event
           priority = @map[event.level]
           @layout.format(event)
         else
           event.to_s
         end
+      return if message.empty?
 
       if @title_sep
         title, message = message.split(@title_sep)
