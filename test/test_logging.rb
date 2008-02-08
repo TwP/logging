@@ -1,7 +1,6 @@
 # $Id$
 
-require 'test/setup.rb'
-require 'fileutils'
+require File.join(File.dirname(__FILE__), %w[setup])
 
 module TestLogging
 

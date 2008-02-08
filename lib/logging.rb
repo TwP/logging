@@ -1,39 +1,10 @@
 # $Id$
 
-# FIXME: get rid of all these includes!
-
-require 'logging/utils'
-require 'logging/log_event'
-require 'logging/logger'
-require 'logging/root_logger'
-require 'logging/repository'
-require 'logging/appender'
-require 'logging/layout'
-
-# require all appenders
-require 'logging/appenders/static_appender'
-require 'logging/appenders/io'
-require 'logging/appenders/console'
-require 'logging/appenders/email'
-require 'logging/appenders/file'
-require 'logging/appenders/growl'
-require 'logging/appenders/rolling_file'
-require 'logging/appenders/syslog'
-
-# require all layouts
-require 'logging/layouts/basic'
-require 'logging/layouts/pattern'
-
-# require all configurators
-require 'logging/config/yaml_configurator'
-
-
-# FIXME: rework the appender / layout folders so they are auto included
-
-# TODO: create the path / libpath methods from Mr Bones
+# Equivalent to a header guard in C/C++
+# Used to prevent the class/module from being loaded more than once
+unless defined? Logging
 
 # TODO: internal logger for debugging
-
 # TODO: Windows Log Service appender
 
 #
@@ -42,6 +13,8 @@ module Logging
 
   # :stopdoc:
   VERSION = '0.7.0'
+  LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
+  PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
   LNAMES = {}
   # :startdoc:
@@ -243,8 +216,42 @@ module Logging
       module_eval "OBJ_FORMAT = :#{f}"
     end
 
-    # :stopdoc:
+    # Returns the version string for the library.
+    #
+    def version
+      VERSION
+    end
 
+    # Returns the library path for the module. If any arguments are given,
+    # they will be joined to the end of the libray path using
+    # <tt>File.join</tt>.
+    #
+    def libpath( *args )
+      args.empty? ? LIBPATH : ::File.join(LIBPATH, *args)
+    end
+
+    # Returns the lpath for the module. If any arguments are given,
+    # they will be joined to the end of the path using
+    # <tt>File.join</tt>.
+    #
+    def path( *args )
+      args.empty? ? PATH : ::File.join(PATH, *args)
+    end
+
+    # Utility method used to rquire all files ending in .rb that lie in the
+    # directory below this file that has the same name as the filename passed
+    # in. Optionally, a specific _directory_ name can be passed in such that
+    # the _filename_ does not have to be equivalent to the directory.
+    #
+    def require_all_libs_relative_to( fname, dir = nil )
+      dir ||= ::File.basename(fname, '.*')
+      search_me = ::File.expand_path(
+          ::File.join(::File.dirname(fname), dir, '*.rb'))
+
+      Dir.glob(search_me).sort.each {|rb| require rb}
+    end
+
+    # :stopdoc:
     # Convert the given level into a connaconical form - a lowercase string.
     def levelify( level )
       case level
@@ -263,8 +270,10 @@ module Logging
     end
     # :startdoc:
   end
-
 end  # module Logging
+
+Logging.require_all_libs_relative_to(__FILE__)
+Logging.require_all_libs_relative_to(__FILE__, 'logging/config')
 
 # This exit handler will close all the appenders that exist in the system.
 # This is needed for closing IO streams and connections to the syslog server
@@ -275,5 +284,7 @@ at_exit {
     ap.close
   end
 }
+
+end  # unless defined?
 
 # EOF

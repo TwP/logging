@@ -1,6 +1,6 @@
 # $Id$
 
-require 'test/setup.rb'
+require File.join(File.dirname(__FILE__), %w[.. setup])
 
 if HAVE_SYSLOG
 

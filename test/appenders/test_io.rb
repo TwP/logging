@@ -1,7 +1,6 @@
 # $Id$
 
-require 'test/setup.rb'
-require 'stringio'
+require File.join(File.dirname(__FILE__), %w[.. setup])
 
 module TestLogging
 module TestAppenders

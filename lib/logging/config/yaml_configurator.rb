@@ -15,44 +15,54 @@ module Config
     class << self
 
       # call-seq:
-      #    YamlConfigurator.load( file )
+      #    YamlConfigurator.load( file, key = 'logging_config' )
       #
       # Load the given YAML _file_ and use it to configure the Logging
       # framework. The file can be either a filename, and open File, or an
       # IO object. If it is the latter two, the File / IO object will not be
       # closed by this method.
       #
-      def load( file )
+      # The configuration will be loaded from the given _key_ in the YAML
+      # stream.
+      #
+      def load( file, key = 'logging_config' )
         io, close = nil, false
         case file
         when String
           io = File.open(file, 'r')
           close = true
-        when IO; io = file
-        else raise Error, 'expecting a filename or a File' end
+        when IO
+          io = file
+        else
+          raise Error, 'expecting a filename or a File'
+        end
 
-        begin new(io).load; ensure; io.close if close end
+        begin
+          new(io, key).load
+        ensure
+          io.close if close
+        end
         nil
       end
     end  # class << self
 
     # call-seq:
-    #    YamlConfigurator.new( io )
+    #    YamlConfigurator.new( io, key )
     #
     # Creates a new YAML configurator that will load the Logging
-    # configuration from the given _io_ stream.
+    # configuration from the given _io_ stream. The configuration will be
+    # loaded from the given _key_ in the YAML stream.
     #
-    def initialize( io )
+    def initialize( io, key  )
       YAML.load_documents(io) do |doc|
-        @config = doc['logging_config']
+        @config = doc[key]
         break if @config.instance_of?(Hash)
       end
 
       unless @config.instance_of?(Hash)
-        raise Error, "Key 'logging_config' not defined in YAML configuration"
+        raise Error, "Key '#{key}' not defined in YAML configuration"
       end
     end
-    private :initialize
 
     # call-seq:
     #    load

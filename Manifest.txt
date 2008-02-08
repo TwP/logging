@@ -11,7 +11,6 @@ lib/logging/appenders/file.rb
 lib/logging/appenders/growl.rb
 lib/logging/appenders/io.rb
 lib/logging/appenders/rolling_file.rb
-lib/logging/appenders/static_appender.rb
 lib/logging/appenders/syslog.rb
 lib/logging/config/yaml_configurator.rb
 lib/logging/layout.rb

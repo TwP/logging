@@ -1,8 +1,6 @@
 # $Id$
 
-require 'stringio'
-require 'yaml'
-require 'test/setup.rb'
+require File.join(File.dirname(__FILE__), %w[.. setup])
 
 module TestLogging
 module TestConfig
@@ -31,7 +29,7 @@ module TestConfig
       io.seek 0
 
       assert_raise(::Logging::Config::YamlConfigurator::Error) {
-        ::Logging::Config::YamlConfigurator.new(io)
+        ::Logging::Config::YamlConfigurator.new(io, :meh)
       }
     end
 

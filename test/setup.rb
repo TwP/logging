@@ -1,13 +1,20 @@
 # $Id$
 
+# Equivalent to a header guard in C/C++
+# Used to prevent the class/module from being loaded more than once
+unless defined? LOGGING_TEST_SETUP
+LOGGING_TEST_SETUP = true
+
 require 'test/unit'
+require 'fileutils'
+require 'stringio'
 
 # This line is needed for Ruby 1.9 -- hashes throw a "KeyError" in 1.9
 # whereas they throw an "IndexError" in 1.8
 #
 KeyError = IndexError if not defined? KeyError
 
-require File.join(File.dirname(__FILE__), '..', 'lib', 'logging')
+require File.join(File.dirname(__FILE__), %w[.. lib logging])
 
 begin
   require 'turn'
@@ -58,5 +65,7 @@ module LoggingTestCase
 
 end  # module LoggingTestCase
 end  # module TestLogging
+
+end  # unless defined?
 
 # EOF
