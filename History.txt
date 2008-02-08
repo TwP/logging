@@ -1,4 +1,4 @@
-== 0.7.0 / 2008-
+== 0.6.3 / 2008-
 
 2 minor enhancements
   - YAML configuration now supports multiple keys -- i.e. development
