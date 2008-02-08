@@ -28,10 +28,10 @@ module Logging
     # found in the given file. The file extension should be either '.yaml'
     # or '.yml' (XML configuration is not yet supported).
     #
-    def configure( filename )
+    def configure( filename, *args )
       case File.extname(filename)
       when '.yaml', '.yml'
-        ::Logging::Config::YamlConfigurator.load(filename)
+        ::Logging::Config::YamlConfigurator.load(filename, *args)
       else raise ArgumentError, 'unknown configuration file format' end
     end
 
