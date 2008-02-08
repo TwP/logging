@@ -57,8 +57,9 @@ PROJ.need_tar = true
 PROJ.need_zip = false
 
 # File Annotations
-PROJ.annotation_exclude = []
+PROJ.annotation_exclude = %w(^tasks/setup.rb$)
 PROJ.annotation_extensions = %w(.txt .rb .erb) << ''
+PROJ.annotation_tags = %w(FIXME OPTIMIZE TODO)
 
 # Subversion Repository
 PROJ.svn = false

@@ -1,5 +1,7 @@
 # $Id$
 
+# FIXME: get rid of all these includes!
+
 require 'logging/utils'
 require 'logging/log_event'
 require 'logging/logger'
@@ -26,14 +28,23 @@ require 'logging/layouts/pattern'
 require 'logging/config/yaml_configurator'
 
 
+# FIXME: rework the appender / layout folders so they are auto included
+
+# TODO: create the path / libpath methods from Mr Bones
+
+# TODO: internal logger for debugging
+
+# TODO: Windows Log Service appender
+
 #
 #
 module Logging
 
-  VERSION = '0.6.2'   # :nodoc:
-
-  LEVELS = {}  # :nodoc:
-  LNAMES = {}  # :nodoc:
+  # :stopdoc:
+  VERSION = '0.7.0'
+  LEVELS = {}
+  LNAMES = {}
+  # :startdoc:
 
   class << self
 

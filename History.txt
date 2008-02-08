@@ -1,13 +1,15 @@
+== 0.7.0 / 2008-
+
 == 0.6.2 / 2008-02-06
 
-2 bugfixes
+2 bug fixes
   - An extra e-mail was being pushed out when the e-mail
     appender was closed
   - Created an at_exit handler to close all appenders
 
 == 0.6.1 / 2008-01-01
 
-1 bugfix
+1 bug fix
   - Fixed include order to avoid double loading when testing
 
 == 0.6.0 / 2007-12-26
