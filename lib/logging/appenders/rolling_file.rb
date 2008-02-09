@@ -79,7 +79,7 @@ module Logging::Appenders
       @keep = opts.getopt(:keep, :as => Integer)
       @size = opts.getopt(:size, :as => Integer)
 
-      @lockfile = if opts.getopt(:safe, false) and !(%r/win32/ =~ RUBY_PLATFORM)
+      @lockfile = if opts.getopt(:safe, false) and !::Logging::WIN32
         Lockfile.new(
             @fn + '.lck',
             :retries => 1,

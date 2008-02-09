@@ -15,6 +15,7 @@ module Logging
   VERSION = '0.6.3'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
+  WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
   LEVELS = {}
   LNAMES = {}
   # :startdoc:
