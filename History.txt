@@ -1,3 +1,8 @@
+== 0.6.4 / 2008-
+
+1 bug fix
+  - Tweaked windows detection code
+
 == 0.6.3 / 2008-02-08
 
 2 minor enhancements
