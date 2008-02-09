@@ -32,7 +32,7 @@ logged.
 In this example, a single logger is crated that will append to STDOUT and to a
 file. Only log messages that are informational or higher will be logged.
 
-   reqruie 'logging'
+   require 'logging'
 
    logger = Logging::Logger['example_logger']
    logger.add  Logging::Appender.stdout
