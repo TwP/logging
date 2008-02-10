@@ -274,12 +274,11 @@ module Logging
     #
     def add( *args )
       args.each do |arg|
-        unless arg.kind_of? ::Logging::Appender
-          raise TypeError,
-                "#{arg.inspect} is not a kind of 'Logging::Appender'"
-        end
-        @appenders << arg unless @appenders.include? arg
+        o = arg.kind_of?(::Logging::Appender) ? arg : ::Logging::Appender[arg]
+        raise ArgumentError, "unknown appender '#{arg}'" if o.nil?
+        @appenders << o unless @appenders.include?(o)
       end
+      self
     end
 
     # call-seq:
@@ -297,10 +296,11 @@ module Logging
           when String; arg == a.name
           when ::Logging::Appender; arg.object_id == a.object_id
           else
-            raise TypeError, "#{arg.inspect} is not a 'Logging::Appender'"
+            raise ArgumentError, "#{arg.inspect} is not a 'Logging::Appender'"
           end
         end
       end
+      self
     end
 
     # call-seq:

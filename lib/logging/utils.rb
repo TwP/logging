@@ -20,7 +20,7 @@ class Hash
   # If the value is +nil+, then no converstion will be performed.
   #
   def getopt( *args )
-    opts = Hash === args.last ? args.pop : {}
+    opts = args.last.instance_of?(Hash) ? args.pop : {}
     key, default = args
 
     val = if has_key?(key);                self[key]

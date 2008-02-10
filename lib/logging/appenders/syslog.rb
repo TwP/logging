@@ -165,7 +165,7 @@ module Logging::Appenders
     #
     def write( event )
       pri = LOG_DEBUG
-      message = if ::Logging::LogEvent === event
+      message = if event.instance_of?(::Logging::LogEvent)
           pri = @map[event.level]
           @layout.format(event)
         else

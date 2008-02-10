@@ -76,7 +76,7 @@ module Logging
     # full description of the :pattern and :date_pattern formatting strings.
     #
     def logger( *args )
-      opts = args.pop if Hash === args.last 
+      opts = args.pop if args.last.instance_of?(Hash)
       opts ||= Hash.new
 
       dev = args.shift
@@ -101,10 +101,10 @@ module Logging
       layout = ::Logging::Layouts::Pattern.new(l_opts)
 
       a_opts = Hash.new
-      a_opts[:size] = size if Fixnum === size
-      a_opts[:age]  = age  if String === age
-      a_opts[:keep] = keep if Fixnum === keep
-      a_opts[:filename] = dev if String === dev
+      a_opts[:size] = size if size.instance_of?(Fixnum)
+      a_opts[:age]  = age  if age.instance_of?(String)
+      a_opts[:keep] = keep if keep.instance_of?(Fixnum)
+      a_opts[:filename] = dev if dev.instance_of?(String)
       a_opts[:layout] = layout
       a_opts.merge! opts
 

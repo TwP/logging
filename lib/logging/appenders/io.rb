@@ -65,7 +65,8 @@ module Logging::Appenders
     #
     def write( event )
       begin
-        str = ::Logging::LogEvent === event ? @layout.format(event) : event.to_s
+        str = event.instance_of?(::Logging::LogEvent) ?
+              @layout.format(event) : event.to_s
         return if str.empty?
         @io.print str
       rescue IOError

@@ -21,7 +21,8 @@ module TestLogging
       ary = []
       @appender.instance_variable_set :@ary, ary
       def @appender.write( event )
-        str = ::Logging::LogEvent === event ? @layout.format(event) : event.to_s
+        str = event.instance_of?(::Logging::LogEvent) ?
+              @layout.format(event) : event.to_s
         @ary << str
       end
 
@@ -72,7 +73,8 @@ module TestLogging
       ary = []
       @appender.instance_variable_set :@ary, ary
       def @appender.write( event )
-        str = ::Logging::LogEvent === event ? @layout.format(event) : event.to_s
+        str = event.instance_of?(::Logging::LogEvent) ?
+              @layout.format(event) : event.to_s
         @ary << str
       end
 

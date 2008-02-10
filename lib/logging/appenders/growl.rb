@@ -77,7 +77,7 @@ module Logging::Appenders
     def write( event )
       title = ''
       priority = 0
-      message = if ::Logging::LogEvent === event
+      message = if event.instance_of?(::Logging::LogEvent)
           priority = @map[event.level]
           @layout.format(event)
         else

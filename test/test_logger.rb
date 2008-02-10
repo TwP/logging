@@ -22,8 +22,8 @@ module TestLogging
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
 
-      assert_raise(TypeError) {log.add Object.new}
-      assert_raise(TypeError) {log.add 'not an appender'}
+      assert_raise(ArgumentError) {log.add Object.new}
+      assert_raise(ArgumentError) {log.add 'not an appender'}
 
       a = ::Logging::Appender.new 'test_appender_1'
       b = ::Logging::Appender.new 'test_appender_2'
@@ -90,8 +90,8 @@ module TestLogging
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
 
-      assert_raise(TypeError) {log.appenders = Object.new}
-      assert_raise(TypeError) {log.appenders = 'not an appender'}
+      assert_raise(ArgumentError) {log.appenders = Object.new}
+      assert_raise(ArgumentError) {log.appenders = 'not an appender'}
 
       a = ::Logging::Appender.new 'test_appender_1'
       b = ::Logging::Appender.new 'test_appender_2'
@@ -108,6 +108,11 @@ module TestLogging
 
       log.appenders = nil
       assert_equal [], appenders[]
+
+      log.appenders = %w[test_appender_1 test_appender_3]
+      assert_equal [a,c], appenders[]
+
+      assert_raise(ArgumentError) {log.appenders = 'unknown'}
     end
 
     def test_class_aref
@@ -418,8 +423,8 @@ module TestLogging
       log.add a, b, c
       assert_equal [a,b,c], appenders[]
 
-      assert_raise(TypeError) {log.remove Object.new}
-      assert_raise(TypeError) {log.remove 10}
+      assert_raise(ArgumentError) {log.remove Object.new}
+      assert_raise(ArgumentError) {log.remove 10}
 
       log.remove b
       assert_equal [a,c], appenders[]

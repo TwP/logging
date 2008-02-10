@@ -87,7 +87,7 @@ class Email < ::Logging::Appender
   #
   def write( event )
     immediate = false
-    str = if ::Logging::LogEvent === event
+    str = if event.instance_of?(::Logging::LogEvent)
         immediate = @immediate[event.level]
         @layout.format(event)
       else

@@ -235,6 +235,15 @@ module TestLogging
       remove_const[:OBJ_FORMAT]
     end
 
+    def test_path
+      path = ::Logging.path(*%w[one two three])
+      assert_match %r/one\/two\/three$/, path
+    end
+
+    def test_version
+      assert_match %r/\d+\.\d+\.\d+/, ::Logging.version
+    end
+
   end  # class TestLogging
 end  # module TestLogging
 
