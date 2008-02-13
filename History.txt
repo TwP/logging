@@ -1,4 +1,4 @@
-== 0.7.0 / 2008-
+== 0.7.0 / 2008-02-12
 
 1 major enhancement
   - Rails compatibility
