@@ -35,8 +35,10 @@ file. Only log messages that are informational or higher will be logged.
    require 'logging'
 
    logger = Logging::Logger['example_logger']
-   logger.add  Logging::Appender.stdout
-   logger.add  Logging::Appenders::File.new('example.log')
+   logger.add_appenders(
+       Logging::Appender.stdout,
+       Logging::Appenders::File.new('example.log')
+   )
    logger.level = :info
 
    logger.debug "this debug message will not be output by the logger"

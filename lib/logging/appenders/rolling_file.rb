@@ -1,11 +1,6 @@
 # $Id$
 
-begin
-  require 'lockfile'
-rescue LoadError
-  require 'rubygems'
-  require 'lockfile'
-end
+require Logging.libpath(*%w[logging stelan lockfile])
 
 # FIXME: bug when truncating a rolling file on create
 #        If there is not log file in existence, it is created and then
@@ -88,7 +83,7 @@ module Logging::Appenders
       @size = opts.getopt(:size, :as => Integer)
 
       @lockfile = if opts.getopt(:safe, false) and !::Logging::WIN32
-        Lockfile.new(
+        ::Logging::Lockfile.new(
             @fn + '.lck',
             :retries => 1,
             :timeout => 2

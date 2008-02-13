@@ -20,6 +20,7 @@ lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
 lib/logging/root_logger.rb
+lib/logging/stelan/lockfile.rb
 lib/logging/utils.rb
 tasks/annotations.rake
 tasks/doc.rake

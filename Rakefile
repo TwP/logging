@@ -23,6 +23,5 @@ PROJ.rdoc_exclude << '^data'
 PROJ.svn = true
 
 depend_on 'flexmock'
-depend_on 'lockfile'
 
 # EOF

@@ -1,3 +1,9 @@
+== 0.7.1 / 2008-
+
+1 minor enhancement
+  - Removed dependency on the Lockfile gem (brought the ruby
+    file into the loging/stelan directory)
+
 == 0.7.0 / 2008-02-12
 
 1 major enhancement
