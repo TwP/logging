@@ -12,7 +12,7 @@ module TestLogging
 
       @appender = EventAppender.new('test')
       @logger = ::Logging::Logger['TestLogger']
-      @logger.add @appender
+      @logger.add_appenders @appender
 
       @logger.info 'message 1'
       @event = @appender.event

@@ -1,7 +1,17 @@
-== 0.6.4 / 2008-
+== 0.7.0 / 2008-
 
-1 minor enhancement
+1 major enhancement
+  - Rails compatibility
+    * renamed Logger#add method to Logger#add_appenders
+    * renamed Logger#remove method to Logger#remove_appenders
+    * renamed Logger#clear method to Logger#clear_appenders
+    * added a new Logger#add method that conforms to the calling
+      semantics of the Ruby stdlib Logger 
+
+2 minor enhancements
   - Speed improvements and test coverage
+  - Created a top-level Logging.init method that is used to
+    define the default logging levels
 
 1 bug fix
   - Tweaked windows detection code

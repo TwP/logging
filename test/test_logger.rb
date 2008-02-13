@@ -17,37 +17,101 @@ module TestLogging
     end
 
     def test_add
+      root = ::Logging::Logger[:root]
+      root.level = 'info'
+
+      a1 = SioAppender.new 'a1'
+      a2 = SioAppender.new 'a2'
+      log = ::Logging::Logger.new 'A Logger'
+
+      root.add_appenders a1
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add(0, 'this should NOT be logged')
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add(1, 'this should be logged')
+      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add(2,[1,2,3,4])
+      assert_equal " WARN  A Logger : <Array> #{[1,2,3,4]}\n", a1.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add_appenders a2
+      log.add(3, 'an error has occurred')
+      assert_equal "ERROR  A Logger : an error has occurred\n", a1.readline
+      assert_equal "ERROR  A Logger : an error has occurred\n", a2.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.additive = false
+      log.add(3, 'another error has occurred')
+      assert_equal "ERROR  A Logger : another error has occurred\n", a2.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add_appenders a1
+      log.add(4, 'fatal exception')
+      assert_equal "FATAL  A Logger : fatal exception\n", a1.readline
+      assert_equal "FATAL  A Logger : fatal exception\n", a2.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+
+      log.level = :warn
+      log.add(2) do
+        str = 'a string of data'
+        str
+      end
+      assert_equal " WARN  A Logger : a string of data\n", a1.readline
+      assert_equal " WARN  A Logger : a string of data\n", a2.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
+      log.add(1) do
+        rb_raise(RuntimeError, "this block should not be executed")
+      end
+      assert_nil a1.readline
+      assert_nil a2.readline
+    end
+
+    def test_add_appenders
       log = ::Logging::Logger.new 'A'
 
       appenders = lambda {log.instance_variable_get :@appenders}
       assert_equal [], appenders[]
 
-      assert_raise(ArgumentError) {log.add Object.new}
-      assert_raise(ArgumentError) {log.add 'not an appender'}
+      assert_raise(ArgumentError) {log.add_appenders Object.new}
+      assert_raise(ArgumentError) {log.add_appenders 'not an appender'}
 
       a = ::Logging::Appender.new 'test_appender_1'
       b = ::Logging::Appender.new 'test_appender_2'
       c = ::Logging::Appender.new 'test_appender_3'
 
-      log.add a
+      log.add_appenders a
       assert_equal [a], appenders[]
 
-      log.add a
+      log.add_appenders a
       assert_equal [a], appenders[]
 
-      log.add b
+      log.add_appenders b
       assert_equal [a,b], appenders[]
 
-      log.add c
+      log.add_appenders c
       assert_equal [a,b,c], appenders[]
 
-      log.add a, c
+      log.add_appenders a, c
       assert_equal [a,b,c], appenders[]
 
-      log.clear
+      log.clear_appenders
       assert_equal [], appenders[]
 
-      log.add a, c
+      log.add_appenders a, c
       assert_equal [a,c], appenders[]
     end
 
@@ -132,7 +196,7 @@ module TestLogging
       assert_same root, ::Logging::Logger.root
     end
 
-    def test_clear
+    def test_clear_appenders
       log  = ::Logging::Logger.new 'Elliott'
 
       appenders = lambda {log.instance_variable_get :@appenders}
@@ -142,10 +206,10 @@ module TestLogging
       b = ::Logging::Appender.new 'test_appender_2'
       c = ::Logging::Appender.new 'test_appender_3'
 
-      log.add a, b, c
+      log.add_appenders a, b, c
       assert_equal [a,b,c], appenders[]
 
-      log.clear
+      log.clear_appenders
       assert_equal [], appenders[]
     end
 
@@ -154,7 +218,7 @@ module TestLogging
       a2 = SioAppender.new 'a2'
       log = ::Logging::Logger.new 'A'
 
-      ::Logging::Logger[:root].add a1
+      ::Logging::Logger[:root].add_appenders a1
       assert_nil a1.readline
       assert_nil a2.readline
 
@@ -170,7 +234,7 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.add a2
+      log.add_appenders a2
       log << "this is line four of the log file\n"
       assert_equal "this is line four of the log file\n", a1.readline
       assert_equal "this is line four of the log file\n", a2.readline
@@ -183,7 +247,7 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.add a1
+      log.add_appenders a1
       log << "this is line six of the log file\n"
       assert_equal "this is line six of the log file\n", a1.readline
       assert_equal "this is line six of the log file\n", a2.readline
@@ -277,7 +341,7 @@ module TestLogging
       a2 = SioAppender.new 'a2'
       log = ::Logging::Logger.new 'A Logger'
 
-      root.add a1
+      root.add_appenders a1
       assert_nil a1.readline
       assert_nil a2.readline
 
@@ -295,7 +359,7 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.add a2
+      log.add_appenders a2
       log.error 'an error has occurred'
       assert_equal "ERROR  A Logger : an error has occurred\n", a1.readline
       assert_equal "ERROR  A Logger : an error has occurred\n", a2.readline
@@ -308,7 +372,7 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.add a1
+      log.add_appenders a1
       log.fatal 'fatal exception'
       assert_equal "FATAL  A Logger : fatal exception\n", a1.readline
       assert_equal "FATAL  A Logger : fatal exception\n", a2.readline
@@ -410,7 +474,7 @@ module TestLogging
       assert_same logger['A::B::C::E'], logger['A::B::C::E::G'].parent
     end
 
-    def test_remove
+    def test_remove_appenders
       log = ::Logging::Logger['X']
 
       appenders = lambda {log.instance_variable_get :@appenders}
@@ -420,28 +484,28 @@ module TestLogging
       b = ::Logging::Appender.new 'test_appender_2'
       c = ::Logging::Appender.new 'test_appender_3'
 
-      log.add a, b, c
+      log.add_appenders a, b, c
       assert_equal [a,b,c], appenders[]
 
-      assert_raise(ArgumentError) {log.remove Object.new}
-      assert_raise(ArgumentError) {log.remove 10}
+      assert_raise(ArgumentError) {log.remove_appenders Object.new}
+      assert_raise(ArgumentError) {log.remove_appenders 10}
 
-      log.remove b
+      log.remove_appenders b
       assert_equal [a,c], appenders[]
 
-      log.remove 'test_appender_1'
+      log.remove_appenders 'test_appender_1'
       assert_equal [c], appenders[]
 
-      log.remove c
+      log.remove_appenders c
       assert_equal [], appenders[]
 
-      log.remove a, b, c
+      log.remove_appenders a, b, c
       assert_equal [], appenders[]
 
-      log.add a, b, c
+      log.add_appenders a, b, c
       assert_equal [a,b,c], appenders[]
 
-      log.remove a, c
+      log.remove_appenders a, c
       assert_equal [b], appenders[]
     end
 

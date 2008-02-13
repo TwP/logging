@@ -10,7 +10,7 @@ module TestLayouts
 
     def setup
       super
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
       @layout = ::Logging::Layouts::Pattern.new
       @levels = ::Logging::LEVELS
       @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'

@@ -16,8 +16,8 @@ module Logging
   # Example:
   #
   #    log = Logging::Logger['my logger']
-  #    log.add( Logging::Appenders::Stdout.new )   # append to STDOUT
-  #    log.level = :info                           # log 'info' and above
+  #    log.add_appenders( Logging::Appender.stdout )   # append to STDOUT
+  #    log.level = :info                               # log 'info' and above
   #
   #    log.info 'starting foo operation'
   #    ...
@@ -180,6 +180,39 @@ module Logging
     end
 
     # call-seq:
+    #    add( severity, message = nil ) {block}
+    #
+    # Log a message if the given severity is high enough.  This is the generic
+    # logging method.  Users will be more inclined to use #debug, #info, #warn,
+    # #error, and #fatal.
+    #
+    # <b>Message format</b>: +message+ can be any object, but it has to be
+    # converted to a String in order to log it. The Logging::format_as
+    # method is used to determine how objects chould be converted to
+    # strings. Generally, +inspect+ is used.
+    #
+    # A special case is an +Exception+ object, which will be printed in
+    # detail, including message, class, and backtrace.
+    #
+    # If a _message_ is not given, then the return value from the block is
+    # used as the message to log. This is useful when creating the actual
+    # message is an expensive operation. This allows the logger to check the
+    # severity against the configured level before actually constructing the
+    # message.
+    #
+    # This method returns +true+ if the message was logged, and +false+ is
+    # returned if the message was not logged.
+    #
+    def add( lvl, data = nil )
+      lvl = Integer(lvl)
+      return false if lvl < level
+
+      data = yield if block_given?
+      log_event(::Logging::LogEvent.new(@name, lvl, data, @trace))
+      true
+    end
+
+    # call-seq:
     #    additive = true
     #
     # Sets the additivity of the logger. Acceptable values are +true+,
@@ -263,17 +296,17 @@ module Logging
     #
     def appenders=( args )
       @appenders.clear
-      add(*args) unless args.nil?
+      add_appenders(*args) unless args.nil?
     end
 
     # call-seq:
-    #    add( appenders )
+    #    add_appenders( appenders )
     #
     # Add the given _appenders_ to the list of appenders, where _appenders_
     # can be either a single appender or an array of appenders.
     #
-    def add( *args )
-      args.each do |arg|
+    def add_appenders( *args )
+      args.flatten.each do |arg|
         o = arg.kind_of?(::Logging::Appender) ? arg : ::Logging::Appender[arg]
         raise ArgumentError, "unknown appender '#{arg}'" if o.nil?
         @appenders << o unless @appenders.include?(o)
@@ -282,15 +315,15 @@ module Logging
     end
 
     # call-seq:
-    #    remove( appenders )
+    #    remove_appenders( appenders )
     #
     # Remove the given _appenders_ from the list of appenders. The appenders
     # to remove can be identified either by name using a +String+ or by
     # passing the appender instance. _appenders_ can be a single appender or
     # an array of appenders.
     #
-    def remove( *args )
-      args.each do |arg|
+    def remove_appenders( *args )
+      args.flatten.each do |arg|
         @appenders.delete_if do |a|
           case arg
           when String; arg == a.name
@@ -304,11 +337,11 @@ module Logging
     end
 
     # call-seq:
-    #    clear
+    #    clear_appenders
     #
     # Remove all appenders from this logger.
     #
-    def clear( ) @appenders.clear end
+    def clear_appenders( ) @appenders.clear end
 
 
     protected

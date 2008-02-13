@@ -117,7 +117,7 @@ module Logging
           end
 
       logger = ::Logging::Logger.new(name)
-      logger.add appender
+      logger.add_appenders appender
       logger.additive = false
 
       class << logger
@@ -133,7 +133,7 @@ module Logging
     end
 
     # call-seq:
-    #    Logging.define_levels( levels )
+    #    Logging.init( levels )
     #
     # Defines the levels available to the loggers. The _levels_ is an array
     # of strings and symbols. Each element in the array is downcased and
@@ -155,7 +155,7 @@ module Logging
     #
     # Example:
     #
-    #    Logging.define_levels :debug, :info, :warn, :error, :fatal
+    #    Logging.init :debug, :info, :warn, :error, :fatal
     #    log = Logging::Logger['my logger']
     #    log.level = :warn
     #    log.warn 'Danger! Danger! Will Robinson'
@@ -163,14 +163,14 @@ module Logging
     #
     # or
     #
-    #    Logging.define_levels %w(DEBUG INFO NOTICE WARNING ERR CRIT ALERT EMERG)
+    #    Logging.init %w(DEBUG INFO NOTICE WARNING ERR CRIT ALERT EMERG)
     #    log = Logging::Logger['syslog']
     #    log.level = :notice
     #    log.warning 'This is your first warning'
     #    log.info 'Just FYI'                        # => not logged
     #
-    def define_levels( *args )
-      return nil if args.empty?
+    def init( *args )
+      args = %w(debug info warn error fatal) if args.empty?
 
       args.flatten!
       levels = ::Logging::LEVELS.clear

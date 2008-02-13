@@ -89,7 +89,7 @@ module Config
 
       # define levels
       levels = config['define_levels']
-      ::Logging.define_levels(levels) unless levels.nil?
+      ::Logging.init(levels) unless levels.nil?
 
       # format as
       format = config['format_as']

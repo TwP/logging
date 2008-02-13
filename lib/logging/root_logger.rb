@@ -20,9 +20,7 @@ module Logging
     # once when the +Repository+ singleton instance is created.
     #
     def initialize( )
-      unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
-        ::Logging.define_levels %w(debug info warn error fatal)
-      end
+      ::Logging.init unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
 
       @name = 'root'
       @appenders = []

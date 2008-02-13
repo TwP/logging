@@ -12,7 +12,7 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
 
       @fn = File.join(TMP, 'test.log')
       @fn_fmt = File.join(TMP, 'test.%d.log')

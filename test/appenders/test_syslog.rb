@@ -13,7 +13,7 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
       @levels = ::Logging::LEVELS
     end
 

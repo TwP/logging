@@ -12,7 +12,7 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
 
       FileUtils.mkdir [File.join(TMP, 'dir'), File.join(TMP, 'uw_dir')]
       FileUtils.chmod 0555, File.join(TMP, 'uw_dir')

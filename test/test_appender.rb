@@ -10,7 +10,7 @@ module TestLogging
     def setup
       super
 
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
       @levels = ::Logging::LEVELS
       @event = ::Logging::LogEvent.new('logger', @levels['debug'],
                                        'message', false)

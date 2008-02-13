@@ -118,7 +118,7 @@ module TestLogging
       assert_equal 3, Dir.glob(@glob).length
     end
 
-    def test_define_levels_default
+    def test_init_default
       empty = {}
       assert_equal empty, @levels
       assert_equal empty, @lnames
@@ -143,15 +143,15 @@ module TestLogging
       assert_equal 'FATAL', @lnames[4]
     end
 
-    def test_define_levels_special
+    def test_init_special
       empty = {}
       assert_equal empty, @levels
       assert_equal empty, @lnames
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
-      assert_raise(ArgumentError) {::Logging.define_levels(1, 2, 3, 4)}
+      assert_raise(ArgumentError) {::Logging.init(1, 2, 3, 4)}
 
-      ::Logging.define_levels :one, 'two', :THREE, 'FoUr', :sIx
+      ::Logging.init :one, 'two', :THREE, 'FoUr', :sIx
 
       assert_equal 5, @levels.length
       assert_equal 5, @lnames.length
@@ -170,13 +170,13 @@ module TestLogging
       assert_equal 'SIX',   @lnames[4]
     end
 
-    def test_define_levels_all_off
+    def test_init_all_off
       empty = {}
       assert_equal empty, @levels
       assert_equal empty, @lnames
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
-      ::Logging.define_levels %w(a b all c off d)
+      ::Logging.init %w(a b all c off d)
 
       assert_equal 4, @levels.length
       assert_equal 4, @lnames.length

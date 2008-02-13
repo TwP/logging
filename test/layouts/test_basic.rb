@@ -10,7 +10,7 @@ module TestLayouts
 
     def setup
       super
-      ::Logging.define_levels %w(debug info warn error fatal)
+      ::Logging.init
       @layout = ::Logging::Layouts::Basic.new
       @levels = ::Logging::LEVELS
     end
