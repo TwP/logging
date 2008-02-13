@@ -1,21 +1,22 @@
 Logging
+    by Tim Pease
 
 * {Homepage}[http://logging.rubyforge.org/]
 * {Rubyforge Project}[http://rubyforge.org/projects/logging]
 * email tim dot pease at gmail dot com
 
-== DESCRIPTION:
+== DESCRIPTION
 
 Logging is a flexible logging library for use in Ruby programs based on the
 design of Java's log4j library. It features a hierarchical logging system,
 custom level names, multiple output destinations per log event, custom
 formatting, and more.
 
-== INSTALL:
+== INSTALL
 
    sudo gem install logging
 
-== EXAMPLE:
+== EXAMPLE
 
 This example configures a logger to output messages in a format similar to the
 core ruby Logger class. Only log messages that are warnings or higher will be
@@ -74,7 +75,7 @@ the recommended way of accomplishing this.
      end
    end
 
-== NOTES:
+== NOTES
 
 Although Logging is intended to supersede Log4r, it is not a one-to-one
 replacement for the Log4r library. Most notably is the difference in namespaces
@@ -83,10 +84,10 @@ Logging::Appender and renaming Log4r::Formatter to Logging::Layout. These
 changes were meant to bring the Logging class names more in line with the Log4j
 class names.
 
-== REQUIREMENTS:
+== REQUIREMENTS
 
 Logging does not depend on any other installed libraries or gems.
 
-== LICENSE:
+== LICENSE
 
 Ruby
