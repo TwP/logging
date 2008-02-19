@@ -12,6 +12,7 @@ namespace :gem do
     s.email = PROJ.email
     s.homepage = Array(PROJ.url).first
     s.rubyforge_project = PROJ.rubyforge_name
+    s.post_install_message = PROJ.post_install_message
 
     s.description = PROJ.description
 
@@ -62,9 +63,29 @@ namespace :gem do
     puts PROJ.spec.to_ruby
   end
 
-  Rake::GemPackageTask.new(PROJ.spec) do |pkg|
+  pkg = Rake::PackageTask.new(PROJ.name, PROJ.version) do |pkg|
     pkg.need_tar = PROJ.need_tar
     pkg.need_zip = PROJ.need_zip
+    pkg.package_files += PROJ.spec.files
+  end
+  Rake::Task['gem:package'].instance_variable_set(:@full_comment, nil)
+
+  gem_file = if PROJ.spec.platform == Gem::Platform::RUBY
+      "#{pkg.package_name}.gem"
+    else
+      "#{pkg.package_name}-#{PROJ.spec.platform}.gem"
+    end
+
+  desc "Build the gem file #{gem_file}"
+  task :package => "#{pkg.package_dir}/#{gem_file}"
+
+  file "#{pkg.package_dir}/#{gem_file}" => [pkg.package_dir] + PROJ.spec.files do
+    when_writing("Creating GEM") {
+      Gem::Builder.new(PROJ.spec).build
+      verbose(true) {
+        mv gem_file, "#{pkg.package_dir}/#{gem_file}"
+      }
+    }
   end
 
   desc 'Install the gem'

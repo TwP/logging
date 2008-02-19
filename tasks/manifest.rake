@@ -7,16 +7,9 @@ namespace :manifest do
   desc 'Verify the manifest'
   task :check do
     fn = 'Manifest.tmp'
-    files = []
-    exclude = Regexp.new(PROJ.exclude.join('|'))
-    Find.find '.' do |path|
-      path.sub! %r/^(\.\/|\/)/o, ''
-      next unless test ?f, path
-      next if path =~ exclude
-      files << path
-    end
+    files = manifest_files
 
-    File.open(fn, 'w') {|fp| fp.puts files.sort}
+    File.open(fn, 'w') {|fp| fp.puts files}
     lines = %x(#{DIFF} -du Manifest.txt #{fn}).split("\n")
     if HAVE_FACETS_ANSICODE and ENV.has_key?('TERM')
       lines.map! do |line|
@@ -35,18 +28,20 @@ namespace :manifest do
   desc 'Create a new manifest'
   task :create do
     fn = 'Manifest.txt'
-    files = []
-    exclude = Regexp.new(PROJ.exclude.join('|'))
-    Find.find '.' do |path|
-      path.sub! %r/^(\.\/|\/)/o, ''
-      next unless test ?f, path
-      next if path =~ exclude
-      files << path
+    files = manifest_files
+    unless test(?f, fn)
+      files << fn
+      files.sort!
     end
-
-    files << fn unless test ?f, fn
-    File.open(fn, 'w') {|fp| fp.puts files.sort}
+    File.open(fn, 'w') {|fp| fp.puts files}
   end
+
+  task :assert do
+    files = manifest_files
+    manifest = File.read('Manifest.txt').split($/)
+    raise RuntimeError, "Manifest.txt is out of date" unless files == manifest
+  end
+
 end  # namespace :manifest
 
 desc 'Alias to manifest:check'

@@ -16,7 +16,8 @@ PROJ.email = nil
 PROJ.url = nil
 PROJ.version = ENV['VERSION'] || '0.0.0'
 PROJ.rubyforge_name = nil
-PROJ.exclude = %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/)
+PROJ.exclude = %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/ announcement.txt)
+PROJ.release_name = ENV['RELEASE']
 
 # Rspec
 PROJ.specs = FileList['spec/**/*_spec.rb']
@@ -55,6 +56,7 @@ PROJ.executables = PROJ.files.find_all {|fn| fn =~ %r/^bin/}
 PROJ.dependencies = []
 PROJ.need_tar = true
 PROJ.need_zip = false
+PROJ.post_install_message = nil
 
 # File Annotations
 PROJ.annotation_exclude = %w(^tasks/setup.rb$)
@@ -67,6 +69,20 @@ PROJ.svn_root = nil
 PROJ.svn_trunk = 'trunk'
 PROJ.svn_tags = 'tags'
 PROJ.svn_branches = 'branches'
+
+# Announce
+PROJ.ann_text = nil
+PROJ.ann_paragraphs = []
+PROJ.ann_email = {
+  :from     => nil,
+  :to       => %w(ruby-talk@ruby-lang.org),
+  :server   => 'localhost',
+  :port     => 25,
+  :domain   => ENV['HOSTNAME'],
+  :acct     => nil,
+  :passwd   => nil,
+  :authtype => :plain
+}
 
 # Load the other rake files in the tasks folder
 rakefiles = Dir.glob('tasks/*.rake').sort
@@ -100,8 +116,8 @@ SUDO = if WIN32 then ''
          else '' end
        end
 
-RCOV = WIN32 ? 'rcov.cmd'  : 'rcov'
-GEM  = WIN32 ? 'gem.cmd'   : 'gem'
+RCOV = WIN32 ? 'rcov.bat' : 'rcov'
+GEM  = WIN32 ? 'gem.bat'  : 'gem'
 
 %w(rcov spec/rake/spectask rubyforge bones facets/ansicode).each do |lib|
   begin
@@ -185,6 +201,21 @@ def in_directory( dir, &block )
   ensure
     cd curdir
   end
+end
+
+# Scans the current working directory and creates a list of files that are
+# candidates to be in the manifest.
+#
+def manifest_files
+  files = []
+  exclude = Regexp.new(PROJ.exclude.join('|'))
+  Find.find '.' do |path|
+    path.sub! %r/^(\.\/|\/)/o, ''
+    next unless test ?f, path
+    next if path =~ exclude
+    files << path
+  end
+  files.sort!
 end
 
 # EOF
