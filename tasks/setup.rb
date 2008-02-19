@@ -29,7 +29,10 @@ PROJ.test_file = 'test/all.rb'
 PROJ.test_opts = []
 
 # Rcov
+PROJ.rcov_dir = 'coverage'
 PROJ.rcov_opts = ['--sort', 'coverage', '-T']
+PROJ.rcov_threshold = 90.0
+PROJ.rcov_threshold_exact = false
 
 # Rdoc
 PROJ.rdoc_opts = []
@@ -166,7 +169,10 @@ def depend_on( name, version = nil )
   spec = Gem.source_index.find_name(name).last
   version = spec.version.to_s if version.nil? and !spec.nil?
 
-  PROJ.dependencies << (version.nil? ? [name] : [name, ">= #{version}"])
+  PROJ.dependencies << case version
+    when nil; [name]
+    when %r/^\d/; [name, ">= #{version}"]
+    else [name, version] end
 end
 
 # Adds the given arguments to the include path if they are not already there

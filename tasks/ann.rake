@@ -33,7 +33,7 @@ namespace :ann do
     end
   end
 
-  desc "Send email announcement"
+  desc "Send an email announcement"
   task :email => :announcement do
     from = PROJ.ann_email[:from] || PROJ.email
     to   = Array(PROJ.ann_email[:to])

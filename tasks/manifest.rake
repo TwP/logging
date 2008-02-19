@@ -39,7 +39,7 @@ namespace :manifest do
   task :assert do
     files = manifest_files
     manifest = File.read('Manifest.txt').split($/)
-    raise RuntimeError, "Manifest.txt is out of date" unless files == manifest
+    raise "ERROR: Manifest.txt is out of date" unless files == manifest
   end
 
 end  # namespace :manifest
