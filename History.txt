@@ -2,7 +2,9 @@
 
 1 minor enhancement
   - Removed dependency on the Lockfile gem (brought the ruby
-    file into the loging/stelan directory)
+    file into the logging/stelan directory)
+1 bug fix
+  - Fixed bug with age based rolling: was not multi-process safe
 
 == 0.7.0 / 2008-02-12
 

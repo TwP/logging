@@ -91,39 +91,38 @@ module Logging::Appenders
       end
 
       code = 'def sufficiently_aged?() false end'
+      @age_fn = @fn + '.age'
 
       case @age = opts.getopt(:age)
       when 'daily'
-        @start_time = Time.now
+        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
           now = Time.now
-          if (now.day != @start_time.day) or (now - @start_time) > 86400
-            @start_time = now
+          start = ::File.mtime(@age_fn)
+          if (now.day != start.day) or (now - start) > 86400
             return true
           end
           false
         end
         CODE
       when 'weekly'
-        @start_time = Time.now
+        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
-          now = Time.now
-          if (now - @start_time) > 604800
-            @start_time = now
+          if (Time.now - ::File.mtime(@age_fn)) > 604800
             return true
           end
           false
         end
         CODE
       when 'monthly'
-        @start_time = Time.now
+        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
           now = Time.now
-          if (now.month != @start_time.month) or (now - @start_time) > 2678400
-            @start_time = now
+          start = ::File.mtime(@age_fn)
+          if (now.month != start.month) or (now - start) > 2678400
             return true
           end
           false
@@ -131,12 +130,10 @@ module Logging::Appenders
         CODE
       when Integer, String
         @age = Integer(@age)
-        @start_time = Time.now
+        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
-          now = Time.now
-          if (now - @start_time) > @age
-            @start_time = now
+          if (Time.now - ::File.mtime(@age_fn)) > @age
             return true
           end
           false
@@ -259,6 +256,9 @@ module Logging::Appenders
 
       # finally reanme the base log file
       ::File.rename(@fn, sprintf(@logname_fmt, 1))
+
+      # touch the age file if needed
+      FileUtils.touch(@age_fn) if @age
     end
 
     # call-seq:

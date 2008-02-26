@@ -6,11 +6,11 @@ namespace :manifest do
 
   desc 'Verify the manifest'
   task :check do
-    fn = 'Manifest.tmp'
+    fn = PROJ.manifest_file + '.tmp'
     files = manifest_files
 
     File.open(fn, 'w') {|fp| fp.puts files}
-    lines = %x(#{DIFF} -du Manifest.txt #{fn}).split("\n")
+    lines = %x(#{DIFF} -du #{PROJ.manifest_file} #{fn}).split("\n")
     if HAVE_FACETS_ANSICODE and ENV.has_key?('TERM')
       lines.map! do |line|
         case line
@@ -27,19 +27,18 @@ namespace :manifest do
 
   desc 'Create a new manifest'
   task :create do
-    fn = 'Manifest.txt'
     files = manifest_files
-    unless test(?f, fn)
-      files << fn
+    unless test(?f, PROJ.manifest_file)
+      files << PROJ.manifest_file
       files.sort!
     end
-    File.open(fn, 'w') {|fp| fp.puts files}
+    File.open(PROJ.manifest_file, 'w') {|fp| fp.puts files}
   end
 
   task :assert do
     files = manifest_files
-    manifest = File.read('Manifest.txt').split($/)
-    raise "ERROR: Manifest.txt is out of date" unless files == manifest
+    manifest = File.read(PROJ.manifest_file).split($/)
+    raise "ERROR: #{PROJ.manifest_file} is out of date" unless files == manifest
   end
 
 end  # namespace :manifest

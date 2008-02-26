@@ -95,8 +95,11 @@ namespace :gem do
 
   desc 'Uninstall the gem'
   task :uninstall do
-    sh "#{SUDO} #{GEM} uninstall -v '#{PROJ.version}' -x #{PROJ.name}"
+    sh "#{SUDO} #{GEM} uninstall -v '#{PROJ.version}' -i -x #{PROJ.name}"
   end
+
+  desc 'Reinstall the gem'
+  task :reinstall => [:uninstall, :install]
 
 end  # namespace :gem
 

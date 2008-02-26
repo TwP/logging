@@ -24,6 +24,7 @@ lib/logging/stelan/lockfile.rb
 lib/logging/utils.rb
 tasks/ann.rake
 tasks/annotations.rake
+tasks/bones.rake
 tasks/doc.rake
 tasks/gem.rake
 tasks/manifest.rake

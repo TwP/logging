@@ -109,8 +109,10 @@ module TestAppenders
       ap << "random message\n"
       assert_equal 2, Dir.glob(@glob).length
 
-      t = ap.instance_variable_get :@start_time
-      ap.instance_variable_set :@start_time, t - 3600 * 24
+      age_fn = @fn + '.age'
+      now = ::File.mtime(age_fn)
+      start = now - 3600 * 24
+      ::File.utime(start, start, age_fn)
 
       sleep 0.250
       ap << "yet another random message\n"
@@ -122,8 +124,8 @@ module TestAppenders
       ap << "random message\n"
       assert_equal 3, Dir.glob(@glob).length
 
-      t = ap.instance_variable_get :@start_time
-      ap.instance_variable_set :@start_time, t - 3600 * 24 * 7
+      start = now - 3600 * 24 * 7
+      ::File.utime(start, start, age_fn)
 
       sleep 0.250
       ap << "yet another random message\n"
@@ -135,8 +137,8 @@ module TestAppenders
       ap << "random message\n"
       assert_equal 4, Dir.glob(@glob).length
 
-      t = ap.instance_variable_get :@start_time
-      ap.instance_variable_set :@start_time, t - 3600 * 24 * 31
+      start = now - 3600 * 24 * 31
+      ::File.utime(start, start, age_fn)
 
       sleep 0.250
       ap << "yet another random message\n"

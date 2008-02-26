@@ -9,9 +9,9 @@ require 'time'
 
 namespace :ann do
 
-  desc "Create an announcement file"
-  task :announcement do
-    File.open('announcement.txt','w') do |fd|
+  file PROJ.ann_file do
+    puts "Generating #{PROJ.ann_file}"
+    File.open(PROJ.ann_file,'w') do |fd|
       fd.puts("#{PROJ.name} version #{PROJ.version}")
       fd.puts("    by #{Array(PROJ.authors).first}") if PROJ.authors
       fd.puts("    #{PROJ.url}") if PROJ.url
@@ -26,15 +26,18 @@ namespace :ann do
       PROJ.ann_paragraphs.each do |p|
         fd.puts "== #{p.upcase}"
         fd.puts
-        fd.puts paragraphs_of('README.txt', p).join("\n\n")
+        fd.puts paragraphs_of(PROJ.readme_file, p).join("\n\n")
         fd.puts
       end
       fd.puts PROJ.ann_text if PROJ.ann_text
     end
   end
 
+  desc "Create an announcement file"
+  task :announcement => PROJ.ann_file
+
   desc "Send an email announcement"
-  task :email => :announcement do
+  task :email => PROJ.ann_file do
     from = PROJ.ann_email[:from] || PROJ.email
     to   = Array(PROJ.ann_email[:to])
 
@@ -47,7 +50,7 @@ namespace :ann do
     rfc822msg << "Date: #{Time.new.rfc822}\n"
     rfc822msg << "Message-Id: "
     rfc822msg << "<#{"%.8f" % Time.now.to_f}@#{PROJ.ann_email[:domain]}>\n\n"
-    rfc822msg << File.read('announcement.txt')
+    rfc822msg << File.read(PROJ.ann_file)
 
     params = [:server, :port, :domain, :acct, :passwd, :authtype].map do |key|
       PROJ.ann_email[key]
@@ -63,15 +66,11 @@ namespace :ann do
     ### send email
     Net::SMTP.start(*params) {|smtp| smtp.sendmail(rfc822msg, from, to)}
   end
-
-  task :clobber_announcement do
-    rm 'announcement.txt' rescue nil
-  end
 end  # namespace :ann
 
 desc 'Alias to ann:announcement'
 task :ann => 'ann:announcement'
 
-task :clobber => %w(ann:clobber_announcement)
+CLOBBER << PROJ.ann_file
 
 # EOF
