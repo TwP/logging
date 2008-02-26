@@ -2,14 +2,6 @@
 
 require Logging.libpath(*%w[logging stelan lockfile])
 
-# FIXME: bug when truncating a rolling file on create
-#        If there is not log file in existence, it is created and then
-#        immediately rolld resulting in two log files
-#
-#        This appears to be because of rails -- creating the logfile and
-#        then we replace the default logger with a rolling file appender. It
-#        sees the already existing log file and happily rolls it right over.
-
 module Logging::Appenders
 
   # An appender that writes to a file and ensures that the file size or age
