@@ -1,4 +1,4 @@
-== 0.7.1 / 2008-
+== 0.7.1 / 2008-02-25
 
 1 minor enhancement
   - Removed dependency on the Lockfile gem (brought the ruby
