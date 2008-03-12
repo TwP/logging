@@ -1,21 +1,21 @@
 # $Id$
 
+if PROJ.svn.path and system("svn --version 2>&1 > #{DEV_NULL}")
 
-if PROJ.svn and system("svn --version 2>&1 > #{DEV_NULL}")
-
-unless PROJ.svn_root
+unless PROJ.svn.root
   info = %x/svn info ./
   m = %r/^Repository Root:\s+(.*)$/.match(info)
-  PROJ.svn_root = (m.nil? ? '' : m[1])
+  PROJ.svn.root = (m.nil? ? '' : m[1])
 end
-PROJ.svn_root = File.join(PROJ.svn_root, PROJ.svn) if String === PROJ.svn
+PROJ.svn.root = File.join(PROJ.svn.root, PROJ.svn.path) unless PROJ.svn.path.empty?
 
 namespace :svn do
 
   desc 'Show tags from the SVN repository'
   task :show_tags do |t|
-    tags = %x/svn list #{File.join(PROJ.svn_root, PROJ.svn_tags)}/
+    tags = %x/svn list #{File.join(PROJ.svn.root, PROJ.svn.tags)}/
     tags.gsub!(%r/\/$/, '')
+    tags = tags.split("\n").sort {|a,b| b <=> a}
     puts tags
   end
 
@@ -24,9 +24,10 @@ namespace :svn do
     v = ENV['VERSION'] or abort 'Must supply VERSION=x.y.z'
     abort "Versions don't match #{v} vs #{PROJ.version}" if v != PROJ.version
 
-    trunk = File.join(PROJ.svn_root, PROJ.svn_trunk)
+    svn = PROJ.svn
+    trunk = File.join(svn.root, svn.trunk)
     tag = "%s-%s" % [PROJ.name, PROJ.version]
-    tag = File.join(PROJ.svn_root, PROJ.svn_tags, tag)
+    tag = File.join(svn.root, svn.tags, tag)
     msg = "Creating tag for #{PROJ.name} version #{PROJ.version}"
 
     puts "Creating SVN tag '#{tag}'"
@@ -39,6 +40,6 @@ end  # namespace :svn
 
 task 'gem:release' => 'svn:create_tag'
 
-end  # if PROJ.svn
+end  # if PROJ.svn.path
 
 # EOF

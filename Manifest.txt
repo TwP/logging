@@ -20,15 +20,14 @@ lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
 lib/logging/root_logger.rb
-lib/logging/stelan/lockfile.rb
 lib/logging/utils.rb
 tasks/ann.rake
-tasks/annotations.rake
 tasks/bones.rake
-tasks/doc.rake
 tasks/gem.rake
 tasks/manifest.rake
+tasks/notes.rake
 tasks/post_load.rake
+tasks/rdoc.rake
 tasks/rubyforge.rake
 tasks/setup.rb
 tasks/svn.rake

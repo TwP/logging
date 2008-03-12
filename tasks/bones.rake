@@ -1,7 +1,6 @@
 # $Id$
 
-require 'pp'
-require 'stringio'
+if HAVE_BONES
 
 namespace :bones do
 
@@ -10,31 +9,13 @@ namespace :bones do
     atr = if ARGV.length == 2
       t.application.top_level_tasks.pop
     end
-    sio = StringIO.new
-    sep = "\n" + ' '*27
-    fmt = "%23s => %s"
 
-    if atr
-      PP.pp(PROJ.send(atr.to_sym), sio, 49)
-      sio.seek 0
-      val = sio.read
-      val = val.split("\n").join(sep)
-
-      puts fmt % [atr, val]
-    else
-      h = PROJ.instance_variable_get(:@table)
-      h.keys.map {|k| k.to_s}.sort.each do |k|
-        sio.truncate 0
-        PP.pp(h[k.to_sym], sio, 49)
-        sio.seek 0
-        val = sio.read
-        val = val.split("\n").join(sep)
-
-        puts fmt % [k, val]
-      end
-    end
+    if atr then Bones::Debug.show_attr(PROJ, atr)
+    else Bones::Debug.show PROJ end
   end
 
 end  # namespace :bones
+
+end  # HAVE_BONES
 
 # EOF

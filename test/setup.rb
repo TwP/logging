@@ -5,9 +5,11 @@
 unless defined? LOGGING_TEST_SETUP
 LOGGING_TEST_SETUP = true
 
+require 'rubygems'
 require 'test/unit'
 require 'fileutils'
 require 'stringio'
+require 'turn' rescue nil
 
 # This line is needed for Ruby 1.9 -- hashes throw a "KeyError" in 1.9
 # whereas they throw an "IndexError" in 1.8
@@ -15,13 +17,6 @@ require 'stringio'
 KeyError = IndexError if not defined? KeyError
 
 require File.join(File.dirname(__FILE__), %w[.. lib logging])
-
-begin
-  require 'turn'
-rescue LoadError
-  require 'rubygems'
-  begin; require 'turn'; rescue LoadError; end
-end
 
 
 module TestLogging

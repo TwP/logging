@@ -6,12 +6,13 @@ namespace :doc do
 
   desc 'Generate RDoc documentation'
   Rake::RDocTask.new do |rd|
-    rd.main = PROJ.rdoc_main
-    rd.rdoc_dir = PROJ.rdoc_dir
+    rdoc = PROJ.rdoc
+    rd.main = rdoc.main
+    rd.rdoc_dir = rdoc.dir
 
-    incl = Regexp.new(PROJ.rdoc_include.join('|'))
-    excl = Regexp.new(PROJ.rdoc_exclude.join('|'))
-    files = PROJ.files.find_all do |fn|
+    incl = Regexp.new(rdoc.include.join('|'))
+    excl = Regexp.new(rdoc.exclude.join('|'))
+    files = PROJ.gem.files.find_all do |fn|
               case fn
               when excl; false
               when incl; true
@@ -20,10 +21,10 @@ namespace :doc do
     rd.rdoc_files.push(*files)
 
     title = "#{PROJ.name}-#{PROJ.version} Documentation"
-    title = "#{PROJ.rubyforge_name}'s " + title if PROJ.rubyforge_name != title
+    title = "#{PROJ.rubyforge.name}'s " + title if PROJ.rubyforge.name != title
 
     rd.options << "-t #{title}"
-    rd.options.concat(PROJ.rdoc_opts)
+    rd.options.concat(rdoc.opts)
   end
 
   desc 'Generate ri locally for testing'

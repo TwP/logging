@@ -38,7 +38,7 @@ class Email < ::Logging::Appender
 
     @server   = opts.getopt :server, 'localhost'
     @port     = opts.getopt :port, 25, :as => Integer
-    @domain   = opts.getopt :domain, ENV['HOSTNAME']
+    @domain   = opts.getopt(:domain, ENV['HOSTNAME']) || 'localhost.localdomain'
     @acct     = opts.getopt :acct
     @passwd   = opts.getopt :passwd
     @authtype = opts.getopt :authtype, :cram_md5, :as => Symbol
@@ -118,6 +118,7 @@ class Email < ::Logging::Appender
       Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
     rescue Exception => e
       self.level = :off
+      STDERR.puts e.message
       # TODO - log that e-mail notification has been turned off
     ensure
       @buff.clear

@@ -6,91 +6,116 @@ require 'rake/clean'
 require 'fileutils'
 require 'ostruct'
 
-PROJ = OpenStruct.new
+class OpenStruct; undef :gem; end
 
-PROJ.name = nil
-PROJ.summary = nil
-PROJ.description = nil
-PROJ.changes = nil
-PROJ.authors = nil
-PROJ.email = nil
-PROJ.url = nil
-PROJ.version = ENV['VERSION'] || '0.0.0'
-PROJ.rubyforge_name = nil
-PROJ.exclude = %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/)
-PROJ.release_name = ENV['RELEASE']
-PROJ.history_file = 'History.txt'
-PROJ.manifest_file = 'Manifest.txt'
-PROJ.readme_file = 'README.txt'
+PROJ = OpenStruct.new(
+  # Project Defaults
+  :name => nil,
+  :summary => nil,
+  :description => nil,
+  :changes => nil,
+  :authors => nil,
+  :email => nil,
+  :url => nil,
+  :version => ENV['VERSION'] || '0.0.0',
+  :exclude => %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/),
+  :release_name => ENV['RELEASE'],
 
-# Rspec
-PROJ.specs = FileList['spec/**/*_spec.rb']
-PROJ.spec_opts = []
+  # System Defaults
+  :ruby_opts => %w(-w),
+  :libs => [],
+  :history_file => 'History.txt',
+  :manifest_file => 'Manifest.txt',
+  :readme_file => 'README.txt',
 
-# Test::Unit
-PROJ.tests = FileList['test/**/test_*.rb']
-PROJ.test_file = 'test/all.rb'
-PROJ.test_opts = []
+  # Announce
+  :ann => OpenStruct.new(
+    :file => 'announcement.txt',
+    :text => nil,
+    :paragraphs => [],
+    :email => {
+      :from     => nil,
+      :to       => %w(ruby-talk@ruby-lang.org),
+      :server   => 'localhost',
+      :port     => 25,
+      :domain   => ENV['HOSTNAME'],
+      :acct     => nil,
+      :passwd   => nil,
+      :authtype => :plain
+    }
+  ),
 
-# Rcov
-PROJ.rcov_dir = 'coverage'
-PROJ.rcov_opts = ['--sort', 'coverage', '-T']
-PROJ.rcov_threshold = 90.0
-PROJ.rcov_threshold_exact = false
+  # Gem Packaging
+  :gem => OpenStruct.new(
+    :dependencies => [],
+    :executables => nil,
+    :extensions => FileList['ext/**/extconf.rb'],
+    :files => nil,
+    :need_tar => true,
+    :need_zip => false,
+    :post_install_message => nil
+  ),
 
-# Rdoc
-PROJ.rdoc_opts = []
-PROJ.rdoc_include = %w(^lib/ ^bin/ ^ext/ .txt$)
-PROJ.rdoc_exclude = %w(extconf.rb$)
-PROJ.rdoc_main = nil
-PROJ.rdoc_dir = 'doc'
-PROJ.rdoc_remote_dir = nil
+  # File Annotations
+  :notes => OpenStruct.new(
+    :exclude => %w(^tasks/setup.rb$),
+    :extensions => %w(.txt .rb .erb) << '',
+    :tags => %w(FIXME OPTIMIZE TODO)
+  ),
 
-# Extensions
-PROJ.extensions = FileList['ext/**/extconf.rb']
-PROJ.ruby_opts = %w(-w)
-PROJ.libs = []
-%w(lib ext).each {|dir| PROJ.libs << dir if test ?d, dir}
+  # Rcov
+  :rcov => OpenStruct.new(
+    :dir => 'coverage',
+    :opts => %w[--sort coverage -T],
+    :threshold => 90.0,
+    :threshold_exact => false
+  ),
 
-# Gem Packaging
-PROJ.files = nil
-PROJ.executables = nil
-PROJ.dependencies = []
-PROJ.need_tar = true
-PROJ.need_zip = false
-PROJ.post_install_message = nil
+  # Rdoc
+  :rdoc => OpenStruct.new(
+    :opts => [],
+    :include => %w(^lib/ ^bin/ ^ext/ .txt$),
+    :exclude => %w(extconf.rb$),
+    :main => nil,
+    :dir => 'doc',
+    :remote_dir => nil
+  ),
 
-# File Annotations
-PROJ.annotation_exclude = %w(^tasks/setup.rb$)
-PROJ.annotation_extensions = %w(.txt .rb .erb) << ''
-PROJ.annotation_tags = %w(FIXME OPTIMIZE TODO)
+  # Rubyforge
+  :rubyforge => OpenStruct.new(
+    :name => nil
+  ),
 
-# Subversion Repository
-PROJ.svn = false
-PROJ.svn_root = nil
-PROJ.svn_trunk = 'trunk'
-PROJ.svn_tags = 'tags'
-PROJ.svn_branches = 'branches'
+  # Rspec
+  :spec => OpenStruct.new(
+    :files => FileList['spec/**/*_spec.rb'],
+    :opts => []
+  ),
 
-# Announce
-PROJ.ann_file = 'announcement.txt'
-PROJ.ann_text = nil
-PROJ.ann_paragraphs = []
-PROJ.ann_email = {
-  :from     => nil,
-  :to       => %w(ruby-talk@ruby-lang.org),
-  :server   => 'localhost',
-  :port     => 25,
-  :domain   => ENV['HOSTNAME'],
-  :acct     => nil,
-  :passwd   => nil,
-  :authtype => :plain
-}
+  # Subversion Repository
+  :svn => OpenStruct.new(
+    :root => nil,
+    :path => nil,
+    :trunk => 'trunk',
+    :tags => 'tags',
+    :branches => 'branches'
+  ),
+
+  # Test::Unit
+  :test => OpenStruct.new(
+    :files => FileList['test/**/test_*.rb'],
+    :file  => 'test/all.rb',
+    :opts  => []
+  )
+)
 
 # Load the other rake files in the tasks folder
 rakefiles = Dir.glob('tasks/*.rake').sort
 rakefiles.unshift(rakefiles.delete('tasks/post_load.rake')).compact!
 import(*rakefiles)
+
+# Setup the project libraries
+%w(lib ext).each {|dir| PROJ.libs << dir if test ?d, dir}
 
 # Setup some constants
 WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM unless defined? WIN32
@@ -120,6 +145,7 @@ SUDO = if WIN32 then ''
        end
 
 RCOV = WIN32 ? 'rcov.bat' : 'rcov'
+RDOC = WIN32 ? 'rdoc.bat' : 'rdoc'
 GEM  = WIN32 ? 'gem.bat'  : 'gem'
 
 %w(rcov spec/rake/spectask rubyforge bones facets/ansicode).each do |lib|
@@ -169,7 +195,7 @@ def depend_on( name, version = nil )
   spec = Gem.source_index.find_name(name).last
   version = spec.version.to_s if version.nil? and !spec.nil?
 
-  PROJ.dependencies << case version
+  PROJ.gem.dependencies << case version
     when nil; [name]
     when %r/^\d/; [name, ">= #{version}"]
     else [name, version] end

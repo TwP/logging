@@ -47,7 +47,9 @@ module TestAppenders
       assert_equal([], appender.instance_variable_get(:@immediate))
       assert_equal('localhost', appender.server)
       assert_equal(25, appender.port)
-      assert_equal(ENV['HOSTNAME'], appender.domain)
+
+      domain = ENV['HOSTNAME'] || 'localhost.localdomain'
+      assert_equal(domain, appender.domain)
       assert_equal(nil, appender.acct)
       assert_equal(:cram_md5, appender.authtype)
       assert_equal("Message of #{$0}", appender.subject)

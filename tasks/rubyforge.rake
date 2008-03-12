@@ -1,6 +1,6 @@
 # $Id$
 
-if PROJ.rubyforge_name && HAVE_RUBYFORGE
+if PROJ.rubyforge.name && HAVE_RUBYFORGE
 
 require 'rubyforge'
 require 'rake/contrib/sshpublisher'
@@ -10,11 +10,11 @@ namespace :gem do
   task :release => [:clobber, :package] do |t|
     v = ENV['VERSION'] or abort 'Must supply VERSION=x.y.z'
     abort "Versions don't match #{v} vs #{PROJ.version}" if v != PROJ.version
-    pkg = "pkg/#{PROJ.spec.full_name}"
+    pkg = "pkg/#{PROJ.gem.spec.full_name}"
 
     if $DEBUG then
-      puts "release_id = rf.add_release #{PROJ.rubyforge_name.inspect}, #{PROJ.name.inspect}, #{PROJ.version.inspect}, \"#{pkg}.tgz\""
-      puts "rf.add_file #{PROJ.rubyforge_name.inspect}, #{PROJ.name.inspect}, release_id, \"#{pkg}.gem\""
+      puts "release_id = rf.add_release #{PROJ.rubyforge.name.inspect}, #{PROJ.name.inspect}, #{PROJ.version.inspect}, \"#{pkg}.tgz\""
+      puts "rf.add_file #{PROJ.rubyforge.name.inspect}, #{PROJ.name.inspect}, release_id, \"#{pkg}.gem\""
     end
 
     rf = RubyForge.new
@@ -26,12 +26,12 @@ namespace :gem do
     c['release_changes'] = PROJ.changes if PROJ.changes
     c['preformatted'] = true
 
-    files = [(PROJ.need_tar ? "#{pkg}.tgz" : nil),
-             (PROJ.need_zip ? "#{pkg}.zip" : nil),
+    files = [(PROJ.gem.need_tar ? "#{pkg}.tgz" : nil),
+             (PROJ.gem.need_zip ? "#{pkg}.zip" : nil),
              "#{pkg}.gem"].compact
 
     puts "Releasing #{PROJ.name} v. #{PROJ.version}"
-    rf.add_release PROJ.rubyforge_name, PROJ.name, PROJ.version, *files
+    rf.add_release PROJ.rubyforge.name, PROJ.name, PROJ.version, *files
   end
 end  # namespace :gem
 
@@ -44,9 +44,9 @@ namespace :doc do
     )
 
     host = "#{config['username']}@rubyforge.org"
-    remote_dir = "/var/www/gforge-projects/#{PROJ.rubyforge_name}/"
-    remote_dir << PROJ.rdoc_remote_dir if PROJ.rdoc_remote_dir
-    local_dir = PROJ.rdoc_dir
+    remote_dir = "/var/www/gforge-projects/#{PROJ.rubyforge.name}/"
+    remote_dir << PROJ.rdoc.remote_dir if PROJ.rdoc.remote_dir
+    local_dir = PROJ.rdoc.dir
 
     Rake::SshDirPublisher.new(host, remote_dir, local_dir).upload
   end

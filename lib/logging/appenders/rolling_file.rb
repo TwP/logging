@@ -1,6 +1,6 @@
 # $Id$
 
-require Logging.libpath(*%w[logging stelan lockfile])
+require 'lockfile'
 
 module Logging::Appenders
 
@@ -75,7 +75,7 @@ module Logging::Appenders
       @size = opts.getopt(:size, :as => Integer)
 
       @lockfile = if opts.getopt(:safe, false) and !::Logging::WIN32
-        ::Logging::Lockfile.new(
+        ::Lockfile.new(
             @fn + '.lck',
             :retries => 1,
             :timeout => 2
