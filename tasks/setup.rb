@@ -16,9 +16,9 @@ PROJ = OpenStruct.new(
   :changes => nil,
   :authors => nil,
   :email => nil,
-  :url => nil,
+  :url => "\000",
   :version => ENV['VERSION'] || '0.0.0',
-  :exclude => %w(tmp$ bak$ ~$ CVS .svn/ ^pkg/ ^doc/),
+  :exclude => %w(tmp$ bak$ ~$ CVS \.svn/ \.git/ ^pkg/),
   :release_name => ENV['RELEASE'],
 
   # System Defaults
@@ -53,12 +53,12 @@ PROJ = OpenStruct.new(
     :files => nil,
     :need_tar => true,
     :need_zip => false,
-    :post_install_message => nil
+    :extras => {}
   ),
 
   # File Annotations
   :notes => OpenStruct.new(
-    :exclude => %w(^tasks/setup.rb$),
+    :exclude => %w(^tasks/setup\.rb$),
     :extensions => %w(.txt .rb .erb) << '',
     :tags => %w(FIXME OPTIMIZE TODO)
   ),
@@ -74,8 +74,8 @@ PROJ = OpenStruct.new(
   # Rdoc
   :rdoc => OpenStruct.new(
     :opts => [],
-    :include => %w(^lib/ ^bin/ ^ext/ .txt$),
-    :exclude => %w(extconf.rb$),
+    :include => %w(^lib/ ^bin/ ^ext/ \.txt$),
+    :exclude => %w(extconf\.rb$),
     :main => nil,
     :dir => 'doc',
     :remote_dir => nil
@@ -83,7 +83,7 @@ PROJ = OpenStruct.new(
 
   # Rubyforge
   :rubyforge => OpenStruct.new(
-    :name => nil
+    :name => "\000"
   ),
 
   # Rspec
@@ -95,7 +95,7 @@ PROJ = OpenStruct.new(
   # Subversion Repository
   :svn => OpenStruct.new(
     :root => nil,
-    :path => nil,
+    :path => '',
     :trunk => 'trunk',
     :tags => 'tags',
     :branches => 'branches'
@@ -130,6 +130,7 @@ def quiet( &block )
 ensure
   STDOUT.reopen io.first
   STDERR.reopen io.last
+  $stdout, $stderr = STDOUT, STDERR
 end
 
 DIFF = if WIN32 then 'diff.exe'
@@ -156,6 +157,8 @@ GEM  = WIN32 ? 'gem.bat'  : 'gem'
     Object.instance_eval {const_set "HAVE_#{lib.tr('/','_').upcase}", false}
   end
 end
+HAVE_SVN = (Dir.entries(Dir.pwd).include?('.svn') and
+            system("svn --version 2>&1 > #{DEV_NULL}"))
 
 # Reads a file at +path+ and spits out an array of the +paragraphs+
 # specified.
@@ -248,6 +251,16 @@ def manifest_files
     files << path
   end
   files.sort!
+end
+
+# We need a "valid" method thtat determines if a string is suitable for use
+# in the gem specification.
+#
+class Object
+  def valid?
+    return !(self.empty? or self == "\000") if self.respond_to?(:to_str)
+    return false
+  end
 end
 
 # EOF

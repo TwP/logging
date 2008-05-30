@@ -4,7 +4,9 @@
 # settings if they are not defined by the user.
 
 PROJ.rdoc.exclude << "^#{Regexp.escape(PROJ.manifest_file)}$"
-PROJ.exclude << "^#{Regexp.escape(PROJ.ann.file)}$"
+PROJ.exclude << ["^#{Regexp.escape(PROJ.ann.file)}$",
+                 "^#{Regexp.escape(PROJ.rdoc.dir)}/",
+                 "^#{Regexp.escape(PROJ.rcov.dir)}/"]
 
 flatten_arrays = lambda do |this,os|
     os.instance_variable_get(:@table).each do |key,val|

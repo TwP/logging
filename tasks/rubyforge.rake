@@ -1,6 +1,6 @@
 # $Id$
 
-if PROJ.rubyforge.name && HAVE_RUBYFORGE
+if PROJ.rubyforge.name.valid? && HAVE_RUBYFORGE
 
 require 'rubyforge'
 require 'rake/contrib/sshpublisher'
@@ -10,7 +10,7 @@ namespace :gem do
   task :release => [:clobber, :package] do |t|
     v = ENV['VERSION'] or abort 'Must supply VERSION=x.y.z'
     abort "Versions don't match #{v} vs #{PROJ.version}" if v != PROJ.version
-    pkg = "pkg/#{PROJ.gem.spec.full_name}"
+    pkg = "pkg/#{PROJ.gem._spec.full_name}"
 
     if $DEBUG then
       puts "release_id = rf.add_release #{PROJ.rubyforge.name.inspect}, #{PROJ.name.inspect}, #{PROJ.version.inspect}, \"#{pkg}.tgz\""

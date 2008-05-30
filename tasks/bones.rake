@@ -6,7 +6,7 @@ namespace :bones do
 
   desc 'Show the PROJ open struct'
   task :debug do |t|
-    atr = if ARGV.length == 2
+    atr = if t.application.top_level_tasks.length == 2
       t.application.top_level_tasks.pop
     end
 
