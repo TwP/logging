@@ -112,7 +112,7 @@ module Logging
 
     end  # class << self
 
-    attr_reader :level, :name, :parent, :additive, :trace
+    attr_reader :name, :parent, :additive, :trace
 
     # call-seq:
     #    Logger.new( name )
@@ -148,7 +148,8 @@ module Logging
       @appenders = []
       @additive = true
       @trace = false
-      self.level = @parent.level
+      @level = nil
+      ::Logging::Logger.define_log_methods(self)
 
       repo.children(name).each {|c| c.parent = self}
     end
@@ -243,6 +244,16 @@ module Logging
     end
 
     # call-seq:
+    #    level    => integer
+    #
+    # Returns an integer which is the defined log level for this logger.
+    #
+    def level
+      return @level unless @level.nil?
+      @parent.level
+    end
+
+    # call-seq:
     #    level = :all
     #
     # Set the level for this logger. The level can be either a +String+, a
@@ -271,21 +282,24 @@ module Logging
     #    log.level = 1_000_000_000_000
     #
     def level=( level )
-      lvl = case level
-            when String, Symbol; ::Logging::level_num(level)
-            when Fixnum; level
-            when nil; @parent.level
-            else
-              raise ArgumentError,
-                    "level must be a String, Symbol, or Integer"
-            end
-      if lvl.nil? or lvl < 0 or lvl > ::Logging::LEVELS.length
-        raise ArgumentError, "unknown level was given '#{level}'"
-      end
+      @level =
+        if level.nil? then level
+        else
+          lvl = case level
+                when String, Symbol; ::Logging::level_num(level)
+                when Fixnum; level
+                else
+                  raise ArgumentError,
+                        "level must be a String, Symbol, or Integer"
+                end
+          if lvl.nil? or lvl < 0 or lvl > ::Logging::LEVELS.length
+            raise ArgumentError, "unknown level was given '#{level}'"
+          end
+          lvl
+        end
 
-      @level = lvl
-      ::Logging::Logger.define_log_methods(self)
-      @level
+      define_log_methods(true)
+      self.level
     end
 
     # call-seq:
@@ -343,6 +357,15 @@ module Logging
     #
     def clear_appenders( ) @appenders.clear end
 
+    # call-seq:
+    #     inspect    => string
+    #
+    # Returns a string representation of the logger.
+    #
+    def inspect
+      "<%s:0x%x name=\"%s\">" % [self.class.name, self.object_id, self.name]
+    end
+
 
     protected
 
@@ -365,6 +388,25 @@ module Logging
     def log_event( event )
       @appenders.each {|a| a.append(event)}
       @parent.log_event(event) if @additive
+    end
+
+    # call-seq:
+    #    define_log_methods( force = false )
+    #
+    # Define the logging methods for this logger based on the configured log
+    # level. If the level is nil, then we will ask our parent for it's level
+    # and define log levels accordingly. The force flag will skip this
+    # check.
+    #
+    # Recursively call this method on all our children loggers.
+    #
+    def define_log_methods( force = false )
+      return if @level and !force
+
+      ::Logging::Logger.define_log_methods(self)
+      ::Logging::Repository.instance.children(name).each do |c|
+        c.define_log_methods
+      end
     end
 
     # :stopdoc:

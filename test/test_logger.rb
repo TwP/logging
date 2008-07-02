@@ -255,6 +255,13 @@ module TestLogging
       assert_nil a2.readline
     end
 
+    def test_inspect
+      root = ::Logging::Logger.new :root
+
+      str = "<#{root.class.name}:0x%x name=\"#{root.name}\">" % root.object_id
+      assert_equal str, root.inspect
+    end
+
     def test_level
       root = ::Logging::Logger.new :root
       log  = ::Logging::Logger.new 'A'
@@ -264,7 +271,7 @@ module TestLogging
 
       root.level = :warn
       assert_equal 2, root.level
-      assert_equal 0, log.level
+      assert_equal 2, log.level
 
       log.level = nil
       assert_equal 2, root.level
@@ -278,9 +285,14 @@ module TestLogging
     def test_level_eq
       root = ::Logging::Logger.new :root
       log  = ::Logging::Logger.new 'A'
+      logb = ::Logging::Logger.new 'A::B'
 
       assert_equal 0, root.level
       assert_equal 0, log.level
+      assert_equal 0, logb.level
+      assert_equal true, root.debug?
+      assert_equal true, log.debug?
+      assert_equal true, logb.debug?
 
       assert_raise(ArgumentError) {root.level = -1}
       assert_raise(ArgumentError) {root.level =  6}
@@ -290,47 +302,112 @@ module TestLogging
 
       root.level = 'INFO'
       assert_equal 1, root.level
-      assert_equal 0, log.level
+      assert_equal 1, log.level
+      assert_equal 1, logb.level
+      assert_equal false, root.debug?
+      assert_equal true,  root.info?
+      assert_equal false, log.debug?
+      assert_equal true , log.info?
+      assert_equal false, logb.debug?
+      assert_equal true , logb.info?
 
       root.level = :warn
       assert_equal 2, root.level
-      assert_equal 0, log.level
+      assert_equal 2, log.level
+      assert_equal 2, logb.level
+      assert_equal false, root.info?
+      assert_equal true,  root.warn?
+      assert_equal false, log.info?
+      assert_equal true , log.warn?
+      assert_equal false, logb.info?
+      assert_equal true , logb.warn?
 
       root.level = 'error'
       assert_equal 3, root.level
-      assert_equal 0, log.level
+      assert_equal 3, log.level
+      assert_equal 3, logb.level
+      assert_equal false, root.warn?
+      assert_equal true,  root.error?
+      assert_equal false, log.warn?
+      assert_equal true , log.error?
+      assert_equal false, logb.warn?
+      assert_equal true , logb.error?
 
       root.level = 4
       assert_equal 4, root.level
-      assert_equal 0, log.level
+      assert_equal 4, log.level
+      assert_equal 4, logb.level
+      assert_equal false, root.error?
+      assert_equal true,  root.fatal?
+      assert_equal false, log.error?
+      assert_equal true , log.fatal?
+      assert_equal false, logb.error?
+      assert_equal true , logb.fatal?
 
       log.level = nil
       assert_equal 4, root.level
       assert_equal 4, log.level
+      assert_equal 4, logb.level
+      assert_equal false, root.error?
+      assert_equal true,  root.fatal?
+      assert_equal false, log.error?
+      assert_equal true , log.fatal?
+      assert_equal false, logb.error?
+      assert_equal true , logb.fatal?
 
       log.level = :DEBUG
       assert_equal 4, root.level
       assert_equal 0, log.level
+      assert_equal 0, logb.level
+      assert_equal false, root.error?
+      assert_equal true,  root.fatal?
+      assert_equal true,  log.debug?
+      assert_equal true,  logb.debug?
 
       log.level = :off
       assert_equal 4, root.level
       assert_equal 5, log.level
+      assert_equal 5, logb.level
+      assert_equal false, root.error?
+      assert_equal true,  root.fatal?
+      assert_equal false, log.fatal?
+      assert_equal false, logb.fatal?
 
       root.level = :all
       assert_equal 0, root.level
       assert_equal 5, log.level
+      assert_equal 5, logb.level
+      assert_equal true,  root.debug?
+      assert_equal false, log.fatal?
+      assert_equal false, logb.fatal?
 
       log.level = nil
       assert_equal 0, root.level
       assert_equal 0, log.level
+      assert_equal 0, logb.level
+      assert_equal true,  root.debug?
+      assert_equal true,  log.debug?
+      assert_equal true,  logb.debug?
 
-      root.level = :warn
-      assert_equal 2, root.level
-      assert_equal 0, log.level
-
-      root.level = nil
+      logb.level = :warn
       assert_equal 0, root.level
       assert_equal 0, log.level
+      assert_equal 2, logb.level
+      assert_equal true,  root.debug?
+      assert_equal true,  log.debug?
+      assert_equal false, logb.info?
+      assert_equal true,  logb.warn?
+
+      log.level  = :info
+      logb.level = nil
+      assert_equal 0, root.level
+      assert_equal 1, log.level
+      assert_equal 1, logb.level
+      assert_equal true,  root.debug?
+      assert_equal false, logb.debug?
+      assert_equal true,  log.info?
+      assert_equal false, logb.debug?
+      assert_equal true,  logb.info?
     end
 
     def test_log

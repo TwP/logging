@@ -91,7 +91,7 @@ namespace :gem do
   end
 
   desc 'Install the gem'
-  task :install => [:clobber, :package] do
+  task :install => [:clobber, 'gem:package'] do
     sh "#{SUDO} #{GEM} install --local pkg/#{PROJ.gem._spec.full_name}"
 
     # use this version of the command for rubygems > 1.0.0

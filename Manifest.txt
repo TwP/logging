@@ -24,13 +24,13 @@ lib/logging/utils.rb
 tasks/ann.rake
 tasks/bones.rake
 tasks/gem.rake
+tasks/git.rake
 tasks/manifest.rake
 tasks/notes.rake
 tasks/post_load.rake
 tasks/rdoc.rake
 tasks/rubyforge.rake
 tasks/setup.rb
-tasks/svn.rake
 tasks/test.rake
 test/appenders/test_console.rb
 test/appenders/test_email.rb

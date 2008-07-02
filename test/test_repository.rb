@@ -79,6 +79,8 @@ module TestLogging
       ::Logging::Logger.new('A::B::C::E::G')
 
       assert_same @repo['A::B::C::E'], @repo.parent('A::B::C::E::G')
+
+      assert_nil @repo.parent('root')
     end
 
     def test_children
@@ -102,6 +104,8 @@ module TestLogging
 
       assert_equal a, @repo.children('A::B::C')
       assert_equal [@repo['A::B::C::E::G']], @repo.children('A::B::C::E')
+
+      assert_equal [@repo['A']], @repo.children('root')
     end
 
     def test_to_key

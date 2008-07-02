@@ -1,5 +1,8 @@
-== 0.7.2 / 2008-03-
+== 0.8.0 / 2008-07-02
 
+1 minor enhancement
+  - Setting the log level of a parent will cause this level to
+    be propagated to the children
 1 bug fix
   - Fixed error with the e-mail appender and missing hostname
 

@@ -13,6 +13,8 @@ module Logging
       undef_method m.intern
     end
 
+    attr_reader :level
+
     # call-seq:
     #    RootLogger.new
     #
@@ -26,7 +28,8 @@ module Logging
       @appenders = []
       @additive = false
       @trace = false
-      self.level = 0
+      @level = 0
+      ::Logging::Logger.define_log_methods(self)
     end
 
     # call-seq:
@@ -50,8 +53,7 @@ module Logging
     # root logger is not allowed. The level is silently set to :all.
     #
     def level=( level )
-      level ||= 0
-      super
+      super(level || 0)
     end
 
   end  # class RootLogger

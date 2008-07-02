@@ -93,6 +93,8 @@ module Logging
     # existence of the logger referenced by _key_.
     #
     def parent( key )
+      return if 'root' == key.to_s
+
       key = to_key(key)
       a = key.split PATH_DELIMITER
 
@@ -113,6 +115,18 @@ module Logging
     # existence of the logger referenced by _key_.
     #
     def children( key )
+      # need to handle the root logger as a special case
+      if 'root' == key.to_s
+        ary = []
+        @h.each_pair do |key,logger|
+          key = key.to_s
+          next if key == 'root'
+          next if key.index(PATH_DELIMITER)
+          ary << logger
+        end
+        return ary.sort
+      end
+
       key = to_key(key)
       depth = key.split(PATH_DELIMITER).length
       rgxp = Regexp.new "^#{key}#{PATH_DELIMITER}"
