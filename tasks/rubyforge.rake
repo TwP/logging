@@ -1,4 +1,3 @@
-# $Id$
 
 if PROJ.rubyforge.name.valid? && HAVE_RUBYFORGE
 
@@ -18,6 +17,7 @@ namespace :gem do
     end
 
     rf = RubyForge.new
+    rf.configure rescue nil
     puts 'Logging in'
     rf.login
 
