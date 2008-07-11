@@ -118,7 +118,7 @@ module TestLogging
       assert_equal 'Array', @repo.to_key([])
 
       assert_equal 'blah', @repo.to_key('blah')
-      assert_equal :blah, @repo.to_key(:blah)
+      assert_equal 'blah', @repo.to_key(:blah)
     end
 
   end  # class TestRepository

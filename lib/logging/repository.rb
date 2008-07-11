@@ -153,8 +153,10 @@ module Logging
     #
     def to_key( key )
       case key
-      when Symbol, String; key
-      when Class; key.name
+      when String; key
+      when :root; key
+      when Symbol; key.to_s
+      when Module; key.name
       when Object; key.class.name
       end
     end

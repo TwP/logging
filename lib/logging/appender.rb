@@ -71,7 +71,8 @@ class Appender
 
   end  # class << self
 
-  attr_reader :name, :layout, :level
+  attr_reader :name, :layout, :level, :log
+  private :log
 
   # call-seq:
   #    Appender.new( name )
@@ -83,6 +84,8 @@ class Appender
   # created.
   #
   def initialize( name, opts = {} )
+    @log = ::Logging::Logger[self]
+
     @name = name.to_s
     @closed = false
 
@@ -91,7 +94,14 @@ class Appender
 
     @mutex = Mutex.new
     header = @layout.header
-    sync {write(header)} unless header.nil? || header.empty?
+
+    unless header.nil? || header.empty?
+      begin 
+        sync {write(header)}
+      rescue StandardError => err
+        log.error err
+      end
+    end
 
     ::Logging::Appender[@name] = self
   end
@@ -108,7 +118,16 @@ class Appender
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    sync {write(event)} unless @level > event.level
+    # only append if the event level is less than or equal to the configured
+    # appender level
+    unless @level > event.level
+      begin
+        sync {write(event)}
+      rescue StandardError => err
+        log.error err
+      end
+    end
+
     self
   end
 
@@ -124,7 +143,13 @@ class Appender
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    sync {write(str)} unless @level >= ::Logging::LEVELS.length
+    unless @level >= ::Logging::LEVELS.length
+      begin
+        sync {write(str)}
+      rescue StandardError => err
+        log.error err
+      end
+    end
     self
   end
 
@@ -197,7 +222,13 @@ class Appender
     @closed = true
     if footer
       footer = @layout.footer
-      sync {write(footer)} unless footer.nil? || footer.empty?
+      unless footer.nil? || footer.empty?
+        begin
+          sync {write(footer)}
+        rescue StandardError => err
+          log.error err
+        end
+      end
     end
     self
   end

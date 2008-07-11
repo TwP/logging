@@ -116,10 +116,10 @@ class Email < ::Logging::Appender
     ### send email
     begin 
       Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
-    rescue Exception => e
+    rescue StandardError => err
       self.level = :off
-      STDERR.puts e.message
-      # TODO - log that e-mail notification has been turned off
+      log.warn 'e-mail notifications have been disabled'
+      log.error err
     ensure
       @buff.clear
     end

@@ -4,7 +4,6 @@
 # Used to prevent the class/module from being loaded more than once
 unless defined? Logging
 
-# TODO: internal logger for debugging
 # TODO: Windows Log Service appender
 
 #
@@ -12,7 +11,7 @@ unless defined? Logging
 module Logging
 
   # :stopdoc:
-  VERSION = '0.8.0'
+  VERSION = '0.9.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
@@ -285,6 +284,10 @@ at_exit {
     ap.close
   end
 }
+
+logger = Logging::Logger[::Logging]
+logger.level = 'off'
+logger.additive = false
 
 end  # unless defined?
 

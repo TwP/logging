@@ -24,8 +24,7 @@ module TestAppenders
     end
 
     def test_initialize
-      assert_equal('growlnotify -w -n "growl" -t "%s" -m "%s" -p %d &', 
-                   @appender.instance_variable_get(:@growl))
+      assert_equal('growlnotify -w -n "growl" -t "%s" -m "%s" -p %d &', @growl)
       assert_equal(true, @appender.instance_variable_get(:@coalesce))
       assert_equal("\000", @appender.instance_variable_get(:@title_sep))
     end
@@ -36,13 +35,13 @@ module TestAppenders
       warn = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                      'warning message', false)
 
-      flexmock(@appender).should_receive(:system).once.with(
+      flexmock(@appender).should_receive(:system => true).once.with(
           @growl % ['WARN - Test', "warning message\nwarning message\nwarning message", 0])
 
-      flexmock(@appender).should_receive(:system).once.with(
+      flexmock(@appender).should_receive(:system => true).once.with(
           @growl % ['INFO - Test', "info message\ninfo message", -1])
 
-      flexmock(@appender).should_receive(:system).once.with(
+      flexmock(@appender).should_receive(:system => true).once.with(
           @growl % ['WARN - Test', "warning message", 0])
 
       @appender.append warn
@@ -59,7 +58,7 @@ module TestAppenders
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       'warning message', false)
 
-      flexmock(@appender).should_receive(:system).twice.with(
+      flexmock(@appender).should_receive(:system => true).twice.with(
           @growl % ['WARN - Test', 'warning message', 0])
 
       @appender.append event
@@ -67,7 +66,7 @@ module TestAppenders
     end
 
     def test_concat
-      flexmock(@appender).should_receive(:system).once.with(
+      flexmock(@appender).should_receive(:system => true).once.with(
           @growl % ['', "first message\nsecond message\nthird message", 0])
 
       @appender << 'first message'
@@ -79,7 +78,7 @@ module TestAppenders
     def test_concat_without_coalescing
       @appender.instance_variable_set(:@coalesce, false)
 
-      flexmock(@appender).should_receive(:system).twice.with(
+      flexmock(@appender).should_receive(:system => true).twice.with(
           @growl % ['', 'concat message', 0])
 
       @appender << 'concat message'
@@ -106,6 +105,21 @@ module TestAppenders
       assert_raise(ArgumentError) do
         @appender.map = {:fatal => -3, :error => 3}
       end
+    end
+
+    def test_disabling
+      @appender.instance_variable_set(:@coalesce, false)
+      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                      'warning message', false)
+
+      flexmock(@appender).should_receive(:system => false).once.with(
+          @growl % ['WARN - Test', 'warning message', 0])
+
+      assert_equal 0, @appender.level
+      @appender.append event
+      assert_equal 5, @appender.level
+      @appender.append event
+      @appender.append event
     end
 
   end  # class TestGrowl

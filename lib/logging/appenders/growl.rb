@@ -35,7 +35,7 @@ module Logging::Appenders
       # make sure the growlnotify command can be called
       unless system('growlnotify -v 2>&1 > /dev/null')
         self.level = :off
-        # TODO - log that the growl notification is turned off
+        log.warn 'growl notifications have been disabled'
       end
     end
 
@@ -118,7 +118,7 @@ module Logging::Appenders
     def growl( title, message, priority )
       message.tr!("`", "'")
       if @coalesce then coalesce(title, message, priority)
-      else system @growl % [title, message, priority] end
+      else call_growl(title, message, priority) end
     end
 
     # call-seq:
@@ -168,15 +168,27 @@ module Logging::Appenders
         loop do
           sleep 0.5
           @c_mutex.synchronize {
-            system(@growl % @c_queue.shift) until @c_queue.empty?
+            call_growl(*@c_queue.shift) until @c_queue.empty?
           }
           Thread.stop if @c_queue.empty?
         end  # loop
       end  # Thread.new
     end
 
-  end  # class Growl
+    # call-seq:
+    #    call_growl( title, message, priority )
+    #
+    # Call the growlnotify application with the given parameters. If the
+    # system call fails, the growl appender will be disabled.
+    #
+    def call_growl( *args )
+      unless system(@growl % args)
+        self.level = :off
+        log.warn 'growl notifications have been disabled'
+      end
+    end
 
+  end  # class Growl
 end  # module Logging::Appenders
 
 # EOF

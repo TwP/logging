@@ -55,7 +55,7 @@ module TestLogging
 
       # verify the loggers
       h = ::Logging::Repository.instance.instance_variable_get :@h
-      assert_equal 3, h.length
+      assert_equal 5, h.length
 
       # mylogger
       mylogger = ::Logging::Logger['mylogger']

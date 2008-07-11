@@ -12,7 +12,8 @@ module TestLogging
     end
 
     def test_initialize
-      assert_raise(ArgumentError) {::Logging::Logger[:test]}
+      assert_nothing_raised {::Logging::Logger[:test]}
+      assert_equal ::Logging::Logger[:test], ::Logging::Logger['test']
       assert_nothing_raised {::Logging::Logger.new(Object)}
     end
 
