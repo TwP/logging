@@ -165,7 +165,7 @@ module Layouts
       end
       code << "end\n"
 
-      pf.meta_eval code, __FILE__, __LINE__
+      pf._meta_eval(code, __FILE__, __LINE__)
     end
 
     # call-seq:
@@ -205,7 +205,7 @@ module Layouts
       code << ")\n"
       code << "end\n"
 
-      pf.meta_eval code, __FILE__, __LINE__
+      pf._meta_eval(code, __FILE__, __LINE__)
     end
     # :startdoc:
 
@@ -274,12 +274,12 @@ module Layouts
     # :stopdoc:
 
     # call-seq:
-    #    meta_eval( code )
+    #    _meta_eval( code )
     #
     # Evaluates the given string of _code_ if the singleton class of this
     # Pattern Layout object.
     #
-    def meta_eval( code, file = nil, line = nil )
+    def _meta_eval( code, file = nil, line = nil )
       meta = class << self; self end
       meta.class_eval code, file, line
     end

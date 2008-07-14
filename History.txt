@@ -3,7 +3,6 @@
 2 minor enhancement
   - Exceptions from appenders are captured and logged
   - Internal logger for the Logging framework (disabled by default)
-
 1 bug fix
   - Modules could not have their own logger instance
 

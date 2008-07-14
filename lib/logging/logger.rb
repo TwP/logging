@@ -1,4 +1,3 @@
-# $Id$
 
 require 'thread'
 
@@ -105,8 +104,9 @@ module Logging
             CODE
           end
 
-          logger.meta_eval code, __FILE__, __LINE__
+          logger._meta_eval(code, __FILE__, __LINE__)
         end
+        logger
       end
       # :startdoc:
 
@@ -143,14 +143,7 @@ module Logging
       else raise(ArgumentError, "logger name must be a String") end
 
       repo = ::Logging::Repository.instance
-      @name = name
-      @parent = repo.parent(name)
-      @appenders = []
-      @additive = true
-      @trace = false
-      @level = nil
-      ::Logging::Logger.define_log_methods(self)
-
+      _setup(name, :parent => repo.parent(name))
       repo.children(name).each {|c| c.parent = self}
     end
 
@@ -407,21 +400,38 @@ module Logging
       ::Logging::Repository.instance.children(name).each do |c|
         c.define_log_methods
       end
+      self
     end
 
     # :stopdoc:
+    public
 
     # call-seq:
-    #    meta_eval( code )
+    #    _meta_eval( code )
     #
     # Evaluates the given string of _code_ if the singleton class of this
     # Logger object.
     #
-    def meta_eval( code, file = nil, line = nil )
+    def _meta_eval( code, file = nil, line = nil )
       meta = class << self; self end
       meta.class_eval code, file, line
     end
-    public :meta_eval
+
+    # call-seq:
+    #    _setup( name, opts = {} )
+    #
+    # Configures internal variables for the logger. This method can be used
+    # to avoid storing the logger in the repository.
+    # 
+    def _setup( name, opts = {} )
+      @name      = name
+      @parent    = opts.getopt(:parent)
+      @appenders = opts.getopt(:appenders, [])
+      @additive  = opts.getopt(:additive, true)
+      @trace     = opts.getopt(:trace, false)
+      @level     = opts.getopt(:level)
+      ::Logging::Logger.define_log_methods(self)
+    end
     # :startdoc:
 
   end  # class Logger
