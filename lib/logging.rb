@@ -1,4 +1,3 @@
-# $Id$
 
 # Equivalent to a header guard in C/C++
 # Used to prevent the class/module from being loaded more than once
@@ -186,7 +185,7 @@ module Logging
       end
 
       longest = names.values.inject {|x,y| (x.length > y.length) ? x : y}
-      module_eval "MAX_LEVEL_LENGTH = #{longest.length}"
+      module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
       levels.keys
     end
@@ -213,7 +212,7 @@ module Logging
         raise ArgumentError, "unknown object format '#{f}'"
       end
 
-      module_eval "OBJ_FORMAT = :#{f}"
+      module_eval "OBJ_FORMAT = :#{f}", __FILE__, __LINE__
     end
 
     # Returns the version string for the library.
@@ -284,10 +283,6 @@ at_exit {
     ap.close
   end
 }
-
-logger = Logging::Logger[::Logging]
-logger.level = 'off'
-logger.additive = false
 
 end  # unless defined?
 

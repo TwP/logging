@@ -133,7 +133,7 @@ module Logging::Appenders
         CODE
       end
       meta = class << self; self end
-      meta.class_eval code
+      meta.class_eval code, __FILE__, __LINE__
 
       # if the truncate flag was set to true, then roll 
       roll_now = opts.getopt(:truncate, false)

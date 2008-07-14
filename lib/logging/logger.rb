@@ -105,7 +105,7 @@ module Logging
             CODE
           end
 
-          logger.meta_eval code
+          logger.meta_eval code, __FILE__, __LINE__
         end
       end
       # :startdoc:
@@ -417,9 +417,9 @@ module Logging
     # Evaluates the given string of _code_ if the singleton class of this
     # Logger object.
     #
-    def meta_eval( code )
+    def meta_eval( code, file = nil, line = nil )
       meta = class << self; self end
-      meta.class_eval code
+      meta.class_eval code, file, line
     end
     public :meta_eval
     # :startdoc:

@@ -20,6 +20,16 @@ module Logging
     #
     def initialize
       @h = {:root => ::Logging::RootLogger.new}
+
+      logger = ::Logging::Logger.allocate
+      logger.instance_variable_set(:@name, to_key(::Logging))
+      logger.instance_variable_set(:@parent, @h[:root])
+      logger.instance_variable_set(:@appenders, [])
+      logger.instance_variable_set(:@additive, false)
+      logger.instance_variable_set(:@trace, false)
+      logger.instance_variable_set(:@level, ::Logging::LEVELS.length)
+      ::Logging::Logger.define_log_methods(logger)
+      @h[logger.name] = logger
     end
 
     # call-seq:
