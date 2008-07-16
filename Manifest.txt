@@ -2,6 +2,7 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+data/logging.rb
 data/logging.yaml
 lib/logging.rb
 lib/logging/appender.rb
@@ -12,6 +13,7 @@ lib/logging/appenders/growl.rb
 lib/logging/appenders/io.rb
 lib/logging/appenders/rolling_file.rb
 lib/logging/appenders/syslog.rb
+lib/logging/config/configurator.rb
 lib/logging/config/yaml_configurator.rb
 lib/logging/layout.rb
 lib/logging/layouts/basic.rb

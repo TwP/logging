@@ -3,6 +3,7 @@
 2 minor enhancement
   - Exceptions from appenders are captured and logged
   - Internal logger for the Logging framework (disabled by default)
+  - Added a DSL configuration format (more readable than YAML)
 1 bug fix
   - Modules could not have their own logger instance
 

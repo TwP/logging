@@ -161,8 +161,8 @@ module Logging
     #
     def to_key( key )
       case key
+      when :root, 'root'; :root
       when String; key
-      when :root; key
       when Symbol; key.to_s
       when Module; key.name
       when Object; key.class.name
