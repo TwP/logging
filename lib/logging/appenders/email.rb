@@ -1,4 +1,3 @@
-# $Id$
 
 require 'net/smtp'
 require 'time' # get rfc822 time format

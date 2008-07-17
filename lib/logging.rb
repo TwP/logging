@@ -234,7 +234,7 @@ module Logging
     # <tt>File.join</tt>.
     #
     def libpath( *args )
-      args.empty? ? LIBPATH : ::File.join(LIBPATH, *args)
+      args.empty? ? LIBPATH : ::File.join(LIBPATH, args.flatten)
     end
 
     # Returns the lpath for the module. If any arguments are given,
@@ -242,7 +242,7 @@ module Logging
     # <tt>File.join</tt>.
     #
     def path( *args )
-      args.empty? ? PATH : ::File.join(PATH, *args)
+      args.empty? ? PATH : ::File.join(PATH, args.flatten)
     end
 
     # Utility method used to rquire all files ending in .rb that lie in the

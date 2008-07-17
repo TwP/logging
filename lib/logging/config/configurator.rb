@@ -94,7 +94,7 @@ module Logging::Config
     #
     def pre_config( config )
       if config.nil?
-        ::Logging.init unless defined?(::Logging::MAX_LEVEL_LENGTH)
+        ::Logging.init unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
         return
       end
 
@@ -149,7 +149,7 @@ module Logging::Config
       type = config.delete(:type)
       raise Error, "appender type not given for #{name.inspect}" if type.nil?
 
-      config[:layout] = layout(config.delete(:layout))
+      config[:layout] = layout(config[:layout]) if config.has_key? :layout
 
       clazz = ::Logging::Appenders.const_get type
       clazz.new(name, config)
@@ -166,7 +166,7 @@ module Logging::Config
     # initializer.
     #
     def layout( config )
-      return if config.nil?
+      return ::Logging::Layouts::Basic.new if config.nil?
 
       type = config.delete(:type)
       raise Error, 'layout type not given' if type.nil?

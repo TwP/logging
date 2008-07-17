@@ -1,4 +1,3 @@
-# $Id$
 
 require Logging.libpath(*%w[logging appenders io])
 
