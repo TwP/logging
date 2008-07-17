@@ -1,4 +1,3 @@
-# $Id$
 
 require 'rubygems'
 require 'rake'

@@ -1,4 +1,3 @@
-# $Id$
 
 begin
   require 'bones/smtp_tls'

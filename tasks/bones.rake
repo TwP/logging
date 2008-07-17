@@ -1,4 +1,3 @@
-# $Id$
 
 if HAVE_BONES
 

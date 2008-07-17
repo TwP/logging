@@ -16,59 +16,6 @@ module Logging::Config
       new.load(&block)
     end
 
-    class DSL
-      alias :__instance_eval :instance_eval
-
-      instance_methods.each do |m|
-        undef_method m unless m[%r/^__/]
-      end
-
-      def self.process( &block )
-        dsl = new
-        dsl.__instance_eval(&block)
-        dsl.__hash
-      end
-
-      def __hash
-        @hash ||= Hash.new
-      end
-
-      def method_missing( method, *args, &block )
-        args << DSL.process(&block) if block
-
-        key = method.to_sym
-        value = (1 == args.length ? args.first : args)
-        __store(key, value)
-      end
-
-      def __store( key, value )
-        __hash[key] = value
-      end
-    end
-
-    class TopLevelDSL < DSL
-
-      undef_method :method_missing
-
-      def pre_config( &block )
-        __store(:preconfig, DSL.process(&block))
-      end
-
-      def logger( name, &block )
-        @loggers ||= []
-        @loggers << [name, DSL.process(&block)]
-      end
-
-      def appender( name, &block )
-        @appenders ||= []
-        @appenders << [name, DSL.process(&block)]
-      end
-
-      def __pre_config() __hash[:preconfig]; end
-      def __loggers() @loggers; end
-      def __appenders() @appenders; end
-    end
-
     # call-seq:
     #    load { block }
     #
@@ -175,6 +122,58 @@ module Logging::Config
       clazz.new config
     rescue NameError => err
       raise Error, "unknown layout class Logging::Layouts::#{type}"
+    end
+
+    class DSL
+      alias :__instance_eval :instance_eval
+
+      instance_methods.each do |m|
+        undef_method m unless m[%r/^__/]
+      end
+
+      def self.process( &block )
+        dsl = new
+        dsl.__instance_eval(&block)
+        dsl.__hash
+      end
+
+      def __hash
+        @hash ||= Hash.new
+      end
+
+      def method_missing( method, *args, &block )
+        args << DSL.process(&block) if block
+
+        key = method.to_sym
+        value = (1 == args.length ? args.first : args)
+        __store(key, value)
+      end
+
+      def __store( key, value )
+        __hash[key] = value
+      end
+    end
+
+    class TopLevelDSL < DSL
+      undef_method :method_missing
+
+      def pre_config( &block )
+        __store(:preconfig, DSL.process(&block))
+      end
+
+      def logger( name, &block )
+        @loggers ||= []
+        @loggers << [name, DSL.process(&block)]
+      end
+
+      def appender( name, &block )
+        @appenders ||= []
+        @appenders << [name, DSL.process(&block)]
+      end
+
+      def __pre_config() __hash[:preconfig]; end
+      def __loggers() @loggers; end
+      def __appenders() @appenders; end
     end
 
   end  # class Configurator

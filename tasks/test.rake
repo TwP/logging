@@ -1,4 +1,3 @@
-# $Id$
 
 require 'rake/testtask'
 

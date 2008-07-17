@@ -1,4 +1,3 @@
-# $Id$
 
 # This file does not define any rake tasks. It is used to load some project
 # settings if they are not defined by the user.
