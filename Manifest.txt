@@ -2,8 +2,11 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+data/bad_logging_1.rb
+data/bad_logging_2.rb
 data/logging.rb
 data/logging.yaml
+data/simple_logging.rb
 lib/logging.rb
 lib/logging/appender.rb
 lib/logging/appenders/console.rb
@@ -42,6 +45,7 @@ test/appenders/test_io.rb
 test/appenders/test_rolling_file.rb
 test/appenders/test_syslog.rb
 test/benchmark.rb
+test/config/test_configurator.rb
 test/config/test_yaml_configurator.rb
 test/layouts/test_basic.rb
 test/layouts/test_pattern.rb
