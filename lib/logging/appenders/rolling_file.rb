@@ -162,13 +162,10 @@ module Logging::Appenders
       if roll_required?(str)
         return roll unless @lockfile
 
-        begin
-          @lockfile.lock
+        @lockfile.lock {
           check_logfile
           roll if roll_required?
-        ensure
-          @lockfile.unlock
-        end
+        }
       end
     end
 
