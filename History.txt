@@ -1,4 +1,4 @@
-== 0.9.0 / 2008-07-
+== 0.9.0 / 2008-07-16
 
 2 minor enhancement
   - Exceptions from appenders are captured and logged
