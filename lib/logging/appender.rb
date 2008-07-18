@@ -82,6 +82,11 @@ class Appender
   # layout will be written to the logging destination when the Appender is
   # created.
   #
+  # Options:
+  #
+  #    :layout   => the layout to use when formatting log events
+  #    :level    => the level at which to log
+  #
   def initialize( name, opts = {} )
     @log = ::Logging::Logger[self]
 

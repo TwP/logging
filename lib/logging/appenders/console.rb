@@ -8,14 +8,24 @@ module Logging::Appenders
   class Stdout < ::Logging::Appenders::IO
 
     # call-seq:
-    #    Stdout.new
+    #    Stdout.new( name = 'stdout' )
     #    Stdout.new( :layout => layout )
+    #    Stdout.new( name = 'stdout', :level => 'info' )
     #
-    # Creates a new Stdout Appender. The name 'stdout' will always be used
-    # for this appender.
+    # Creates a new Stdout Appender. The name 'stdout' will be used unless
+    # another is given. Optionally, a layout can be given for the appender
+    # to use (otherwise a basic appender will be created) and a log level
+    # can be specified.
     #
-    def initialize( name = nil, opts = {} )
-      name ||= 'stdout'
+    # Options:
+    #
+    #    :layout   => the layout to use when formatting log events
+    #    :level    => the level at which to log
+    #
+    def initialize( *args )
+      opts = Hash === args.last ? args.pop : {}
+      name = args.empty? ? 'stdout' : args.shift 
+
       super(name, STDOUT, opts)
     end
   end  # class Stdout
@@ -25,14 +35,24 @@ module Logging::Appenders
   class Stderr < ::Logging::Appenders::IO
 
     # call-seq:
-    #    Stderr.new
+    #    Stderr.new( name = 'stderr' )
     #    Stderr.new( :layout => layout )
+    #    Stderr.new( name = 'stderr', :level => 'warn' )
     #
-    # Creates a new Stderr Appender. The name 'stderr' will always be used
-    # for this appender.
+    # Creates a new Stderr Appender. The name 'stderr' will be used unless
+    # another is given. Optionally, a layout can be given for the appender
+    # to use (otherwise a basic appender will be created) and a log level
+    # can be specified.
     #
-    def initialize( name = nil, opts = {} )
-      name ||= 'stderr'
+    # Options:
+    #
+    #    :layout   => the layout to use when formatting log events
+    #    :level    => the level at which to log
+    #
+    def initialize( *args )
+      opts = Hash === args.last ? args.pop : {}
+      name = args.empty? ? 'stderr' : args.shift 
+
       super(name, STDERR, opts)
     end
   end  # class Stderr

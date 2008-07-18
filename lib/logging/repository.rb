@@ -97,8 +97,13 @@ module Logging
     #
     # Returns the parent logger for the logger identified by _key_ where
     # _key_ follows the same identification rules described in
-    # +Repository#[]+. A parent is returned regardless of the
+    # <tt>Repository#[]</tt>. A parent is returned regardless of the
     # existence of the logger referenced by _key_.
+    #
+    # A note about parents -
+    #
+    # If you have a class A::B::C, then the parent of C is B, and the parent
+    # of B is A. Parents are determined by namespace.
     #
     def parent( key )
       return if 'root' == key.to_s

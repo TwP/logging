@@ -15,6 +15,17 @@ module TestAppenders
       appender.close
       assert_equal true, appender.closed?
       assert_equal false, STDOUT.closed?
+
+      appender = ::Logging::Appenders::Stdout.new('foo')
+      assert_equal 'foo', appender.name
+
+      appender = ::Logging::Appenders::Stdout.new(:level => :warn)
+      assert_equal 'stdout', appender.name
+      assert_equal 2, appender.level
+
+      appender = ::Logging::Appenders::Stdout.new('bar', :level => :error)
+      assert_equal 'bar', appender.name
+      assert_equal 3, appender.level
     end
 
   end  # class TestStdout
@@ -29,6 +40,17 @@ module TestAppenders
       appender.close
       assert_equal true, appender.closed?
       assert_equal false, STDERR.closed?
+
+      appender = ::Logging::Appenders::Stderr.new('foo')
+      assert_equal 'foo', appender.name
+
+      appender = ::Logging::Appenders::Stderr.new(:level => :warn)
+      assert_equal 'stderr', appender.name
+      assert_equal 2, appender.level
+
+      appender = ::Logging::Appenders::Stderr.new('bar', :level => :error)
+      assert_equal 'bar', appender.name
+      assert_equal 3, appender.level
     end
 
   end  # class TestStderr
