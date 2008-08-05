@@ -1,3 +1,8 @@
+== 0.9.1 / 2008-08-
+
+1 bug fix
+  - checking for sync method on the IO streams before calling
+
 == 0.9.0 / 2008-07-16
 
 2 minor enhancement

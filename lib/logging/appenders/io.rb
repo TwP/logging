@@ -19,7 +19,7 @@ module Logging::Appenders
       end
 
       @io = io
-      @io.sync = true
+      @io.sync = true if @io.respond_to?('sync') rescue nil
       super(name, opts)
     end
 
