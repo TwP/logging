@@ -155,6 +155,11 @@ module TestLogging
       assert_equal 'test_appender', @appender.name
     end
 
+    def test_inspect
+      expected = "<Appender:0x%x name=\"test_appender\">" % @appender.object_id
+      assert_equal expected, @appender.inspect
+    end
+
   end  # class TestAppender
 end  # module TestLogging
 

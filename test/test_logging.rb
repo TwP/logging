@@ -179,7 +179,7 @@ module TestLogging
 
       assert_equal 4, @levels.length
       assert_equal 4, @lnames.length
-      assert_equal 1, ::Logging::MAX_LEVEL_LENGTH
+      assert_equal 3, ::Logging::MAX_LEVEL_LENGTH
 
       assert_equal 0, @levels['a']
       assert_equal 1, @levels['b']

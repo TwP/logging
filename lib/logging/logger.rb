@@ -432,6 +432,55 @@ module Logging
       @level     = opts.getopt(:level)
       ::Logging::Logger.define_log_methods(self)
     end
+
+    # call-seq:
+    #    _dump_configuration( io = STDOUT, indent = 0 )
+    #
+    # TODO: finish documenting
+    #
+    def _dump_configuration( io = STDOUT, indent = 0 )
+      str, spacer, base = '', '  ', 50
+      indent_str = indent == 0 ? '' : ' ' * indent
+
+      str << indent_str
+      str << self.name.reduce(base - indent)
+      if (str.length + spacer.length) < base
+        str << spacer
+        str << '.' * (base - str.length)
+      end
+      io.print(str.ljust(base))
+      io.print(spacer)
+
+      level_str  = @level.nil? ? '' : '*'
+      level_str << if level < ::Logging::LEVELS.length
+        ::Logging.levelify(::Logging::LNAMES[level])
+      else
+        'off'
+      end
+      level_len = ::Logging::MAX_LEVEL_LENGTH + 1
+
+      io.print("%#{level_len}s" % level_str)
+      io.print(spacer)
+
+      if self.respond_to?(:additive)
+        io.print(additive ? '+A' : '-A')
+      else
+        io.print('  ')
+      end
+
+      io.print(spacer)
+      io.print(trace ? '+T' : '-T')
+      io.print("\n")
+
+      @appenders.each do |appender|
+        io.print(indent_str)
+        io.print('- ')
+        io.print(appender.inspect)
+        io.print("\n")
+      end
+
+      return io
+    end
     # :startdoc:
 
   end  # class Logger

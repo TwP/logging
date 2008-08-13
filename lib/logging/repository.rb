@@ -20,6 +20,7 @@ module Logging
     def initialize
       @h = {:root => ::Logging::RootLogger.new}
 
+      # configures the internal logger which is disabled by default
       logger = ::Logging::Logger.allocate
       logger._setup(
           to_key(::Logging),

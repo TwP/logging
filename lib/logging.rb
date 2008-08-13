@@ -193,6 +193,7 @@ module Logging
       end
 
       longest = names.values.inject {|x,y| (x.length > y.length) ? x : y}
+      longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
       levels.keys
@@ -256,6 +257,23 @@ module Logging
           ::File.join(::File.dirname(fname), dir, '*.rb'))
 
       Dir.glob(search_me).sort.each {|rb| require rb}
+    end
+
+    # call-seq:
+    #    show_configuration( io = STDOUT, logger = 'root' )
+    #
+    # TODO: finish documenting
+    #
+    def show_configuration( io = STDOUT, logger = 'root', indent = 0 )
+      logger = ::Logging::Logger[logger] unless ::Logging::Logger === logger
+
+      logger._dump_configuration(io, indent)
+
+      indent += 2
+      children = ::Logging::Repository.instance.children(logger.name)
+      children.sort {|a,b| a.name <=> b.name}.each do |child|
+        ::Logging.show_configuration(io, child, indent)
+      end
     end
 
     # :stopdoc:

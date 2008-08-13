@@ -258,6 +258,19 @@ class Appender
     self
   end
 
+  # call-seq:
+  #     inspect    => string
+  #
+  # Returns a string representation of the appender.
+  #
+  def inspect
+    "<%s:0x%x name=\"%s\">" % [
+        self.class.name.sub(%r/^Logging::/, ''),
+        self.object_id,
+        self.name
+    ]
+  end
+
 
   private 
 

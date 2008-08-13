@@ -638,6 +638,64 @@ module TestLogging
       assert_raise(ArgumentError) {log.trace = Object}
     end
 
+    def test_dump_configuration
+      log_a = ::Logging::Logger['A-logger']
+      log_b = ::Logging::Logger['A-logger::B-logger']
+      log_c = ::Logging::Logger['A-logger::B-logger::C-logger']
+      log_d = ::Logging::Logger['A-logger::D-logger']
+
+      sio = StringIO.new
+
+      log_a._dump_configuration( sio )
+      assert_equal(
+        "A-logger  ........................................   debug  +A  -T\n", sio.to_s)
+
+      log_b._dump_configuration( sio )
+      assert_equal(
+        "A-logger::B-logger  ..............................   debug  +A  -T\n", sio.to_s)
+
+      log_c._dump_configuration( sio )
+      assert_equal(
+        "A-logger::B-logger::C-logger  ....................   debug  +A  -T\n", sio.to_s)
+
+      log_d._dump_configuration( sio )
+      assert_equal(
+        "A-logger::D-logger  ..............................   debug  +A  -T\n", sio.to_s)
+
+      log_b.level = :warn
+      log_b.trace = true
+      log_b._dump_configuration( sio )
+      assert_equal(
+        "A-logger::B-logger  ..............................   *warn  +A  +T\n", sio.to_s)
+
+      log_c.additive = false
+      log_c._dump_configuration( sio )
+      assert_equal(
+        "A-logger::B-logger::C-logger  ....................    warn  -A  -T\n", sio.to_s)
+
+      # with an indent specified
+      log_a._dump_configuration( sio, 4 )
+      assert_equal(
+        "    A-logger  ....................................   debug  +A  -T\n", sio.to_s)
+
+      log_b._dump_configuration( sio, 8 )
+      assert_equal(
+        "        A-logger::B-logger  ......................   *warn  +A  +T\n", sio.to_s)
+
+      log_c._dump_configuration( sio, 10 )
+      assert_equal(
+        "          A-logger::B-logger::C-logger  ..........    warn  -A  -T\n", sio.to_s)
+
+      log_d._dump_configuration( sio, 22 )
+      assert_equal(
+        "                      A-logger::D-logger  ........   debug  +A  -T\n", sio.to_s)
+
+      log_c.level = 0
+      log_c._dump_configuration( sio, 26 )
+      assert_equal(
+        "                          A-logger::B...::C-logger  *debug  -A  -T\n", sio.to_s)
+    end
+
   end  # class TestLogger
 
   class SioAppender < ::Logging::Appenders::IO
@@ -661,6 +719,16 @@ module TestLogging
     end
 
   end  # class SioAppender
+
 end  # module TestLogging
+
+class StringIO
+  def to_s
+    seek 0
+    str = read
+    seek 0
+    return str
+  end
+end
 
 # EOF
