@@ -5,6 +5,9 @@ unless defined? Logging
 
 # TODO: Windows Log Service appender
 
+# FIXME: the internal logging is broken
+#        it relies on the standard logging levels
+#        being defined (debug, info, etc.)
 #
 #
 module Logging
