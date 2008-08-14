@@ -20,7 +20,9 @@ PROJ.release_name = %q{Green Eggs & Ham}
 
 PROJ.exclude << %w[^tags$ ^tasks/archive ^coverage]
 PROJ.rdoc.exclude << '^data'
-PROJ.svn.path = ''
+
+PROJ.ann.email[:server] = 'smtp.gmail.com'
+PROJ.ann.email[:port] = 587
 
 depend_on 'flexmock'
 depend_on 'lockfile'
