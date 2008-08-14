@@ -262,7 +262,61 @@ module Logging
     # call-seq:
     #    show_configuration( io = STDOUT, logger = 'root' )
     #
-    # TODO: finish documenting
+    # This method is used to show the configuration of the logging
+    # framework. The information is written to the given _io_ stream
+    # (defaulting to stdout). Normally the configuration is dumped starting
+    # with the root logger, but any logger name can be given.
+    #
+    # Each line contains information for a single logger and it's appenders.
+    # A child logger is indented two spaces from it's parent logger. Each
+    # line contains the logger name, level, additivity, and trace settings.
+    # Here is a brief example:
+    #
+    #    root  ...........................   *info      -T
+    #      LoggerA  ......................    info  +A  -T
+    #        LoggerA::LoggerB  ...........    info  +A  -T
+    #        LoggerA::LoggerC  ...........  *debug  +A  -T
+    #      LoggerD  ......................   *warn  -A  +T
+    #
+    # The lines can be deciphered as follows:
+    #
+    #    1) name       - the name of the logger
+    #
+    #    2) level      - the logger level; if it is preceeded by an
+    #                    asterisk then the level was explicitly set for that
+    #                    logger (as opposed to being inherited from the parent
+    #                    logger)
+    #
+    #    3) additivity - a "+A" shows the logger is additive, and log events
+    #                    will be passed up to the parent logger; "-A" shows
+    #                    that the logger will *not* pass log events up to the
+    #                    parent logger
+    #
+    #    4) trace      - a "+T" shows that the logger will include trace
+    #                    information in generated log events (this includes
+    #                    filename and line number of the log message; "-T"
+    #                    shows that the logger does not include trace
+    #                    information in the log events)
+    #
+    # If a logger has appenders then they are listed, on per line,
+    # immediately below the logger. Appender lines are pre-pended with a
+    # single dash:
+    #
+    #    root  ...........................   *info      -T
+    #    - <Appenders::Stdout:0x8b02a4 name="stdout">
+    #      LoggerA  ......................    info  +A  -T
+    #        LoggerA::LoggerB  ...........    info  +A  -T
+    #        LoggerA::LoggerC  ...........  *debug  +A  -T
+    #      LoggerD  ......................   *warn  -A  +T
+    #      - <Appenders::Stderr:0x8b04ca name="stderr">
+    #
+    # We can see in this configuration dump that all the loggers will append
+    # to stdout via the Stdout appender configured in the root logger. All
+    # the loggers are additive, and so their generated log events will be
+    # passed up to the root logger.
+    #
+    # The exception in this configuration is LoggerD. Its additivity is set
+    # to false. It uses its own appender to send messages to stderr.
     #
     def show_configuration( io = STDOUT, logger = 'root', indent = 0 )
       logger = ::Logging::Logger[logger] unless ::Logging::Logger === logger

@@ -1,4 +1,3 @@
-# $Id$
 
 load 'tasks/setup.rb'
 
@@ -17,7 +16,7 @@ PROJ.rdoc.dir = 'doc/rdoc'
 #PROJ.rdoc.remote_dir = 'rdoc'
 PROJ.rdoc.remote_dir = ''
 PROJ.version = Logging::VERSION
-PROJ.release_name = 'Monkeyful Chimptacular'
+PROJ.release_name = %q{Green Eggs & Ham}
 
 PROJ.exclude << %w[^tags$ ^tasks/archive ^coverage]
 PROJ.rdoc.exclude << '^data'

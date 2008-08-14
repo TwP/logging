@@ -436,7 +436,10 @@ module Logging
     # call-seq:
     #    _dump_configuration( io = STDOUT, indent = 0 )
     #
-    # TODO: finish documenting
+    # An internal method that is used to dump this logger's configuration to
+    # the given _io_ stream. The configuration includes the logger's name,
+    # level, additivity, and trace settings. The configured appenders are
+    # also printed to the _io_ stream.
     #
     def _dump_configuration( io = STDOUT, indent = 0 )
       str, spacer, base = '', '  ', 50

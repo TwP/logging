@@ -86,7 +86,8 @@ class names.
 
 == REQUIREMENTS
 
-Logging does not depend on any other installed libraries or gems.
+Logging requires the "lockfile" gem to run and the "flexmock" gem to run the
+tests"
 
 == LICENSE
 
