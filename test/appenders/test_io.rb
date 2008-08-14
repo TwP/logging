@@ -38,10 +38,10 @@ module TestAppenders
       # setup an internal logger to capture error messages from the IO
       # appender
       log = StringIO.new
-      Logging::Logger[Logging::Appenders::IO].add_appenders(
+      Logging::Logger[Logging].add_appenders(
         Logging::Appenders::IO.new('__internal_io', log)
       )
-      Logging::Logger[Logging::Appenders::IO].level = 'all'
+      Logging::Logger[Logging].level = 'all'
 
 
       # close the string IO object so we get an error
@@ -51,7 +51,7 @@ module TestAppenders
       @appender.append event
 
       log.seek 0
-      assert_equal "ERROR  Logging::Appenders::IO : <IOError> not opened for writing", log.readline.strip
+      assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
 
       assert_equal false, @appender.closed?
       assert_equal 5, @appender.level
@@ -92,17 +92,17 @@ module TestAppenders
       # setup an internal logger to capture error messages from the IO
       # appender
       log = StringIO.new
-      Logging::Logger[Logging::Appenders::IO].add_appenders(
+      Logging::Logger[Logging].add_appenders(
         Logging::Appenders::IO.new('__internal_io', log)
       )
-      Logging::Logger[Logging::Appenders::IO].level = 'all'
+      Logging::Logger[Logging].level = 'all'
 
       # close the string IO object so we get an error
       @sio.close
       @appender << 'oopsy'
 
       log.seek 0
-      assert_equal "ERROR  Logging::Appenders::IO : <IOError> not opened for writing", log.readline.strip
+      assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
 
       # and the appender does not close itself
       assert_equal false, @appender.closed?

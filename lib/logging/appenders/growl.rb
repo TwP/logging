@@ -34,7 +34,7 @@ module Logging::Appenders
       # make sure the growlnotify command can be called
       unless system('growlnotify -v 2>&1 > /dev/null')
         self.level = :off
-        log.warn 'growl notifications have been disabled'
+        ::Logging.log_internal {'growl notifications have been disabled'}
       end
     end
 
@@ -183,7 +183,7 @@ module Logging::Appenders
     def call_growl( *args )
       unless system(@growl % args)
         self.level = :off
-        log.warn 'growl notifications have been disabled'
+        ::Logging.log_internal {'growl notifications have been disabled'}
       end
     end
 

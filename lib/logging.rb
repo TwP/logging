@@ -5,9 +5,6 @@ unless defined? Logging
 
 # TODO: Windows Log Service appender
 
-# FIXME: the internal logging is broken
-#        it relies on the standard logging levels
-#        being defined (debug, info, etc.)
 #
 #
 module Logging
@@ -18,7 +15,7 @@ module Logging
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
   LEVELS = {}
-  LNAMES = {}
+  LNAMES = []
   # :startdoc:
 
   class << self
@@ -195,7 +192,7 @@ module Logging
         end
       end
 
-      longest = names.values.inject {|x,y| (x.length > y.length) ? x : y}
+      longest = names.inject {|x,y| (x.length > y.length) ? x : y}
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
@@ -295,6 +292,11 @@ module Logging
       when 'all'; 0
       when 'off'; LEVELS.length
       else begin; Integer(l); rescue ArgumentError; LEVELS[l] end end
+    end
+
+    # Internal logging method for use by the framework.
+    def log_internal( level = 1, &block )
+      ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
     end
     # :startdoc:
   end

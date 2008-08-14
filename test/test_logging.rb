@@ -20,10 +20,7 @@ module TestLogging
 
       ::Logging.configure 'data/logging.yaml'
 
-      names = {
-        0 => 'DEB', 1 => 'INF', 2 => 'PRT',
-        3 => 'WRN', 4 => 'ERR', 5 => 'FAT'
-      }
+      names = %w[DEB INF PRT WRN ERR FAT]
       assert_equal names, ::Logging::LNAMES
       assert_equal :inspect, ::Logging::OBJ_FORMAT
       assert_equal 3, ::Logging::Logger.root.level
@@ -54,7 +51,7 @@ module TestLogging
 
       # verify the loggers
       h = ::Logging::Repository.instance.instance_variable_get :@h
-      assert_equal 6, h.length
+      assert_equal 4, h.length
 
       # mylogger
       mylogger = ::Logging::Logger['mylogger']
@@ -118,9 +115,8 @@ module TestLogging
     end
 
     def test_init_default
-      empty = {}
-      assert_equal empty, @levels
-      assert_equal empty, @lnames
+      assert_equal({}, @levels)
+      assert_equal([], @lnames)
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
       ::Logging::Repository.instance
@@ -143,9 +139,8 @@ module TestLogging
     end
 
     def test_init_special
-      empty = {}
-      assert_equal empty, @levels
-      assert_equal empty, @lnames
+      assert_equal({}, @levels)
+      assert_equal([], @lnames)
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
       assert_raise(ArgumentError) {::Logging.init(1, 2, 3, 4)}
@@ -170,9 +165,8 @@ module TestLogging
     end
 
     def test_init_all_off
-      empty = {}
-      assert_equal empty, @levels
-      assert_equal empty, @lnames
+      assert_equal({}, @levels)
+      assert_equal([], @lnames)
       assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
 
       ::Logging.init %w(a b all c off d)

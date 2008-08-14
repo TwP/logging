@@ -70,8 +70,7 @@ class Appender
 
   end  # class << self
 
-  attr_reader :name, :layout, :level, :log
-  private :log
+  attr_reader :name, :layout, :level
 
   # call-seq:
   #    Appender.new( name )
@@ -88,8 +87,6 @@ class Appender
   #    :level    => the level at which to log
   #
   def initialize( name, opts = {} )
-    @log = ::Logging::Logger[self]
-
     @name = name.to_s
     @closed = false
 
@@ -103,7 +100,7 @@ class Appender
       begin 
         sync {write(header)}
       rescue StandardError => err
-        log.error err
+        ::Logging.log_internal(-2) {err}
       end
     end
 
@@ -128,7 +125,7 @@ class Appender
       begin
         sync {write(event)}
       rescue StandardError => err
-        log.error err
+        ::Logging.log_internal(-2) {err}
       end
     end
 
@@ -151,7 +148,7 @@ class Appender
       begin
         sync {write(str)}
       rescue StandardError => err
-        log.error err
+        ::Logging.log_internal(-2) {err}
       end
     end
     self
@@ -230,7 +227,7 @@ class Appender
         begin
           sync {write(footer)}
         rescue StandardError => err
-          log.error err
+          ::Logging.log_internal(-2) {err}
         end
       end
     end
