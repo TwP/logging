@@ -170,8 +170,8 @@ module Logging
       when :root, 'root'; :root
       when String; key
       when Symbol; key.to_s
-      when Module; key.name
-      when Object; key.class.name
+      when Module; key.logger_name
+      when Object; key.class.logger_name
       end
     end
 

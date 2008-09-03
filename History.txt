@@ -1,5 +1,10 @@
 == 0.9.2 / 2008-09
 
+2 bug fixes
+  - Properly generates logger names for anonymous classes and
+    modules and meta-classes
+  - Fixed the rescue clause when 'turn' cannot be required
+
 == 0.9.1 / 2008-08-14
 
 1 minor enhancement

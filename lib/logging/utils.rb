@@ -45,8 +45,8 @@ class String
   # call-seq:
   #    reduce( width, ellipses = '...' )    #=> string
   #
-  # Reduce the size of the current string to the given _width_ by remove
-  # characters from the middle of ths tring and replacing them with
+  # Reduce the size of the current string to the given _width_ by removing
+  # characters from the middle of the string and replacing them with
   # _ellipses_. If the _width_ is greater than the length of the string, the
   # string is returned unchanged. If the _width_ is less than the length of
   # the _ellipses_, then the _ellipses_ are returned.
@@ -66,6 +66,39 @@ class String
     right = self[right_start,length-right_start]
 
     left << ellipses << right
+  end
+end
+
+class Module
+
+  # call-seq:
+  #    logger_name    #=> string
+  #
+  # Returns a predictable logger name for the current module or class. If
+  # used within an anonymous class, the first non-anonymous class name will
+  # be used as the logger name. If used within a meta-class, the name of the
+  # actual class will be used as the logger name. If used within an
+  # anonymous module, the string 'anonymous' will be returned.
+  #
+  def logger_name
+    return name unless name.empty?
+
+    # check if this is a metaclass (or eigenclass)
+    if ancestors.include? Class
+      inspect =~ %r/#<Class:([^#>]+)>/
+      return $1
+    end
+
+    # see if we have a superclass
+    if respond_to? :superclass
+      return superclass.logger_name
+    end
+
+    # we are an anonymous module
+    ::Logging.log_internal(-2) {
+      'cannot return a predictable, unique name for anonymous modules'
+    }
+    return 'anonymous'
   end
 end
 
