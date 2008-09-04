@@ -16,7 +16,7 @@ PROJ.rdoc.dir = 'doc/rdoc'
 #PROJ.rdoc.remote_dir = 'rdoc'
 PROJ.rdoc.remote_dir = ''
 PROJ.version = Logging::VERSION
-PROJ.release_name = %q{Green Eggs & Ham}
+PROJ.release_name = %q{Meta Class Madness}
 
 PROJ.exclude << %w[^tags$ ^tasks/archive ^coverage]
 PROJ.rdoc.exclude << '^data'
