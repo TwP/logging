@@ -25,6 +25,7 @@ lib/logging/log_event.rb
 lib/logging/logger.rb
 lib/logging/repository.rb
 lib/logging/root_logger.rb
+lib/logging/stats.rb
 lib/logging/utils.rb
 tasks/ann.rake
 tasks/bones.rake
@@ -57,4 +58,5 @@ test/test_logger.rb
 test/test_logging.rb
 test/test_repository.rb
 test/test_root_logger.rb
+test/test_stats.rb
 test/test_utils.rb

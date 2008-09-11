@@ -1,6 +1,4 @@
 
-require 'thread'
-
 module Logging
 
   # The +Logger+ class is the primary interface to the +Logging+ framework.

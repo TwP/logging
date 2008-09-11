@@ -102,4 +102,29 @@ class Module
   end
 end
 
+class ReentrantMutex < Mutex
+
+  def initialize
+    super
+    @locker = nil
+  end
+
+  alias :original_synchronize :synchronize
+
+  def synchronize
+    if @locker == Thread.current
+      yield
+    else
+      original_synchronize {
+        begin
+          @locker = Thread.current
+          yield
+        ensure
+          @locker = nil
+        end
+      }
+    end
+  end
+end  # class ReentrantMutex
+
 # EOF
