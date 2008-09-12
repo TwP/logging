@@ -32,6 +32,32 @@ module TestStats
       assert_nil @sampler.last
     end
 
+    def test_coalesce
+      other = ::Logging::Stats::Sampler.new('other')
+      (1..5).each {|n| other.sample n}
+      (6..10).each {|n| @sampler.sample n}
+
+      assert_equal 5, @sampler.num
+
+      @sampler.coalesce other
+
+      assert_equal 55,  @sampler.sum
+      assert_equal 385, @sampler.sumsq
+      assert_equal 10,  @sampler.num
+      assert_equal 1,   @sampler.min
+      assert_equal 10,  @sampler.max
+      assert_equal 5,   @sampler.last
+
+      @sampler.coalesce ::Logging::Stats::Sampler.new('tmp')
+
+      assert_equal 55,  @sampler.sum
+      assert_equal 385, @sampler.sumsq
+      assert_equal 10,  @sampler.num
+      assert_equal 1,   @sampler.min
+      assert_equal 10,  @sampler.max
+      assert_equal 5,   @sampler.last
+    end
+
     def test_sample
       @sampler.sample 1
 
@@ -120,32 +146,64 @@ module TestStats
     def setup
       super
       @tracker = ::Logging::Stats::Tracker.new
+      @stats = @tracker.stats
+    end
+
+    def test_coalesce
+      1.times {|n| @tracker.sample('foo', n)}
+      2.times {|n| @tracker.sample('bar', n)}
+      3.times {|n| @tracker.sample('baz', n)}
+
+      assert_equal %w[bar baz foo], @stats.keys.sort
+      assert_equal 1, @stats['foo'].num
+      assert_equal 2, @stats['bar'].num
+      assert_equal 3, @stats['baz'].num
+
+      # when other is empty, nothing should change in our tracker
+      other = ::Logging::Stats::Tracker.new
+      @tracker.coalesce other
+
+      assert_equal %w[bar baz foo], @stats.keys.sort
+      assert_equal 1, @stats['foo'].num
+      assert_equal 2, @stats['bar'].num
+      assert_equal 3, @stats['baz'].num
+
+      # now add some samples to other
+      4.times {|n| other.sample('buz', n)}
+      5.times {|n| other.sample('bar', n)}
+      @tracker.coalesce other
+
+      assert_equal %w[bar baz buz foo], @stats.keys.sort
+      assert_equal 1, @stats['foo'].num
+      assert_equal 7, @stats['bar'].num
+      assert_equal 3, @stats['baz'].num
+      assert_equal 4, @stats['buz'].num
     end
 
     def test_mark
-      assert @tracker.stats.empty?
+      assert @stats.empty?
       @tracker.mark 'foo'
-      assert !@tracker.stats.empty?
+      assert !@stats.empty?
 
-      sampler = @tracker['foo']
+      sampler = @stats['foo']
       assert_equal 0, sampler.num
     end
 
     def test_tick
-      assert @tracker.stats.empty?
+      assert @stats.empty?
       @tracker.tick 'foo'
-      assert !@tracker.stats.empty?
+      assert !@stats.empty?
 
-      sampler = @tracker['foo']
+      sampler = @stats['foo']
       assert_equal 1, sampler.num
     end
 
     def test_sample
-      assert @tracker.stats.empty?
+      assert @stats.empty?
       @tracker.sample 'foo', 1
-      assert !@tracker.stats.empty?
+      assert !@stats.empty?
 
-      sampler = @tracker['foo']
+      sampler = @stats['foo']
       assert_equal 1, sampler.num
       assert_equal 1, sampler.last
 
@@ -156,11 +214,11 @@ module TestStats
     end
 
     def test_time
-      assert @tracker.stats.empty?
+      assert @stats.empty?
       @tracker.time('foo') {sleep 0.05}
-      assert !@tracker.stats.empty?
+      assert !@stats.empty?
 
-      sampler = @tracker['foo']
+      sampler = @stats['foo']
       assert_equal 1, sampler.num
       assert_in_delta 0.05, sampler.sum, 1e-3
 
@@ -179,15 +237,15 @@ module TestStats
       2.times {|n| @tracker.sample('bar', n)}
       3.times {|n| @tracker.sample('baz', n)}
 
-      assert_equal 1, @tracker['foo'].num
-      assert_equal 2, @tracker['bar'].num
-      assert_equal 3, @tracker['baz'].num
+      assert_equal 1, @stats['foo'].num
+      assert_equal 2, @stats['bar'].num
+      assert_equal 3, @stats['baz'].num
 
       @tracker.reset
 
-      assert_equal 0, @tracker['foo'].num
-      assert_equal 0, @tracker['bar'].num
-      assert_equal 0, @tracker['baz'].num
+      assert_equal 0, @stats['foo'].num
+      assert_equal 0, @stats['bar'].num
+      assert_equal 0, @stats['baz'].num
     end
 
     def test_reentrant_synchronization
@@ -201,12 +259,12 @@ module TestStats
 
     def test_periodically_run
       @tracker.periodically_run(0.1) {
-        @tracker['foo'].tick
+        @tracker.tick 'foo'
       }
       sleep 0.5
       @tracker.stop
 
-      assert(@tracker['foo'].num > 1)
+      assert(@stats['foo'].num > 1)
     end
   end  # class TestTracker
 

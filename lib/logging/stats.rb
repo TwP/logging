@@ -20,7 +20,7 @@ module Logging::Stats
     # Create a new sampler.
     #
     def initialize( name )
-      @name = name.to_s
+      @name = name
       reset
     end
 
@@ -35,6 +35,24 @@ module Logging::Stats
       @last = nil
       @last_time = Time.now.to_f
       self
+    end
+
+    # Coalesce the statistics from the _other_ sampler into this one. The
+    # _other_ sampler is not modified by this method.
+    #
+    # Coalescing the same two samplers mutliple times should only be done if
+    # one of the samplers is reset between calls to this method. Otherwise
+    # statistics will be counted multiple times.
+    #
+    def coalesce( other )
+      @sum += other.sum
+      @sumsq += other.sumsq
+      if other.num > 0
+        @min = other.min if @min > other.min
+        @max = other.max if @max < other.max
+        @last = other.last
+      end
+      @num += other.num
     end
 
     # Adds a sampling to the calculations.
@@ -130,27 +148,36 @@ module Logging::Stats
 
     attr_reader :stats
 
-    # Create a new Tracker instance.
+    # Create a new Tracker instance. An optional boolean can be bassed in to
+    # change the "threadsafe" value of the tracker. By default all trackers
+    # are created to be threadsafe.
     #
-    def initialize
+    def initialize( threadsafe = true )
       @stats = Hash.new do |h,name|
         h[name] = ::Logging::Stats::Sampler.new(name)
       end
-      @mutex = ReentrantMutex.new
+      @mutex = threadsafe ? ReentrantMutex.new : nil
       @runner = nil
     end
 
-    # Return the named _event_ sampler. The sampler will be created if it
-    # does not exist.
+    # Coalesce the samplers from the _other_ tracker into this one. The
+    # _other_ tracker is not modified by this method.
     #
-    def []( event )
-      stats[event]
-    end
-
-    # Iterate the _block_ for each sampler managed by the tracker.
+    # Coalescing the same two trackers mutliple times should only be done if
+    # one of the trackers is reset between calls to this method. Otherwise
+    # statistics will be counted multiple times.
     #
-    def each( &block )
-      stats.each_value(&block)
+    # Only this tracker is locked when the coalescing is happening. It is
+    # left to the user to lock the other tracker if that is the desired
+    # behavior. This is a deliberate choice in order to prevent deadlock
+    # situations where two threads are contending on the same mutex.
+    #
+    def coalesce( other )
+      sync {
+        other.stats.each do |name,sampler|
+          stats[name].coalesce(sampler)
+        end
+      }
     end
 
     # Add the given _value_ to the named _event_ sampler. The sampler will
@@ -188,7 +215,7 @@ module Logging::Stats
     # Reset all the samplers managed by this tracker.
     #
     def reset
-      sync {stats.each {|name,sampler| sampler.reset}}
+      sync {stats.each_value {|sampler| sampler.reset}}
       self
     end
 
@@ -237,6 +264,7 @@ module Logging::Stats
     # can call +sync+ multiple times without hanging the thread.
     #
     def sync
+      return yield if @mutex.nil?
       @mutex.synchronize {yield}
     end
   end  # class Tracker
