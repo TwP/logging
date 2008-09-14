@@ -238,10 +238,14 @@ module Logging::Stats
       @runner = Thread.new do
         start = stop = Time.now.to_f
         loop do
-          sleep(period-(stop-start))
+          seconds = period - (stop-start)
+          seconds = period if seconds <= 0
+          sleep seconds
+
           start = Time.now.to_f
           break if Thread.current[:stop] == true
-          sync {block.call}
+          if @mutex then @mutex.synchronize(&block)
+          else block.call end
           stop = Time.now.to_f
         end
       end
