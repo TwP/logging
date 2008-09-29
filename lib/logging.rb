@@ -13,7 +13,7 @@ begin require 'fastthread'; rescue LoadError; end
 module Logging
 
   # :stopdoc:
-  VERSION = '0.9.3'
+  VERSION = '0.9.4'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
@@ -331,6 +331,8 @@ module Logging
       children.sort {|a,b| a.name <=> b.name}.each do |child|
         ::Logging.show_configuration(io, child, indent)
       end
+
+      nil
     end
 
     # :stopdoc:

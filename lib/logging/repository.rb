@@ -107,17 +107,9 @@ module Logging
     # of B is A. Parents are determined by namespace.
     #
     def parent( key )
-      return if 'root' == key.to_s
-
-      key = to_key(key)
-      a = key.split PATH_DELIMITER
-
-      p = @h[:root]
-      while a.slice!(-1) and !a.empty?
-        k = a.join PATH_DELIMITER
-        if @h.has_key? k then p = @h[k]; break end
-      end
-      p
+      name = _parent_name(to_key(key))
+      return if name.nil?
+      @h[name]
     end
 
     # call-seq:
@@ -128,31 +120,15 @@ module Logging
     # +Repository#[]+. Children are returned regardless of the
     # existence of the logger referenced by _key_.
     #
-    def children( key )
-      # need to handle the root logger as a special case
-      if 'root' == key.to_s
-        ary = []
-        @h.each_pair do |key,logger|
-          key = key.to_s
-          next if key == 'root'
-          next if key.index(PATH_DELIMITER)
-          ary << logger
-        end
-        return ary.sort
+    def children( parent )
+      ary = []
+      parent = to_key(parent)
+
+      @h.each_pair do |child,logger|
+        next if :root == child
+        ary << logger if parent == _parent_name(child)
       end
-
-      key = to_key(key)
-      depth = key.split(PATH_DELIMITER).length
-      rgxp = Regexp.new "^#{key}#{PATH_DELIMITER}"
-
-      a = @h.keys.map do |k|
-            if k =~ rgxp
-              l = @h[k]
-              d = l.parent.name.split(PATH_DELIMITER).length
-              if d <= depth then l else nil end
-            end
-          end
-      a.compact.sort
+      return ary.sort
     end
 
     # call-seq:
@@ -173,6 +149,21 @@ module Logging
       when Module; key.logger_name
       when Object; key.class.logger_name
       end
+    end
+
+    # Returns the name of the parent for the logger identified by the given
+    # _key_. If the _key_ is for the root logger, then +nil+ is returned.
+    #
+    def _parent_name( key )
+      return if :root == key
+
+      a = key.split PATH_DELIMITER
+      p = :root
+      while a.slice!(-1) and !a.empty?
+        k = a.join PATH_DELIMITER
+        if @h.has_key? k then p = k; break end
+      end
+      p
     end
 
   end  # class Repository
