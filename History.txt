@@ -1,4 +1,4 @@
-== 0.9.4 / 2008-10-
+== 0.9.4 / 2008-09-29
 
 2 bug fixes
   - Child loggers were not being found in some cases
