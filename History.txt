@@ -1,7 +1,10 @@
 == 0.9.4 / 2008-10-
 
-1 bug fix
+2 bug fixes
   - Child loggers were not being found in some cases
+  - RollingFileAppender fails to reopen the log file if
+    the log file is deleted.
+    
 
 == 0.9.3 / 2008-09-12
 
