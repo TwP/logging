@@ -1,6 +1,6 @@
 History.txt
 Manifest.txt
-README.txt
+README.rdoc
 Rakefile
 data/bad_logging_1.rb
 data/bad_logging_2.rb
