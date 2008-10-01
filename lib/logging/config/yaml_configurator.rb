@@ -156,7 +156,7 @@ module Config
       raise Error, 'Appender type not given' if type.nil?
 
       name = config.delete('name')
-      raise Error, 'Appender name not given' if type.nil?
+      raise Error, 'Appender name not given' if name.nil?
 
       config['layout'] = layout(config.delete('layout'))
 
