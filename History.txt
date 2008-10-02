@@ -1,5 +1,7 @@
-== 0.9.4 / 2008-09-30
+== 0.9.4 / 2008-10-02
 
+1 minor enhancement
+  - Flag to suppress exception backtraces from being logged
 3 bug fixes
   - Child loggers were not being found in some cases
   - RollingFileAppender fails to reopen the log file if
