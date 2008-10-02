@@ -78,6 +78,29 @@ module TestLogging
       assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
     end
 
+    def test_format_obj_without_backtrace
+      @layout = ::Logging::Layout.new :backtrace => 'off'
+
+      obj = Exception.new 'some exception'
+      obj.set_backtrace %w( this is the backtrace )
+      r = @layout.send :format_obj, obj
+      obj = "<Exception> some exception"
+      assert_equal obj, r
+
+      ::Logging.backtrace :off
+      @layout = ::Logging::Layout.new
+
+      obj = ArgumentError.new 'wrong type of argument'
+      obj.set_backtrace %w( this is the backtrace )
+      r = @layout.send :format_obj, obj
+      obj = "<ArgumentError> wrong type of argument"
+      assert_equal obj, r
+    end
+
+    def test_initializer
+      assert_raise(ArgumentError) {::Logging::Layout.new :backtrace => 'foo'}
+    end
+
   end  # class TestLayout
 end  # module TestLogging
 

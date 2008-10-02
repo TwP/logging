@@ -52,6 +52,10 @@ module Logging::Config
       # format as
       format = config[:format_as]
       ::Logging.format_as(format) unless format.nil?
+
+      # backtrace
+      value = config[:backtrace]
+      ::Logging.backtrace(value) unless value.nil?
     end
 
     # call-seq:

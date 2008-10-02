@@ -94,6 +94,10 @@ module Config
       format = config['format_as']
       ::Logging.format_as(format) unless format.nil?
 
+      # backtrace
+      value = config['backtrace']
+      ::Logging.backtrace(value) unless value.nil?
+
       # grab the root logger and set the logging level
       root = ::Logging::Logger.root
       if config.has_key?('root')

@@ -227,6 +227,31 @@ module Logging
       module_eval "OBJ_FORMAT = :#{f}", __FILE__, __LINE__
     end
 
+    # call-seq:
+    #    Logging.backtrace             #=> true or false
+    #    Logging.backtrace( value )    #=> true or false
+    #
+    # Without any arguments, returns the global exception backtrace logging
+    # value. When set to +true+ backtraces will be written to the logs; when
+    # set to +false+ backtraces will be suppressed.
+    #
+    # When an argument is given the global exception backtrace setting will
+    # be changed. Value values are <tt>"on"</tt>, <tt>:on<tt> and +true+ to
+    # turn on backtraces and <tt>"off"</tt>, <tt>:off</tt> and +false+ to
+    # turn off backtraces.
+    #
+    def backtrace( b = nil )
+      @backtrace = true unless defined? @backtrace
+      return @backtrace if b.nil?
+
+      @backtrace = case b
+          when :on, 'on', true;    true
+          when :off, 'off', false; false
+          else
+            raise ArgumentError, "backtrace must be true or false"
+          end
+    end
+
     # Returns the version string for the library.
     #
     def version

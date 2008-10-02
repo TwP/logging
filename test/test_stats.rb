@@ -220,7 +220,7 @@ module TestStats
 
       sampler = @stats['foo']
       assert_equal 1, sampler.num
-      assert_in_delta 0.05, sampler.sum, 1e-3
+      assert_in_delta 0.05, sampler.sum, 1e-2
 
       @tracker.time('foo') {sleep 0.05}
       assert_equal 2, sampler.num

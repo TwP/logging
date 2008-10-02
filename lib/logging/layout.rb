@@ -39,6 +39,14 @@ class Layout
     @obj_format = case f
                   when :inspect, :yaml; f
                   else :string end
+
+    b = opts.getopt(:backtrace, ::Logging.backtrace)
+    @backtrace = case b
+        when :on, 'on', true;    true
+        when :off, 'off', false; false
+        else
+          raise ArgumentError, "backtrace must be true or false"
+        end
   end
 
   # call-seq:
@@ -79,7 +87,7 @@ class Layout
     when String; obj
     when Exception 
       str = "<#{obj.class.name}> #{obj.message}"
-      unless obj.backtrace.nil?
+      if @backtrace && !obj.backtrace.nil?
         str << "\n\t" << obj.backtrace.join("\n\t")
       end
       str
