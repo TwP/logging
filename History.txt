@@ -1,7 +1,8 @@
-== 0.9.4 / 2008-10-02
+== 0.9.4 / 2008-10-04
 
-1 minor enhancement
+2 minor enhancements
   - Flag to suppress exception backtraces from being logged
+  - Cleaning up color codes on Growl output
 3 bug fixes
   - Child loggers were not being found in some cases
   - RollingFileAppender fails to reopen the log file if

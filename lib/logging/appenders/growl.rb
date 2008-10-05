@@ -9,6 +9,10 @@ module Logging::Appenders
   #
   class Growl < ::Logging::Appender
 
+    # :stopdoc:
+    ColoredRegexp = %r/\e\[([34][0-7]|[0-9])m/
+    # :startdoc:
+
     # call-seq:
     #    Growl.new( name, opts = {} )
     #
@@ -84,13 +88,13 @@ module Logging::Appenders
         end
       return if message.empty?
 
+      message = message.gsub(ColoredRegexp, '')
       if @title_sep
         title, message = message.split(@title_sep)
         title, message = '', title if message.nil?
-        title.strip!
       end
 
-      growl(title, message, priority)
+      growl(title.strip, message.strip, priority)
       self
     end
 
