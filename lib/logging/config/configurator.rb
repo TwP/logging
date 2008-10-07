@@ -161,17 +161,20 @@ module Logging::Config
     class TopLevelDSL < DSL
       undef_method :method_missing
 
+      def initialize
+        @loggers = []
+        @appenders = []
+      end
+
       def pre_config( &block )
         __store(:preconfig, DSL.process(&block))
       end
 
       def logger( name, &block )
-        @loggers ||= []
         @loggers << [name, DSL.process(&block)]
       end
 
       def appender( name, &block )
-        @appenders ||= []
         @appenders << [name, DSL.process(&block)]
       end
 
