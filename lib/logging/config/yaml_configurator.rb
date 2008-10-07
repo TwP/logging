@@ -71,6 +71,7 @@ module Config
     #
     def load
       pre_config @config['pre_config']
+      ::Logging::Logger[:root]  # ensures the log levels are defined
       appenders @config['appenders']
       loggers @config['loggers']
     end

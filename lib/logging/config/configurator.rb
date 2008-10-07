@@ -29,6 +29,7 @@ module Logging::Config
       dsl.__instance_eval(&block)
 
       pre_config dsl.__pre_config
+      ::Logging::Logger[:root]  # ensures the log levels are defined
       appenders  dsl.__appenders
       loggers    dsl.__loggers
     end
