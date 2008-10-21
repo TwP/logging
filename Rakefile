@@ -1,5 +1,10 @@
 
-load 'tasks/setup.rb'
+begin
+  require 'bones'
+  Bones.setup
+rescue LoadError
+  load 'tasks/setup.rb'
+end
 
 ensure_in_path 'lib'
 require 'logging'
