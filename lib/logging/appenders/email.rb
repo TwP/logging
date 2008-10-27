@@ -13,6 +13,9 @@ class Email < ::Logging::Appender
 
   attr_reader :server, :port, :domain, :acct, :authtype, :subject
 
+  # TODO: make the from/to fields modifiable
+  #       possibly the subject, too
+
   def initialize( name, opts = {} )
     super(name, opts)
 
@@ -115,7 +118,7 @@ class Email < ::Logging::Appender
     ### send email
     begin 
       Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
-    rescue StandardError => err
+    rescue StandardError, TimeoutError => err
       self.level = :off
       ::Logging.log_internal {'e-mail notifications have been disabled'}
       ::Logging.log_internal(-2) {err}

@@ -1,3 +1,8 @@
+== 0.9.5 / 2008-10-
+
+1 bug fix
+  - Uncaught TimeoutError in the e-mail appender
+
 == 0.9.4 / 2008-10-04
 
 2 minor enhancements
