@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), %w[.. setup])
 module TestLogging
 module TestAppenders
 
-  class TestIO < Test::Unit::TestCase
+  class TestBufferedIO < Test::Unit::TestCase
     include LoggingTestCase
 
     def setup
@@ -13,7 +13,11 @@ module TestAppenders
       @levels = ::Logging::LEVELS
 
       @sio = StringIO.new
-      @appender = ::Logging::Appenders::IO.new 'test_appender', @sio
+      @appender = ::Logging::Appenders::IO.new(
+        'test_appender', @sio,
+        :buffer_size => 3, :immediate_at => :error
+      )
+
       begin readline rescue EOFError end
     end
 
@@ -21,12 +25,17 @@ module TestAppenders
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
       @appender.append event
-      assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
+      assert_raise(EOFError) {readline}
+
+      @appender.append event
       assert_raise(EOFError) {readline}
 
       event.level = @levels['debug']
       event.data = 'the big log message'
       @appender.append event
+
+      assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
+      assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
       assert_equal "DEBUG  TestLogger : the big log message\n", readline
       assert_raise(EOFError) {readline}
 
@@ -49,7 +58,14 @@ module TestAppenders
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
       @appender.append event
+      log.seek 0
+      assert_raise(EOFError) {log.readline}
 
+      @appender.append event
+      log.seek 0
+      assert_raise(EOFError) {log.readline}
+
+      @appender.append event
       log.seek 0
       assert_equal "INFO  Logging : appender \"test_appender\" has been disabled", log.readline.strip
       assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
@@ -76,11 +92,14 @@ module TestAppenders
 
     def test_concat
       @appender << "this is a test message\n"
-      assert_equal "this is a test message\n", readline
       assert_raise(EOFError) {readline}
 
       @appender << "this is another message\n"
+      assert_raise(EOFError) {readline}
+
       @appender << "some other line\n"
+
+      assert_equal "this is a test message\n", readline
       assert_equal "this is another message\n", readline
       assert_equal "some other line\n", readline
       assert_raise(EOFError) {readline}
@@ -101,7 +120,14 @@ module TestAppenders
       # close the string IO object so we get an error
       @sio.close
       @appender << 'oopsy'
+      log.seek 0
+      assert_raise(EOFError) {log.readline}
 
+      @appender << 'whoopsy'
+      log.seek 0
+      assert_raise(EOFError) {log.readline}
+
+      @appender << 'pooh'
       log.seek 0
       assert_equal "INFO  Logging : appender \"test_appender\" has been disabled", log.readline.strip
       assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
@@ -116,13 +142,28 @@ module TestAppenders
       @sio.instance_variable_set :@ary, ary
       def @sio.flush() @ary << :flush end
 
+      @appender << "this is a test message\n"
+      assert_raise(EOFError) {readline}
+
       @appender.flush
       assert_equal :flush, ary.pop
+      assert_equal "this is a test message\n", readline
+      assert_raise(EOFError) {readline}
     end
 
-    def test_initialize
-      assert_raise(EOFError) {@sio.readline}
-      assert_raise(TypeError) {::Logging::Appenders::IO.new 'test', []}
+    def test_immediate_at
+      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                      [1, 2, 3, 4], false)
+      @appender.append event
+      assert_raise(EOFError) {readline}
+
+      event.level = @levels['error']
+      event.data = 'an error message'
+      @appender.append event
+
+      assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
+      assert_equal "ERROR  TestLogger : an error message\n", readline
+      assert_raise(EOFError) {readline}
     end
 
     private
@@ -134,7 +175,7 @@ module TestAppenders
       line
     end
 
-  end  # class TestIO
+  end  # class TestBufferedIO
 
 end  # module TestAppenders
 end  # module TestLogging
