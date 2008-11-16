@@ -137,6 +137,11 @@ module TestLayouts
       @layout.pattern = '%t'
       assert_match %r/\A-?\d+\z/, @layout.format(event)
 
+      @layout.pattern = '%T'
+      assert_equal "", @layout.format(event)
+      Thread.current[:name] = "Main"
+      assert_equal "Main", @layout.format(event)
+
       @layout.pattern = '%%'
       assert_equal '%', @layout.format(event)
 
