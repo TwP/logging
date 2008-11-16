@@ -118,9 +118,6 @@ module TestLogging
 
       assert_equal 'blah', @repo.to_key('blah')
       assert_equal 'blah', @repo.to_key(:blah)
-      # anonymous classes
-      assert_equal 'Fixnum', @repo.to_key(Class.new(Fixnum))
-      assert_equal 'Array', @repo.to_key(Class.new(Array).new)
     end
 
   end  # class TestRepository

@@ -8,10 +8,7 @@ require 'rubygems'
 require 'test/unit'
 require 'fileutils'
 require 'stringio'
-begin
-  require 'turn' 
-rescue LoadError
-end
+require 'turn' rescue nil
 
 # This line is needed for Ruby 1.9 -- hashes throw a "KeyError" in 1.9
 # whereas they throw an "IndexError" in 1.8

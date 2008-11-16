@@ -163,17 +163,15 @@ module Logging
     #
     # When _key_ is a +String+ or a +Symbol+ it will be returned "as is".
     # When _key_ is a +Class+ the class name will be returned. When _key_ is
-    # an object the name of the object's class will be returned. When _key_ is
-    # anonymous +Class+ or object of anonymous +Class+ name of first not anonymous
-    # superclas will be returned
+    # an object the name of the object's class will be returned.
+    #
     def to_key( key )
       case key
       when :root, 'root'; :root
       when String; key
       when Symbol; key.to_s
-      when Class;  if (k=key.name).empty? then to_key(key.superclass) else k end
-      when Module; key.name # Module also can be anonymous, but I don't have good idea for such case
-      when Object; to_key(key.class)
+      when Module; key.name
+      when Object; key.class.name
       end
     end
 
