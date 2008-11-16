@@ -92,7 +92,7 @@ module TestLogging
 
       assert_equal [@repo['A::B']], @repo.children('A')
       assert_equal a, @repo.children('A::B')
-      assert_equal a, @repo.children('A::B::C')
+      assert_equal [], @repo.children('A::B::C')
 
       ::Logging::Logger.new('A::B::C')
 

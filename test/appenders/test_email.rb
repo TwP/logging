@@ -22,7 +22,7 @@ module TestAppenders
 
       @appender = ::Logging::Appenders::Email.new('email',
           'from' => 'me', 'to' => 'you',
-          :buffsize => '3', :immediate_at => 'error, fatal',
+          :buffer_size => '3', :immediate_at => 'error, fatal',
           :domain => 'test.logging', :acct => 'test', :passwd => 'test'
       )
     end
@@ -42,7 +42,7 @@ module TestAppenders
           'from' => 'me', 'to' => 'you'
       )
 
-      assert_equal(100, appender.instance_variable_get(:@buffsize))
+      assert_equal(100, appender.instance_variable_get(:@buffer_size))
       assert_equal([], appender.instance_variable_get(:@immediate))
       assert_equal('localhost', appender.server)
       assert_equal(25, appender.port)
@@ -64,7 +64,7 @@ module TestAppenders
 
       assert_equal('lbrinn@gmail.com', appender.instance_variable_get(:@from))
       assert_equal(['everyone'], appender.instance_variable_get(:@to))
-      assert_equal(1000, appender.instance_variable_get(:@buffsize))
+      assert_equal(1000, appender.instance_variable_get(:@buffer_size))
       assert_equal('1234', appender.instance_variable_get(:@passwd))
       assert_equal([nil, nil, nil, true, true],
                    appender.instance_variable_get(:@immediate))
@@ -79,7 +79,7 @@ module TestAppenders
     def test_append
       # with a buffer size of 0, mail will be sent each time a log event
       # occurs
-      @appender.instance_variable_set(:@buffsize, 0)
+      @appender.instance_variable_set(:@buffer_size, 0)
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
       @appender.append event
@@ -87,7 +87,7 @@ module TestAppenders
       assert_equal(0, @appender.queued_messages)
 
       # increase the buffer size and log a few events
-      @appender.instance_variable_set(:@buffsize, 3)
+      @appender.instance_variable_set(:@buffer_size, 3)
       @appender.append event
       @appender.append event
       assert_equal(2, @appender.queued_messages)
@@ -118,13 +118,13 @@ module TestAppenders
     def test_concat
       # with a buffer size of 0, mail will be sent each time a log event
       # occurs
-      @appender.instance_variable_set(:@buffsize, 0)
+      @appender.instance_variable_set(:@buffer_size, 0)
       @appender << 'test message'
       assert_not_equal(@levels.length, @appender.level)
       assert_equal(0, @appender.queued_messages)
 
       # increase the buffer size and log a few events
-      @appender.instance_variable_set(:@buffsize, 3)
+      @appender.instance_variable_set(:@buffer_size, 3)
       @appender << 'another test message'
       @appender << 'a second test message'
       assert_equal(2, @appender.queued_messages)

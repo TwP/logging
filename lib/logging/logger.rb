@@ -1,6 +1,4 @@
 
-require 'thread'
-
 module Logging
 
   # The +Logger+ class is the primary interface to the +Logging+ framework.
@@ -55,6 +53,7 @@ module Logging
           if logger.nil?
             logger = super(name, *args)
             repo[name] = logger
+            repo.children(name).each {|c| c.__send__(:parent=, logger)}
           end
           logger
         end
@@ -144,7 +143,6 @@ module Logging
 
       repo = ::Logging::Repository.instance
       _setup(name, :parent => repo.parent(name))
-      repo.children(name).each {|c| c.parent = self}
     end
 
     # call-seq:

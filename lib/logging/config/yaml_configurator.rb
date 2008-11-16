@@ -71,6 +71,7 @@ module Config
     #
     def load
       pre_config @config['pre_config']
+      ::Logging::Logger[:root]  # ensures the log levels are defined
       appenders @config['appenders']
       loggers @config['loggers']
     end
@@ -93,6 +94,10 @@ module Config
       # format as
       format = config['format_as']
       ::Logging.format_as(format) unless format.nil?
+
+      # backtrace
+      value = config['backtrace']
+      ::Logging.backtrace(value) unless value.nil?
 
       # grab the root logger and set the logging level
       root = ::Logging::Logger.root
@@ -156,7 +161,7 @@ module Config
       raise Error, 'Appender type not given' if type.nil?
 
       name = config.delete('name')
-      raise Error, 'Appender name not given' if type.nil?
+      raise Error, 'Appender name not given' if name.nil?
 
       config['layout'] = layout(config.delete('layout'))
 

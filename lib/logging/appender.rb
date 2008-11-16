@@ -1,6 +1,4 @@
 
-require 'thread'
-
 module Logging
 
 # The +Appender+ class is provides methods for appending log events to a

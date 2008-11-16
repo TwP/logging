@@ -29,6 +29,7 @@ module Logging::Config
       dsl.__instance_eval(&block)
 
       pre_config dsl.__pre_config
+      ::Logging::Logger[:root]  # ensures the log levels are defined
       appenders  dsl.__appenders
       loggers    dsl.__loggers
     end
@@ -52,6 +53,10 @@ module Logging::Config
       # format as
       format = config[:format_as]
       ::Logging.format_as(format) unless format.nil?
+
+      # backtrace
+      value = config[:backtrace]
+      ::Logging.backtrace(value) unless value.nil?
     end
 
     # call-seq:
@@ -157,17 +162,20 @@ module Logging::Config
     class TopLevelDSL < DSL
       undef_method :method_missing
 
+      def initialize
+        @loggers = []
+        @appenders = []
+      end
+
       def pre_config( &block )
         __store(:preconfig, DSL.process(&block))
       end
 
       def logger( name, &block )
-        @loggers ||= []
         @loggers << [name, DSL.process(&block)]
       end
 
       def appender( name, &block )
-        @appenders ||= []
         @appenders << [name, DSL.process(&block)]
       end
 

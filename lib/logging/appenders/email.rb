@@ -13,17 +13,33 @@ class Email < ::Logging::Appender
 
   attr_reader :server, :port, :domain, :acct, :authtype, :subject
 
+  # TODO: make the from/to fields modifiable
+  #       possibly the subject, too
+
   def initialize( name, opts = {} )
     super(name, opts)
 
-    @buff = []
-    @buffsize = opts.getopt :buffsize, 100, :as => Integer
+    @buffer = []
+
+    # This mess is here to maintain backwards compatability (originally used
+    # the "buffsize" option but moved to "buffer_size")
+    #
+    @buffer_size = opts.getopt :buffsize
+    @buffer_size ||= opts.getopt :buffer_size, 100, :as => Integer
+    @buffer_size = Integer(@buffer_size)
 
     # get the immediate levels -- no buffering occurs at these levels, and
     # an e-mail is sent as soon as possible
     @immediate = []
-    opts.getopt(:immediate_at, '').split(',').each do |lvl|
-      num = ::Logging.level_num(lvl.strip)
+    immediate_at = opts.getopt(:immediate_at, '')
+    immediate_at =
+      case immediate_at
+      when String; immediate_at.split(',').map {|x| x.strip}
+      when Array; immediate_at
+      else Array(immediate_at) end
+
+    immediate_at.each do |lvl|
+      num = ::Logging.level_num(lvl)
       next if num.nil?
       @immediate[num] = true
     end
@@ -72,7 +88,7 @@ class Email < ::Logging::Appender
   # Returns the number of messages in the buffer.
   #
   def queued_messages
-    @buff.length
+    @buffer.length
   end
 
 
@@ -94,15 +110,15 @@ class Email < ::Logging::Appender
       end
     return if str.empty?
 
-    @buff << str
-    send_mail if @buff.length >= @buffsize || immediate
+    @buffer << str
+    send_mail if @buffer.length >= @buffer_size || immediate
     self
   end
 
   # Connect to the mail server and send out any buffered messages.
   #
   def send_mail
-    return if @buff.empty?
+    return if @buffer.empty?
 
     ### build a mail header for RFC 822
     rfc822msg =  "From: #{@from}\n"
@@ -110,17 +126,17 @@ class Email < ::Logging::Appender
     rfc822msg << "Subject: #{@subject}\n"
     rfc822msg << "Date: #{Time.new.rfc822}\n"
     rfc822msg << "Message-Id: <#{"%.8f" % Time.now.to_f}@#{@domain}>\n\n"
-    rfc822msg << @buff.join
+    rfc822msg << @buffer.join
 
     ### send email
     begin 
       Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
-    rescue StandardError => err
+    rescue StandardError, TimeoutError => err
       self.level = :off
       ::Logging.log_internal {'e-mail notifications have been disabled'}
       ::Logging.log_internal(-2) {err}
     ensure
-      @buff.clear
+      @buffer.clear
     end
   end
 

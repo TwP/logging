@@ -171,6 +171,27 @@ module TestAppenders
       cleanup
     end
 
+    def test_file_removed
+      assert_equal [], Dir.glob(@glob)
+
+      ap = ::Logging::Appenders::RollingFile.new(NAME,
+               :filename => @fn, :size => 100)
+
+      ap << 'X' * 100; ap.flush
+      assert_equal 1, Dir.glob(@glob).length
+      assert_equal 100, File.size(@fn)
+
+      # Now remove @fn and make sure that the log file is written to
+      # again
+      File.unlink(@fn)
+      assert_equal 0, Dir.glob(@glob).length
+
+      ap << 'X' * 50; ap.flush
+      assert_equal 1, Dir.glob(@glob).length
+      assert_equal 50, File.size(@fn)
+
+    end
+
     private
     def cleanup
       unless ::Logging::Appender[NAME].nil?

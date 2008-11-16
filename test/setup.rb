@@ -8,7 +8,9 @@ require 'rubygems'
 require 'test/unit'
 require 'fileutils'
 require 'stringio'
-require 'turn' rescue nil
+begin
+  require 'turn'
+rescue LoadError; end
 
 # This line is needed for Ruby 1.9 -- hashes throw a "KeyError" in 1.9
 # whereas they throw an "IndexError" in 1.8
@@ -51,6 +53,8 @@ module LoggingTestCase
     
   def teardown
     super
+    ::Logging.backtrace
+    ::Logging.__send__(:remove_instance_variable, :@backtrace)
     h = ::Logging::Appender.instance_variable_get(:@appenders)
     h.each_value {|a| a.close(false) unless a.nil? || a.closed?}
     h.clear

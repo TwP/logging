@@ -270,11 +270,13 @@ module Logging::Appenders
     def check_logfile
       retry_cnt ||= 0
 
-      @stat = ::File.stat(@fn)
-      return unless @lockfile
-      return if @inode == @stat.ino
+      if ::File.exist?(@fn) then
+        @stat = ::File.stat(@fn)
+        return unless @lockfile
+        return if @inode == @stat.ino
 
-      @io.close rescue nil
+        @io.close rescue nil
+      end
       open_logfile
     rescue SystemCallError
       raise if retry_cnt > 3

@@ -89,6 +89,14 @@ class names.
 Logging requires the "lockfile" gem to run and the "flexmock" gem to run the
 tests"
 
+== DEVELOPMENT REQUIREMENTS
+
+The Logging source code relies on the Mr Bones project for default rake tasks.
+You will need to install the Mr Bones gem if you want to build or test the
+logging gem.
+
+   gem install bones
+
 == LICENSE
 
 Ruby

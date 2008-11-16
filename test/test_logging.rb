@@ -15,6 +15,30 @@ module TestLogging
       @glob = File.join(TMP, '*.log')
     end
 
+    def test_backtrace
+      assert_equal true, ::Logging.backtrace
+
+      assert_equal false, ::Logging.backtrace('off')
+      assert_equal false, ::Logging.backtrace
+
+      assert_equal true, ::Logging.backtrace('on')
+      assert_equal true, ::Logging.backtrace
+
+      assert_equal false, ::Logging.backtrace(:off)
+      assert_equal false, ::Logging.backtrace
+
+      assert_equal true, ::Logging.backtrace(:on)
+      assert_equal true, ::Logging.backtrace
+
+      assert_equal false, ::Logging.backtrace(false)
+      assert_equal false, ::Logging.backtrace
+
+      assert_equal true, ::Logging.backtrace(true)
+      assert_equal true, ::Logging.backtrace
+
+      assert_raise(ArgumentError) {::Logging.backtrace 'foo'}
+    end
+
     def test_configure
       assert_raise(ArgumentError) {::Logging.configure 'blah.txt'}
 

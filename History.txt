@@ -1,4 +1,32 @@
-== 0.9.2 / 2008-09
+== 0.9.5 / 2008-10-
+
+1 bug fix
+  - Uncaught TimeoutError in the e-mail appender
+
+== 0.9.4 / 2008-10-04
+
+2 minor enhancements
+  - Flag to suppress exception backtraces from being logged
+  - Cleaning up color codes on Growl output
+4 bug fixes
+  - Child loggers were not being found in some cases
+  - RollingFileAppender fails to reopen the log file if
+    the log file is deleted.
+  - Fixed a copy/paste error in the YAML configurator
+  - Bug in the configurator where a nil object was being used
+
+== 0.9.3 / 2008-09-12
+
+2 minor enhancement
+  - Added a class for tracking basic statistics
+  - Will use the 'fastthread' gem if availble
+
+== 0.9.2 / 2008-09-03
+
+2 bug fixes
+  - Properly generates logger names for anonymous classes and
+    modules and meta-classes
+  - Fixed the rescue clause when 'turn' cannot be required
 
 == 0.9.1 / 2008-08-14
 
