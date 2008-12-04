@@ -89,29 +89,27 @@ module Logging::Appenders
     # than this appender will be turned off and the error reported.
     #
     def write( event )
-      begin
-        immediate = false
-        str =
-          if event.instance_of?(::Logging::LogEvent)
-            immediate = immediate?(event.level)
-            layout.format(event)
-          else
-            event.to_s
-          end
-        return if str.empty?
-
-        if buffer?
-          buffer << str
-          flush_buffer if buffer.length >= buffer_size || immediate
+      immediate = false
+      str =
+        if event.instance_of?(::Logging::LogEvent)
+          immediate = immediate?(event.level)
+          layout.format(event)
         else
-          @io.print str
+          event.to_s
         end
-        return self
-      rescue IOError
-        self.level = :off
-        ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
-        raise
+      return if str.empty?
+
+      if buffer?
+        buffer << str
+        flush_buffer if buffer.length >= buffer_size || immediate
+      else
+        @io.print str
       end
+      return self
+    rescue
+      self.level = :off
+      ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
+      raise
     end
 
     #
@@ -130,6 +128,7 @@ module Logging::Appenders
     #
     def flush_buffer
       buffer.each {|str| @io.print str}
+    ensure
       buffer.clear
     end
 

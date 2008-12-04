@@ -72,9 +72,6 @@ class Layout
   #
   def footer( ) '' end 
 
-
-  protected
-
   # call-seq:
   #    format_obj( obj )
   #

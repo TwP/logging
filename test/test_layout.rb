@@ -47,34 +47,34 @@ module TestLogging
 
     def test_format_obj
       obj = 'test string'
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_same obj, r
 
       obj = RuntimeError.new
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_equal '<RuntimeError> RuntimeError', r
 
       obj = TypeError.new 'only works with Integers'
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_equal '<TypeError> only works with Integers', r
 
       obj = Exception.new 'some exception'
       obj.set_backtrace %w( this is the backtrace )
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       obj = "<Exception> some exception\n\tthis\n\tis\n\tthe\n\tbacktrace"
       assert_equal obj, r
 
       obj = [1, 2, 3, 4]
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_equal "<Array> #{[1,2,3,4]}", r
 
       obj = %w( one two three four )
       @layout = ::Logging::Layout.new :format_as => :inspect
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_equal '<Array> ["one", "two", "three", "four"]', r
 
       @layout = ::Logging::Layout.new :format_as => :yaml
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
     end
 
@@ -83,7 +83,7 @@ module TestLogging
 
       obj = Exception.new 'some exception'
       obj.set_backtrace %w( this is the backtrace )
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       obj = "<Exception> some exception"
       assert_equal obj, r
 
@@ -92,7 +92,7 @@ module TestLogging
 
       obj = ArgumentError.new 'wrong type of argument'
       obj.set_backtrace %w( this is the backtrace )
-      r = @layout.send :format_obj, obj
+      r = @layout.format_obj obj
       obj = "<ArgumentError> wrong type of argument"
       assert_equal obj, r
     end
