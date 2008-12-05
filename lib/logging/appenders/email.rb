@@ -10,6 +10,7 @@ require 'time' # get rfc822 time format
 module Logging::Appenders
 
 class Email < ::Logging::Appender
+  include Buffering
 
   attr_reader :server, :port, :domain, :acct, :authtype, :subject
 
@@ -19,30 +20,10 @@ class Email < ::Logging::Appender
   def initialize( name, opts = {} )
     super(name, opts)
 
-    @buffer = []
-
-    # This mess is here to maintain backwards compatability (originally used
-    # the "buffsize" option but moved to "buffer_size")
-    #
-    @buffer_size = opts.getopt :buffsize
-    @buffer_size ||= opts.getopt :buffer_size, 100, :as => Integer
-    @buffer_size = Integer(@buffer_size)
-
-    # get the immediate levels -- no buffering occurs at these levels, and
-    # an e-mail is sent as soon as possible
-    @immediate = []
-    immediate_at = opts.getopt(:immediate_at, '')
-    immediate_at =
-      case immediate_at
-      when String; immediate_at.split(',').map {|x| x.strip}
-      when Array; immediate_at
-      else Array(immediate_at) end
-
-    immediate_at.each do |lvl|
-      num = ::Logging.level_num(lvl)
-      next if num.nil?
-      @immediate[num] = true
-    end
+    af = opts.getopt(:buffsize) ||
+         opts.getopt(:buffer_size) ||
+         100
+    configure_buffering({:auto_flushing => af}.merge(opts))
 
     # get the SMTP parameters
     @from = opts.getopt(:from)
@@ -67,58 +48,7 @@ class Email < ::Logging::Appender
   # Create and send an email containing the current message buffer.
   #
   def flush
-    sync { send_mail }
-    self
-  end
-
-  # call-seq:
-  #    close( footer = true )
-  #
-  # Close the e-mail appender and then flush the message buffer. This will
-  # ensure that a final e-mail is sent with any remaining messages.
-  #
-  def close( footer = true )
-    super
-    flush
-  end
-
-  # cal-seq:
-  #    queued_messages    => integer
-  #
-  # Returns the number of messages in the buffer.
-  #
-  def queued_messages
-    @buffer.length
-  end
-
-
-  private
-
-  # call-seq:
-  #    write( event )
-  #
-  # Write the given _event_ to the e-mail message buffer. The log event will
-  # be processed through the Layout associated with this appender.
-  #
-  def write( event )
-    immediate = false
-    str = if event.instance_of?(::Logging::LogEvent)
-        immediate = @immediate[event.level]
-        @layout.format(event)
-      else
-        event.to_s
-      end
-    return if str.empty?
-
-    @buffer << str
-    send_mail if @buffer.length >= @buffer_size || immediate
-    self
-  end
-
-  # Connect to the mail server and send out any buffered messages.
-  #
-  def send_mail
-    return if @buffer.empty?
+    return self if buffer.empty?
 
     ### build a mail header for RFC 822
     rfc822msg =  "From: #{@from}\n"
@@ -126,18 +56,17 @@ class Email < ::Logging::Appender
     rfc822msg << "Subject: #{@subject}\n"
     rfc822msg << "Date: #{Time.new.rfc822}\n"
     rfc822msg << "Message-Id: <#{"%.8f" % Time.now.to_f}@#{@domain}>\n\n"
-    rfc822msg << @buffer.join
+    rfc822msg << buffer.join
 
     ### send email
-    begin 
-      Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
-    rescue StandardError, TimeoutError => err
-      self.level = :off
-      ::Logging.log_internal {'e-mail notifications have been disabled'}
-      ::Logging.log_internal(-2) {err}
-    ensure
-      @buffer.clear
-    end
+    Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
+    self
+  rescue StandardError, TimeoutError => err
+    self.level = :off
+    ::Logging.log_internal {'e-mail notifications have been disabled'}
+    ::Logging.log_internal(-2) {err}
+  ensure
+    buffer.clear
   end
 
 end   # class Email

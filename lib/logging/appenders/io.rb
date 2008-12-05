@@ -5,11 +5,7 @@ module Logging::Appenders
   # configured for writing.
   #
   class IO < ::Logging::Appender
-
-    # :stopdoc:
-    attr_reader :buffer, :buffer_size
-    private :buffer, :buffer_size
-    # :startdoc:
+    include Buffering
 
     # call-seq:
     #    IO.new( name, io )
@@ -19,32 +15,14 @@ module Logging::Appenders
     # stream as the logging destination.
     #
     def initialize( name, io, opts = {} )
-      unless io.respond_to? :print
+      unless io.respond_to? :write
         raise TypeError, "expecting an IO object but got '#{io.class.name}'"
       end
 
       @io = io
-      @io.sync = true if @io.respond_to?('sync') rescue nil
+      @io.sync = true if @io.respond_to?(:sync) rescue nil
 
-      @buffer_size = opts.getopt :buffer_size, 0, :as => Integer
-      @buffer = @buffer_size > 0 ? [] : nil
-
-      # get the immediate levels -- no buffering occurs at these levels, and
-      # a log message is written to the IO stream immediately
-      @immediate = []
-      immediate_at = opts.getopt(:immediate_at, '')
-      immediate_at =
-        case immediate_at
-        when String; immediate_at.split(',').map {|x| x.strip}
-        when Array; immediate_at
-        else Array(immediate_at) end
-      
-      immediate_at.each do |lvl|
-        num = ::Logging.level_num(lvl)
-        next if num.nil?
-        @immediate[num] = true
-      end
-
+      configure_buffering(opts)
       super(name, opts)
     end
 
@@ -58,7 +36,7 @@ module Logging::Appenders
     #
     def close( *args )
       return self if @io.nil?
-      super(*args)
+      super
       io, @io = @io, nil
       io.close unless [STDIN, STDERR, STDOUT].include?(io)
     rescue IOError => err
@@ -74,60 +52,13 @@ module Logging::Appenders
     #
     def flush
       return self if @io.nil?
-      flush_buffer if buffer?
+      @io.write(buffer.join) unless buffer.empty?
       @io.flush
       self
-    end
-
-
-    private
-
-    # call-seq:
-    #    write( event )
-    #
-    # Writes the given _event_ to the IO stream. If an +IOError+ is detected,
-    # than this appender will be turned off and the error reported.
-    #
-    def write( event )
-      immediate = false
-      str =
-        if event.instance_of?(::Logging::LogEvent)
-          immediate = immediate?(event.level)
-          layout.format(event)
-        else
-          event.to_s
-        end
-      return if str.empty?
-
-      if buffer?
-        buffer << str
-        flush_buffer if buffer.length >= buffer_size || immediate
-      else
-        @io.print str
-      end
-      return self
-    rescue
+    rescue StandardError => err
       self.level = :off
       ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
-      raise
-    end
-
-    #
-    #
-    def immediate?( level )
-      @immediate[level]
-    end
-
-    #
-    #
-    def buffer?
-      !@buffer.nil?
-    end
-
-    #
-    #
-    def flush_buffer
-      buffer.each {|str| @io.print str}
+      ::Logging.log_internal(-2) {err}
     ensure
       buffer.clear
     end

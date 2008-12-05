@@ -219,6 +219,9 @@ class Appender
     return self if @closed
     ::Logging::Appender.remove(@name)
     @closed = true
+
+    sync {flush}
+
     if footer
       footer = @layout.footer
       unless footer.nil? || footer.empty?

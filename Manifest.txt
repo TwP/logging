@@ -9,6 +9,7 @@ data/logging.yaml
 data/simple_logging.rb
 lib/logging.rb
 lib/logging/appender.rb
+lib/logging/appenders/buffering.rb
 lib/logging/appenders/console.rb
 lib/logging/appenders/email.rb
 lib/logging/appenders/file.rb
@@ -27,17 +28,7 @@ lib/logging/repository.rb
 lib/logging/root_logger.rb
 lib/logging/stats.rb
 lib/logging/utils.rb
-tasks/ann.rake
-tasks/bones.rake
-tasks/gem.rake
-tasks/git.rake
-tasks/manifest.rake
-tasks/notes.rake
-tasks/post_load.rake
-tasks/rdoc.rake
-tasks/rubyforge.rake
-tasks/setup.rb
-tasks/test.rake
+test/appenders/test_buffered_io.rb
 test/appenders/test_console.rb
 test/appenders/test_email.rb
 test/appenders/test_file.rb

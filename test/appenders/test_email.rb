@@ -42,7 +42,7 @@ module TestAppenders
           'from' => 'me', 'to' => 'you'
       )
 
-      assert_equal(100, appender.instance_variable_get(:@buffer_size))
+      assert_equal(100, appender.auto_flushing)
       assert_equal([], appender.instance_variable_get(:@immediate))
       assert_equal('localhost', appender.server)
       assert_equal(25, appender.port)
@@ -64,7 +64,7 @@ module TestAppenders
 
       assert_equal('lbrinn@gmail.com', appender.instance_variable_get(:@from))
       assert_equal(['everyone'], appender.instance_variable_get(:@to))
-      assert_equal(1000, appender.instance_variable_get(:@buffer_size))
+      assert_equal(1000, appender.auto_flushing)
       assert_equal('1234', appender.instance_variable_get(:@passwd))
       assert_equal([nil, nil, nil, true, true],
                    appender.instance_variable_get(:@immediate))
@@ -74,27 +74,32 @@ module TestAppenders
       assert_equal('lbrinn', appender.acct)
       assert_equal(:tls, appender.authtype)
       assert_equal("I'm rich and you're not", appender.subject)
+
+      appender = ::Logging::Appenders::Email.new('email',
+          'from' => 'me', 'to' => 'you', :auto_flushing => 42
+      )
+      assert_equal(42, appender.auto_flushing)
     end
 
     def test_append
-      # with a buffer size of 0, mail will be sent each time a log event
+      # with auto_flushing enabled, mail will be sent each time a log event
       # occurs
-      @appender.instance_variable_set(:@buffer_size, 0)
+      @appender.auto_flushing = true
       event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
                                       [1, 2, 3, 4], false)
       @appender.append event
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
 
       # increase the buffer size and log a few events
-      @appender.instance_variable_set(:@buffer_size, 3)
+      @appender.auto_flushing = 3
       @appender.append event
       @appender.append event
-      assert_equal(2, @appender.queued_messages)
+      assert_equal(2, @appender.buffer.length)
 
       @appender.append event
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
 
       # error and fatal messages should be send immediately (no buffering)
       error = ::Logging::LogEvent.new('ErrLogger', @levels['error'],
@@ -105,33 +110,33 @@ module TestAppenders
       @appender.append event
       @appender.append fatal
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
 
       @appender.append error
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
 
       @appender.append event
-      assert_equal(1, @appender.queued_messages)
+      assert_equal(1, @appender.buffer.length)
     end
 
     def test_concat
-      # with a buffer size of 0, mail will be sent each time a log event
+      # with auto_flushing enabled, mail will be sent each time a log event
       # occurs
-      @appender.instance_variable_set(:@buffer_size, 0)
+      @appender.auto_flushing = true
       @appender << 'test message'
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
 
       # increase the buffer size and log a few events
-      @appender.instance_variable_set(:@buffer_size, 3)
+      @appender.auto_flushing = 3
       @appender << 'another test message'
       @appender << 'a second test message'
-      assert_equal(2, @appender.queued_messages)
+      assert_equal(2, @appender.buffer.length)
 
       @appender << 'a third test message'
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
     end
 
     def test_flush
@@ -139,11 +144,11 @@ module TestAppenders
                                       [1, 2, 3, 4], false)
       @appender.append event
       @appender << 'test message'
-      assert_equal(2, @appender.queued_messages)
+      assert_equal(2, @appender.buffer.length)
 
       @appender.flush
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
     end
 
     def test_close
@@ -151,11 +156,11 @@ module TestAppenders
                                       [1, 2, 3, 4], false)
       @appender.append event
       @appender << 'test message'
-      assert_equal(2, @appender.queued_messages)
+      assert_equal(2, @appender.buffer.length)
 
       @appender.close
       assert_not_equal(@levels.length, @appender.level)
-      assert_equal(0, @appender.queued_messages)
+      assert_equal(0, @appender.buffer.length)
       assert(@appender.closed?)
     end
 

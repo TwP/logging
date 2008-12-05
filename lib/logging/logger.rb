@@ -449,8 +449,8 @@ module Logging
         str << spacer
         str << '.' * (base - str.length)
       end
-      io.print(str.ljust(base))
-      io.print(spacer)
+      io.write(str.ljust(base))
+      io.write(spacer)
 
       level_str  = @level.nil? ? '' : '*'
       level_str << if level < ::Logging::LEVELS.length
@@ -460,24 +460,24 @@ module Logging
       end
       level_len = ::Logging::MAX_LEVEL_LENGTH + 1
 
-      io.print("%#{level_len}s" % level_str)
-      io.print(spacer)
+      io.write("%#{level_len}s" % level_str)
+      io.write(spacer)
 
       if self.respond_to?(:additive)
-        io.print(additive ? '+A' : '-A')
+        io.write(additive ? '+A' : '-A')
       else
-        io.print('  ')
+        io.write('  ')
       end
 
-      io.print(spacer)
-      io.print(trace ? '+T' : '-T')
-      io.print("\n")
+      io.write(spacer)
+      io.write(trace ? '+T' : '-T')
+      io.write("\n")
 
       @appenders.each do |appender|
-        io.print(indent_str)
-        io.print('- ')
-        io.print(appender.inspect)
-        io.print("\n")
+        io.write(indent_str)
+        io.write('- ')
+        io.write(appender.inspect)
+        io.write("\n")
       end
 
       return io

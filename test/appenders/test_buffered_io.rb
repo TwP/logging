@@ -15,7 +15,7 @@ module TestAppenders
       @sio = StringIO.new
       @appender = ::Logging::Appenders::IO.new(
         'test_appender', @sio,
-        :buffer_size => 3, :immediate_at => :error
+        :auto_flushing => 3, :immediate_at => :error
       )
 
       begin readline rescue EOFError end
