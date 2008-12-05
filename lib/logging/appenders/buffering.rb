@@ -137,7 +137,8 @@ module Logging::Appenders
       self
     end
 
-    #
+    # Returns true if the _event_ level matches one of the configured
+    # immediate logging levels. Otherwise returns false.
     #
     def immediate?( event )
       return false unless event.respond_to? :level
@@ -162,3 +163,5 @@ module Logging::Appenders
 
   end  # module Buffering
 end  # module Logging::Appenders
+
+# EOF
