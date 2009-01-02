@@ -56,6 +56,10 @@ module Layouts
   #       construction of the Layout until creation of the log event.
   #  [t]  Used to output the object ID of the thread that generated the
   #       log event.
+  #  [T]  Used to output the name of the thread that generated the log event.
+  #       Name can be specified using Thread.current[:name] notation. Output empty
+  #       string if name not specified. This options helps to create more human
+  #       readable output for multithread application log.
   #  [%]  The sequence '%%' outputs a single percent sign.
   #
   # The directives F, L, and M will only work if the Logger generating the
@@ -125,6 +129,7 @@ module Layouts
       'p' => 'Process.pid',
       'r' => 'Integer((Time.now-@created_at)*1000).to_s',
       't' => 'Thread.current.object_id.to_s',
+      'T' => 'Thread.current[:name]',
       '%' => :placeholder
     }
 
