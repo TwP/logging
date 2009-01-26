@@ -1,8 +1,10 @@
 == 0.9.5 / 2009-01-
 
-1 minor enhancement
+2 minor enhancements
   - The pattern layout can output the current thread name
     if set using Thread.current[:name]         [valodzka]
+  - Added buffered logging to all IO based loggers
+    (console, file, rolling file)
 1 bug fix
   - Uncaught TimeoutError in the e-mail appender
 

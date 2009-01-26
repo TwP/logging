@@ -23,11 +23,10 @@ PROJ.url = 'http://logging.rubyforge.org/'
 PROJ.rubyforge.name = 'logging'
 PROJ.version = Logging::VERSION
 PROJ.readme_file = 'README.rdoc'
+PROJ.ignore_file = '.gitignore'
 
-PROJ.exclude << %w[^tags$ ^tasks/archive ^coverage]
+PROJ.exclude << %w[^tags$]
 PROJ.rdoc.exclude << '^data'
-PROJ.rdoc.include << PROJ.readme_file
-PROJ.rdoc.main = PROJ.readme_file
 #PROJ.rdoc.dir = 'doc/rdoc'
 #PROJ.rdoc.remote_dir = 'rdoc'
 PROJ.rdoc.dir = 'doc'
