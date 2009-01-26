@@ -1,4 +1,4 @@
-== 0.9.5 / 2009-01-
+== 0.9.5 / 2009-01-25
 
 2 minor enhancements
   - The pattern layout can output the current thread name
