@@ -17,7 +17,7 @@ begin require 'fastthread'; rescue LoadError; end
 module Logging
 
   # :stopdoc:
-  VERSION = '0.9.5'
+  VERSION = '0.9.6'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
