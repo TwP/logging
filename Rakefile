@@ -34,6 +34,7 @@ PROJ.rdoc.remote_dir = ''
 
 PROJ.ann.email[:server] = 'smtp.gmail.com'
 PROJ.ann.email[:port] = 587
+PROJ.ann.email[:from] = 'Tim Pease'
 
 depend_on 'flexmock'
 depend_on 'lockfile'

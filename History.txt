@@ -1,3 +1,8 @@
+== 0.9.6 / 2009-02-01
+
+1 minor enhancement
+  - Ruby 1.9 compatability
+
 == 0.9.5 / 2009-01-25
 
 2 minor enhancements
