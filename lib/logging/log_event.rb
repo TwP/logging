@@ -13,6 +13,8 @@ module Logging
     # * $2 == line number
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
+
+    CALLER_INDEX = RUBY_PLATFORM[%r/^java/i] ? 1 : 2
     # :startdoc:
 
     # call-seq:
@@ -30,7 +32,7 @@ module Logging
       @file = @line = @method = ''
 
       if trace
-        t = Kernel.caller[2]
+        t = Kernel.caller[CALLER_INDEX]
         return if t.nil?
 
         m = CALLER_RGXP.match(t)

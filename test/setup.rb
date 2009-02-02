@@ -45,7 +45,12 @@ module LoggingTestCase
         @__instance__ = nil
         class << self
           nonce = class << Singleton; self; end
-          define_method(:instance, nonce::FirstInstanceCall)
+          if defined?(nonce::FirstInstanceCall)
+            define_method(:instance, nonce::FirstInstanceCall)
+          else
+            remove_method(:instance)
+            Singleton.__init__(::Logging::Repository)
+          end
         end
       end
     end

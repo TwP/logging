@@ -36,7 +36,7 @@ module Logging::Appenders
       setup_coalescing if @coalesce
 
       # make sure the growlnotify command can be called
-      unless system('growlnotify -v 2>&1 > /dev/null')
+      unless system('growlnotify -v >> /dev/null 2>&1')
         self.level = :off
         ::Logging.log_internal {'growl notifications have been disabled'}
       end

@@ -14,6 +14,9 @@ module TestAppenders
       super
       ::Logging.init
       @levels = ::Logging::LEVELS
+      @logopt = defined?(::Syslog::LOG_NDELAY) ?
+                    (::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY) :
+                    (::Syslog::LOG_PERROR)
     end
 
     def test_append
@@ -148,7 +151,7 @@ module TestAppenders
     def test_initialize_map
       appender = ::Logging::Appenders::Syslog.new(
         'syslog_test',
-        :logopt => ::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY,
+        :logopt => @logopt,
         :map => {
           :debug  =>  :log_debug,
           :info   =>  :log_info,
@@ -171,7 +174,7 @@ module TestAppenders
       layout = ::Logging::Layouts::Pattern.new(:pattern => '%5l  %c : %m')
       ::Logging::Appenders::Syslog.new(
           'syslog_test',
-          :logopt => ::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY,
+          :logopt => @logopt,
           :facility => ::Syslog::LOG_USER,
           :layout => layout
       )
