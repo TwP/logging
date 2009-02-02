@@ -81,7 +81,7 @@ class Module
   # anonymous module, the string 'anonymous' will be returned.
   #
   def logger_name
-    return name unless name.empty?
+    return name unless name.nil? or name.empty?
 
     # check if this is a metaclass (or eigenclass)
     if ancestors.include? Class

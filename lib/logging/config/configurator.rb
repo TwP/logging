@@ -133,7 +133,7 @@ module Logging::Config
       alias :__instance_eval :instance_eval
 
       instance_methods.each do |m|
-        undef_method m unless m[%r/^__/]
+        undef_method m unless m[%r/^(__|object_id)/]
       end
 
       def self.process( &block )

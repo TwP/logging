@@ -87,24 +87,26 @@ module TestLogging
     def test_logger_name
       assert_equal 'Array', Array.logger_name
 
+      # some lines are commented out for compatibility with ruby 1.9
+
       c = Class.new(Array)
-      assert_equal '', c.name
+#     assert_equal '', c.name
       assert_equal 'Array', c.logger_name
 
       meta = class << Array; self; end
-      assert_equal '', meta.name
+#     assert_equal '', meta.name
       assert_equal 'Array', meta.logger_name
 
       m = Module.new
-      assert_equal '', m.name
+#     assert_equal '', m.name
       assert_equal 'anonymous', m.logger_name
 
       c = Class.new(::Logging::Logger)
-      assert_equal '', c.name
+#     assert_equal '', c.name
       assert_equal 'Logging::Logger', c.logger_name
       
       meta = class << ::Logging::Logger; self; end
-      assert_equal '', meta.name
+#     assert_equal '', meta.name
       assert_equal 'Logging::Logger', meta.logger_name
     end
 
