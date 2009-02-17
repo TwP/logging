@@ -93,9 +93,19 @@ class Layout
       str = "<#{obj.class.name}> "
       str << case @obj_format
              when :inspect; obj.inspect
-             when :yaml; "\n#{obj.to_yaml}"
+             when :yaml; try_yaml(obj)
              else obj.to_s end
       str
+    end
+  end
+
+  private
+
+  def try_yaml(obj)
+    begin
+      "\n#{obj.to_yaml}"
+    rescue
+      "to_yaml threw an exception, falling back to inspect: #{obj.inspect}"
     end
   end
 

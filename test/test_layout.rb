@@ -76,6 +76,12 @@ module TestLogging
       @layout = ::Logging::Layout.new :format_as => :yaml
       r = @layout.format_obj obj
       assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
+      
+      obj = Class.new do
+      end
+      @layout = ::Logging::Layout.new :format_as => :yaml
+      r = @layout.format_obj obj
+      assert_equal "<Class> to_yaml threw an exception, falling back to inspect: #<Class:0x19fef24>", r
     end
 
     def test_format_obj_without_backtrace
