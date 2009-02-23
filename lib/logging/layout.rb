@@ -99,14 +99,16 @@ class Layout
     end
   end
 
-  private
-
-  def try_yaml(obj)
-    begin
-      "\n#{obj.to_yaml}"
-    rescue
-      "to_yaml threw an exception, falling back to inspect: #{obj.inspect}"
-    end
+  # call-seq:
+  #    try_yaml( obj )
+  #
+  # Attempt to format the _obj_ using yaml, but fall back to inspect style
+  # formatting if yaml fails.
+  #
+  def try_yaml( obj )
+    "\n#{obj.to_yaml}"
+  rescue TypeError
+    obj.inspect
   end
 
 end  # class Layout
