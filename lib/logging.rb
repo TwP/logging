@@ -8,10 +8,6 @@ begin require 'fastthread'; rescue LoadError; end
 
 # TODO: Windows Log Service appender
 
-# TODO: Option to buffer log messages at the appender level
-#       extend the concept found in the e-mail appender into the other IO
-#       appenders
-
 #
 #
 module Logging

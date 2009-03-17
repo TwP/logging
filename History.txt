@@ -1,5 +1,7 @@
-== 0.9.7 / 2009-02-
+== 0.9.7 / 2009-03-17
 
+1 minor enhancement
+  - Added a StringIO appender
 1 bug fix
   - Handling objects that cannot be dumped via YAML [Tim Galeckas]
 
