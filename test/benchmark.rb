@@ -18,7 +18,6 @@ rescue LoadError
 end
 
 require 'benchmark'
-require 'stringio'
 require 'logger'
 
 module Logging

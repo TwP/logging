@@ -20,8 +20,8 @@ module TestLogging
       root = ::Logging::Logger[:root]
       root.level = 'info'
 
-      a1 = SioAppender.new 'a1'
-      a2 = SioAppender.new 'a2'
+      a1 = ::Logging::Appenders::StringIo.new 'a1'
+      a2 = ::Logging::Appenders::StringIo.new 'a2'
       log = ::Logging::Logger.new 'A Logger'
 
       root.add_appenders a1
@@ -214,8 +214,8 @@ module TestLogging
     end
 
     def test_concat
-      a1 = SioAppender.new 'a1'
-      a2 = SioAppender.new 'a2'
+      a1 = ::Logging::Appenders::StringIo.new 'a1'
+      a2 = ::Logging::Appenders::StringIo.new 'a2'
       log = ::Logging::Logger.new 'A'
 
       ::Logging::Logger[:root].add_appenders a1
@@ -414,8 +414,8 @@ module TestLogging
       root = ::Logging::Logger[:root]
       root.level = 'info'
 
-      a1 = SioAppender.new 'a1'
-      a2 = SioAppender.new 'a2'
+      a1 = ::Logging::Appenders::StringIo.new 'a1'
+      a2 = ::Logging::Appenders::StringIo.new 'a2'
       log = ::Logging::Logger.new 'A Logger'
 
       root.add_appenders a1
@@ -697,29 +697,6 @@ module TestLogging
     end
 
   end  # class TestLogger
-
-  class SioAppender < ::Logging::Appenders::IO
-
-    def initialize( name, opts = {} )
-      @sio = StringIO.new
-      super(name, @sio, opts)
-      begin readline rescue EOFError end
-    end
-
-    def readline
-      @pos ||= 0
-      @sio.seek @pos
-      begin
-        line = @sio.readline
-        @pos = @sio.tell
-        line
-      rescue EOFError
-        nil
-      end
-    end
-
-  end  # class SioAppender
-
 end  # module TestLogging
 
 class StringIO

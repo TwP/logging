@@ -12,9 +12,8 @@ module TestAppenders
       ::Logging.init
       @levels = ::Logging::LEVELS
 
-      @sio = StringIO.new
-      @appender = ::Logging::Appenders::IO.new 'test_appender', @sio
-      begin readline rescue EOFError end
+      @appender = ::Logging::Appenders::StringIo.new 'test_appender'
+      @sio = @appender.sio
     end
 
     def test_append
@@ -22,13 +21,13 @@ module TestAppenders
                                       [1, 2, 3, 4], false)
       @appender.append event
       assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
-      assert_raise(EOFError) {readline}
+      assert_nil(readline)
 
       event.level = @levels['debug']
       event.data = 'the big log message'
       @appender.append event
       assert_equal "DEBUG  TestLogger : the big log message\n", readline
-      assert_raise(EOFError) {readline}
+      assert_nil(readline)
 
       @appender.close
       assert_raise(RuntimeError) {@appender.append event}
@@ -37,12 +36,9 @@ module TestAppenders
     def test_append_error
       # setup an internal logger to capture error messages from the IO
       # appender
-      log = StringIO.new
-      Logging::Logger[Logging].add_appenders(
-        Logging::Appenders::IO.new('__internal_io', log)
-      )
+      log = Logging::Appenders::StringIo.new('__internal_io')
+      Logging::Logger[Logging].add_appenders(log)
       Logging::Logger[Logging].level = 'all'
-
 
       # close the string IO object so we get an error
       @sio.close
@@ -50,7 +46,6 @@ module TestAppenders
                                       [1, 2, 3, 4], false)
       @appender.append event
 
-      log.seek 0
       assert_equal "INFO  Logging : appender \"test_appender\" has been disabled", log.readline.strip
       assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
 
@@ -77,13 +72,13 @@ module TestAppenders
     def test_concat
       @appender << "this is a test message\n"
       assert_equal "this is a test message\n", readline
-      assert_raise(EOFError) {readline}
+      assert_nil(readline)
 
       @appender << "this is another message\n"
       @appender << "some other line\n"
       assert_equal "this is another message\n", readline
       assert_equal "some other line\n", readline
-      assert_raise(EOFError) {readline}
+      assert_nil(readline)
 
       @appender.close
       assert_raise(RuntimeError) {@appender << 'message'}
@@ -92,17 +87,14 @@ module TestAppenders
     def test_concat_error
       # setup an internal logger to capture error messages from the IO
       # appender
-      log = StringIO.new
-      Logging::Logger[Logging].add_appenders(
-        Logging::Appenders::IO.new('__internal_io', log)
-      )
+      log = Logging::Appenders::StringIo.new('__internal_io')
+      Logging::Logger[Logging].add_appenders(log)
       Logging::Logger[Logging].level = 'all'
 
       # close the string IO object so we get an error
       @sio.close
       @appender << 'oopsy'
 
-      log.seek 0
       assert_equal "INFO  Logging : appender \"test_appender\" has been disabled", log.readline.strip
       assert_equal "ERROR  Logging : <IOError> not opened for writing", log.readline.strip
 
@@ -127,11 +119,7 @@ module TestAppenders
 
     private
     def readline
-      @pos ||= 0
-      @sio.seek @pos
-      line = @sio.readline
-      @pos = @sio.tell
-      line
+      @appender.readline
     end
 
   end  # class TestIO

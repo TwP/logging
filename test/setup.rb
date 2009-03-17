@@ -7,7 +7,6 @@ LOGGING_TEST_SETUP = true
 require 'rubygems'
 require 'test/unit'
 require 'fileutils'
-require 'stringio'
 begin
   require 'turn'
 rescue LoadError; end
