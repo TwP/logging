@@ -1,7 +1,9 @@
 == 0.9.8 / 2009-04-11
 
-1 minor enhancement
+2 minor enhancements
   - Adding a to_s method to the StringIo appender's StringIO object
+  - Added a Spec::LoggingHelper class that will capture log messages
+    when using rspec style testing
 
 == 0.9.7 / 2009-03-17
 
