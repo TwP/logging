@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{logging}
-  s.version = "0.9.7"
+  s.version = "0.9.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Pease"]
-  s.date = %q{2009-03-17}
+  s.date = %q{2009-04-11}
   s.description = %q{Logging is a flexible logging library for use in Ruby programs based on the design of Java's log4j library. It features a hierarchical logging system, custom level names, multiple output destinations per log event, custom formatting, and more.}
   s.email = %q{tim.pease@gmail.com}
   s.extra_rdoc_files = ["History.txt", "README.rdoc"]
@@ -27,15 +27,15 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<flexmock>, [">= 0.8.2"])
       s.add_runtime_dependency(%q<lockfile>, [">= 1.4.3"])
-      s.add_development_dependency(%q<bones>, [">= 2.4.2"])
+      s.add_development_dependency(%q<bones>, [">= 2.5.0"])
     else
       s.add_dependency(%q<flexmock>, [">= 0.8.2"])
       s.add_dependency(%q<lockfile>, [">= 1.4.3"])
-      s.add_dependency(%q<bones>, [">= 2.4.2"])
+      s.add_dependency(%q<bones>, [">= 2.5.0"])
     end
   else
     s.add_dependency(%q<flexmock>, [">= 0.8.2"])
     s.add_dependency(%q<lockfile>, [">= 1.4.3"])
-    s.add_dependency(%q<bones>, [">= 2.4.2"])
+    s.add_dependency(%q<bones>, [">= 2.5.0"])
   end
 end

@@ -645,6 +645,7 @@ module TestLogging
       log_d = ::Logging::Logger['A-logger::D-logger']
 
       sio = StringIO.new
+      sio.extend ::Logging::Appenders::StringIo::IoToS
 
       log_a._dump_configuration( sio )
       assert_equal(
@@ -698,14 +699,5 @@ module TestLogging
 
   end  # class TestLogger
 end  # module TestLogging
-
-class StringIO
-  def to_s
-    seek 0
-    str = read
-    seek 0
-    return str
-  end
-end
 
 # EOF

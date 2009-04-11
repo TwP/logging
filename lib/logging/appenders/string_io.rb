@@ -19,6 +19,7 @@ module Logging::Appenders
     #
     def initialize( name, opts = {} )
       @sio = StringIO.new
+      @sio.extend IoToS
       super(name, @sio, opts)
       clear
     end
@@ -50,6 +51,17 @@ module Logging::Appenders
       }
     end
     alias :reset :clear
+
+    # :stopdoc:
+    module IoToS
+      def to_s
+        seek 0
+        str = read
+        seek 0
+        return str
+      end
+    end
+    # :startdoc:
 
   end  # class StringIo
 end  # module Logging::Appenders
