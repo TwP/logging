@@ -82,7 +82,7 @@ module Logging::Config
         l.additive  = config[:additive] if l.respond_to? :additive= 
         l.trace     = config[:trace]
         l.appenders = Array(config[:appenders]).
-                            map {|name| ::Logging::Appender[name]}
+                            map {|nm| ::Logging::Appender[nm]}
       end
     end
 
