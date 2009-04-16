@@ -24,22 +24,6 @@ module Logging::Appenders
       clear
     end
 
-    # Read a single line of text from the internal StringIO instance. +nil+
-    # is returned if the StringIO buffer is empty.
-    #
-    def readline
-      sync {
-        begin
-          @sio.seek @pos
-          line = @sio.readline
-          @pos = @sio.tell
-          line
-        rescue EOFError
-          nil
-        end
-      }
-    end
-
     # Clears the internal StringIO instance. All log messages are removed
     # from the buffer.
     #
@@ -51,6 +35,23 @@ module Logging::Appenders
       }
     end
     alias :reset :clear
+
+    %w[read readline readlines].each do|m|
+      class_eval <<-CODE
+        def #{m}( *args )
+          sync {
+            begin
+              @sio.seek @pos
+              rv = @sio.#{m}(*args)
+              @pos = @sio.tell
+              rv
+            rescue EOFError
+              nil
+            end
+          }
+        end
+      CODE
+    end
 
     # :stopdoc:
     module IoToS

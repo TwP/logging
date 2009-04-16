@@ -394,6 +394,7 @@ Logging.require_all_libs_relative_to(__FILE__, 'logging/config')
 # or e-mail servers, etc.
 #
 at_exit {
+  Logging.log_internal {'at_exit hook called - closing all appenders'}
   Logging::Appender.instance_variable_get(:@appenders).values.each do |ap|
     ap.close
   end

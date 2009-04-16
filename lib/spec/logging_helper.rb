@@ -7,11 +7,17 @@ module Spec
     # supports a readline method to access the log messags.
     #
     def capture_log_messages( opts = {} )
-      from = opts[:from] || 'root'
-      to = opts[:to] || '__rspec__'
+      from = opts.getopt(:from, 'root')
+      to = opts.getopt(:to, '__rspec__')
+      exclusive = opts.getopt(:exclusive, true)
 
+      appender = Logging::Appender[to] || Logging::Appenders::StringIo.new(to)
       logger = Logging::Logger[from]
-      logger.appenders = Logging::Appender[to] || Logging::Appenders::StringIo.new(to)
+      if exclusive
+        logger.appenders = appender
+      else
+        logger.add_appenders(appender)
+      end
 
       before(:all) do
         @log_output = Logging::Appender[to]
