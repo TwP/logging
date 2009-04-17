@@ -9,14 +9,13 @@ module TestLayouts
 
     def setup
       super
-      ::Logging.init
-      @layout = ::Logging::Layouts::Basic.new
-      @levels = ::Logging::LEVELS
+      @layout = Logging.layouts.basic({})
+      @levels = Logging.levels
     end
 
     def test_format
-      event = ::Logging::LogEvent.new( 'ArrayLogger', @levels['info'],
-                                       'log message', false)
+      event = Logging::LogEvent.new( 'ArrayLogger', @levels['info'],
+                                     'log message', false)
       assert_equal " INFO  ArrayLogger : log message\n", @layout.format(event)
 
       event.data = [1, 2, 3, 4]

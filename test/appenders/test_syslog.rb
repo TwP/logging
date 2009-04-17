@@ -12,8 +12,8 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
-      @levels = ::Logging::LEVELS
+      Logging.init
+      @levels = Logging.levels
       @logopt = defined?(::Syslog::LOG_NDELAY) ?
                     (::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY) :
                     (::Syslog::LOG_PERROR)
@@ -30,8 +30,8 @@ module TestAppenders
         stderr[1].close
 
         appender = create_syslog
-        event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                        [1, 2, 3, 4], false)
+        event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                      [1, 2, 3, 4], false)
         appender.append event
         event.level = @levels['debug']
         event.data = 'the big log message'
@@ -63,8 +63,8 @@ module TestAppenders
       appender = create_syslog
       appender.close false
 
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    [1, 2, 3, 4], false)
       assert_raise(RuntimeError) {appender.append event}
       assert_equal true, appender.closed?
     end
@@ -149,7 +149,7 @@ module TestAppenders
     end
 
     def test_initialize_map
-      appender = ::Logging::Appenders::Syslog.new(
+      appender = Logging.appenders.syslog(
         'syslog_test',
         :logopt => @logopt,
         :map => {
@@ -171,8 +171,8 @@ module TestAppenders
     private
 
     def create_syslog
-      layout = ::Logging::Layouts::Pattern.new(:pattern => '%5l  %c : %m')
-      ::Logging::Appenders::Syslog.new(
+      layout = Logging.layouts.pattern(:pattern => '%5l  %c : %m')
+      Logging.appenders.syslog(
           'syslog_test',
           :logopt => @logopt,
           :facility => ::Syslog::LOG_USER,
@@ -184,7 +184,7 @@ module TestAppenders
       syslog.instance_variable_get :@map
     end
 
-  end  # class TestIO
+  end  # class TestSyslog
 
 end  # module TestAppenders
 end  # module TestLogging

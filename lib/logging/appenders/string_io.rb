@@ -18,8 +18,8 @@ module Logging::Appenders
     def initialize( name, opts = {} )
       @sio = StringIO.new
       @sio.extend IoToS
+      @pos = 0
       super(name, @sio, opts)
-      clear
     end
 
     # Clears the internal StringIO instance. All log messages are removed

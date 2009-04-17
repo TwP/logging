@@ -8,9 +8,9 @@ module TestAppenders
     include LoggingTestCase
 
     def test_initialize
-      ::Logging::Repository.instance
+      Logging::Repository.instance
 
-      appender = ::Logging::Appenders::Stdout.new
+      appender = Logging.appenders.stdout
       assert_equal 'stdout', appender.name
       assert_same STDOUT, appender.instance_variable_get(:@io)
 
@@ -18,14 +18,14 @@ module TestAppenders
       assert_equal true, appender.closed?
       assert_equal false, STDOUT.closed?
 
-      appender = ::Logging::Appenders::Stdout.new('foo')
+      appender = Logging.appenders.stdout('foo')
       assert_equal 'foo', appender.name
 
-      appender = ::Logging::Appenders::Stdout.new(:level => :warn)
+      appender = Logging.appenders.stdout(:level => :warn)
       assert_equal 'stdout', appender.name
       assert_equal 2, appender.level
 
-      appender = ::Logging::Appenders::Stdout.new('bar', :level => :error)
+      appender = Logging.appenders.stdout('bar', :level => :error)
       assert_equal 'bar', appender.name
       assert_equal 3, appender.level
     end
@@ -36,9 +36,9 @@ module TestAppenders
     include LoggingTestCase
 
     def test_initialize
-      ::Logging::Repository.instance
+      Logging::Repository.instance
 
-      appender = ::Logging::Appenders::Stderr.new
+      appender = Logging.appenders.stderr
       assert_equal 'stderr', appender.name
       assert_same STDERR, appender.instance_variable_get(:@io)
 
@@ -46,14 +46,14 @@ module TestAppenders
       assert_equal true, appender.closed?
       assert_equal false, STDERR.closed?
 
-      appender = ::Logging::Appenders::Stderr.new('foo')
+      appender = Logging.appenders.stderr('foo')
       assert_equal 'foo', appender.name
 
-      appender = ::Logging::Appenders::Stderr.new(:level => :warn)
+      appender = Logging.appenders.stderr(:level => :warn)
       assert_equal 'stderr', appender.name
       assert_equal 2, appender.level
 
-      appender = ::Logging::Appenders::Stderr.new('bar', :level => :error)
+      appender = Logging.appenders.stderr('bar', :level => :error)
       assert_equal 'bar', appender.name
       assert_equal 3, appender.level
     end

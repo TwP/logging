@@ -170,6 +170,11 @@ module Logging
       ::Logging::Appenders
     end
 
+    # TODO: document method
+    def levels
+      LEVELS
+    end
+
     # call-seq:
     #    Logging.init( levels )
     #
@@ -211,8 +216,8 @@ module Logging
       args = %w(debug info warn error fatal) if args.empty?
 
       args.flatten!
-      levels = ::Logging::LEVELS.clear
-      names = ::Logging::LNAMES.clear
+      levels = LEVELS.clear
+      names = LNAMES.clear
 
       id = 0
       args.each do |lvl|

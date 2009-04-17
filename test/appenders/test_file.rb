@@ -11,7 +11,7 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
+      Logging.init
 
       FileUtils.mkdir [File.join(TMP, 'dir'), File.join(TMP, 'uw_dir')]
       FileUtils.chmod 0555, File.join(TMP, 'uw_dir')
@@ -22,26 +22,26 @@ module TestAppenders
     def test_class_assert_valid_logfile
       log = File.join(TMP, 'uw_dir', 'file.log')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.assert_valid_logfile(log)
+        Logging.appenders.file.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'dir')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.assert_valid_logfile(log)
+        Logging.appenders.file.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'uw_file')
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::File.assert_valid_logfile(log)
+        Logging.appenders.file.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'file.log')
-      assert ::Logging::Appenders::File.assert_valid_logfile(log)
+      assert Logging.appenders.file.assert_valid_logfile(log)
     end
 
     def test_initialize
       log = File.join(TMP, 'file.log')
-      appender = ::Logging::Appenders::File.new(NAME, 'filename' => log)
+      appender = Logging.appenders.file(NAME, 'filename' => log)
       assert_equal 'logfile', appender.name
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"
@@ -53,7 +53,7 @@ module TestAppenders
       end
       cleanup
 
-      appender = ::Logging::Appenders::File.new NAME, :filename => log
+      appender = Logging.appenders.file(NAME, :filename => log)
       assert_equal 'logfile', appender.name
       appender << "This will be the third line\n"
       appender.flush
@@ -65,8 +65,8 @@ module TestAppenders
       end
       cleanup
 
-      appender = ::Logging::Appenders::File.new NAME, :filename => log,
-                                                      :truncate => true
+      appender = Logging.appenders.file(NAME, :filename => log,
+                                              :truncate => true)
       assert_equal 'logfile', appender.name
       appender << "The file was truncated\n"
       appender.flush
@@ -79,9 +79,9 @@ module TestAppenders
 
     private
     def cleanup
-      unless ::Logging::Appenders[NAME].nil?
-        ::Logging::Appenders[NAME].close false
-        ::Logging::Appenders[NAME] = nil
+      unless Logging.appenders[NAME].nil?
+        Logging.appenders[NAME].close false
+        Logging.appenders[NAME] = nil
       end
     end
 

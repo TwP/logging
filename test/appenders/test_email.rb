@@ -11,8 +11,6 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
-      @levels = ::Logging::LEVELS
 
       flexmock(Net::SMTP).new_instances do |m|
         m.should_receive(:start).at_least.once.with(
@@ -20,25 +18,26 @@ module TestAppenders
         m.should_receive(:sendmail).at_least.once.with(String, 'me', ['you'])
       end
 
-      @appender = ::Logging::Appenders::Email.new('email',
+      @appender = Logging.appenders.email('email',
           'from' => 'me', 'to' => 'you',
           :buffer_size => '3', :immediate_at => 'error, fatal',
           :domain => 'test.logging', :acct => 'test', :passwd => 'test'
       )
+      @levels = Logging.levels
     end
 
     def test_initialize
       assert_raise(ArgumentError, 'Must specify from address') {
-        ::Logging::Appenders::Email.new('email')
+        Logging.appenders.email('email')
       }
       assert_raise(ArgumentError, 'Must specify to address') {
-        ::Logging::Appenders::Email.new('email', :from => 'me')
+        Logging.appenders.email('email', :from => 'me')
       }
       assert_nothing_raised {
-        ::Logging::Appenders::Email.new('email', :from => 'me', :to => 'you')
+        Logging.appenders.email('email', :from => 'me', :to => 'you')
       }
 
-      appender = ::Logging::Appenders::Email.new('email',
+      appender = Logging.appenders.email('email',
           'from' => 'me', 'to' => 'you'
       )
 
@@ -53,7 +52,7 @@ module TestAppenders
       assert_equal(:cram_md5, appender.authtype)
       assert_equal("Message of #{$0}", appender.subject)
 
-      appender = ::Logging::Appenders::Email.new('email',
+      appender = Logging.appenders.email('email',
           'from' => 'lbrinn@gmail.com', 'to' => 'everyone',
           :buffsize => '1000', :immediate_at => 'error, fatal',
           :server => 'smtp.google.com', :port => '443',
@@ -75,7 +74,7 @@ module TestAppenders
       assert_equal(:tls, appender.authtype)
       assert_equal("I'm rich and you're not", appender.subject)
 
-      appender = ::Logging::Appenders::Email.new('email',
+      appender = Logging.appenders.email('email',
           'from' => 'me', 'to' => 'you', :auto_flushing => 42
       )
       assert_equal(42, appender.auto_flushing)
@@ -85,8 +84,8 @@ module TestAppenders
       # with auto_flushing enabled, mail will be sent each time a log event
       # occurs
       @appender.auto_flushing = true
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       assert_not_equal(@levels.length, @appender.level)
       assert_equal(0, @appender.buffer.length)
@@ -102,10 +101,10 @@ module TestAppenders
       assert_equal(0, @appender.buffer.length)
 
       # error and fatal messages should be send immediately (no buffering)
-      error = ::Logging::LogEvent.new('ErrLogger', @levels['error'],
-                                      'error message', false)
-      fatal = ::Logging::LogEvent.new('FatalLogger', @levels['fatal'],
-                                      'fatal message', false)
+      error = Logging::LogEvent.new('ErrLogger', @levels['error'],
+                                    'error message', false)
+      fatal = Logging::LogEvent.new('FatalLogger', @levels['fatal'],
+                                    'fatal message', false)
 
       @appender.append event
       @appender.append fatal
@@ -140,8 +139,8 @@ module TestAppenders
     end
 
     def test_flush
-      event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       @appender << 'test message'
       assert_equal(2, @appender.buffer.length)
@@ -152,8 +151,8 @@ module TestAppenders
     end
 
     def test_close
-      event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       @appender << 'test message'
       assert_equal(2, @appender.buffer.length)

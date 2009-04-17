@@ -9,9 +9,8 @@ module TestLayouts
 
     def setup
       super
-      ::Logging.init
-      @layout = ::Logging::Layouts::Pattern.new
-      @levels = ::Logging::LEVELS
+      @layout = Logging.layouts.pattern({})
+      @levels = Logging.levels
       @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
     end
 
@@ -58,8 +57,8 @@ module TestLayouts
     def test_format
       fmt = '\[' + @date_fmt + '\] %s -- %s : %s\n'
 
-      event = ::Logging::LogEvent.new('ArrayLogger', @levels['info'],
-                                      'log message', false)
+      event = Logging::LogEvent.new('ArrayLogger', @levels['info'],
+                                    'log message', false)
       rgxp  = Regexp.new(sprintf(fmt, 'INFO ', 'ArrayLogger', 'log message'))
       assert_match rgxp, @layout.format(event)
 
@@ -92,8 +91,8 @@ module TestLayouts
     end
 
     def test_pattern_eq
-      event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                      ['log message'], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    ['log message'], false)
 
       @layout.pattern = '%d'
       assert_equal '%d', @layout.pattern
@@ -101,8 +100,8 @@ module TestLayouts
     end
 
     def test_pattern_all
-      event = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                      'log message', false)
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    'log message', false)
       event.instance_variable_set :@file, 'test_file.rb'
       event.instance_variable_set :@line, '123'
       event.instance_variable_set :@method, 'method_name'

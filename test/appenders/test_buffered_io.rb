@@ -9,20 +9,17 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
-      @levels = ::Logging::LEVELS
-
-      @appender = ::Logging::Appenders::StringIo.new(
+      @appender = Logging.appenders.string_io(
         'test_appender', :auto_flushing => 3, :immediate_at => :error
       )
       @sio = @appender.sio
-
+      @levels = Logging.levels
       begin readline rescue EOFError end
     end
 
     def test_append
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       assert_nil(readline)
 
@@ -45,15 +42,15 @@ module TestAppenders
     def test_append_error
       # setup an internal logger to capture error messages from the IO
       # appender
-      log = Logging::Appenders::StringIo.new('__internal_io')
-      Logging::Logger[Logging].add_appenders(log)
-      Logging::Logger[Logging].level = 'all'
+      log = Logging.appenders.string_io('__internal_io')
+      Logging.logger[Logging].add_appenders(log)
+      Logging.logger[Logging].level = 'all'
 
 
       # close the string IO object so we get an error
       @sio.close
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       assert_nil(log.readline)
 
@@ -77,7 +74,7 @@ module TestAppenders
       assert_equal true, @appender.closed?
 
       [STDIN, STDERR, STDOUT].each do |io|
-        @appender = ::Logging::Appenders::IO.new 'test', io
+        @appender = Logging.appenders.io('test', io)
         @appender.close
         assert_equal false, io.closed?
         assert_equal true, @appender.closed?
@@ -105,9 +102,9 @@ module TestAppenders
     def test_concat_error
       # setup an internal logger to capture error messages from the IO
       # appender
-      log = Logging::Appenders::StringIo.new('__internal_io')
-      Logging::Logger[Logging].add_appenders(log)
-      Logging::Logger[Logging].level = 'all'
+      log = Logging.appenders.string_io('__internal_io')
+      Logging.logger[Logging].add_appenders(log)
+      Logging.logger[Logging].level = 'all'
 
       # close the string IO object so we get an error
       @sio.close
@@ -141,8 +138,8 @@ module TestAppenders
     end
 
     def test_immediate_at
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      [1, 2, 3, 4], false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    [1, 2, 3, 4], false)
       @appender.append event
       assert_nil(readline)
 

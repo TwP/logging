@@ -117,8 +117,9 @@ module Logging::Appenders
     # options.
     #
     def configure_buffering( opts )
-      @buffer = []
+      ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
 
+      @buffer = []
       self.immediate_at = opts.getopt(:immediate_at, '')
       self.auto_flushing = opts.getopt(:auto_flushing, true)
     end

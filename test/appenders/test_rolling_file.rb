@@ -11,7 +11,7 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
+      Logging.init
 
       @fn = File.join(TMP, 'test.log')
       @fn_fmt = File.join(TMP, 'test.%d.log')
@@ -22,7 +22,7 @@ module TestAppenders
       assert_equal [], Dir.glob(@glob)
 
       # create a new appender
-      ap = ::Logging::Appenders::RollingFile.new(NAME, :filename => @fn)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn)
       assert File.exist?(@fn)
       assert_equal 0, File.size(@fn)
 
@@ -32,7 +32,7 @@ module TestAppenders
       cleanup
 
       # make sure we append to the current file (not truncate)
-      ap = ::Logging::Appenders::RollingFile.new(NAME, :filename => @fn)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn)
       assert_equal [@fn], Dir.glob(@glob)
       assert_equal 20, File.size(@fn)
 
@@ -43,8 +43,7 @@ module TestAppenders
 
       # setting the truncate option to true should roll the current log file
       # and create a new one
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :truncate => true)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :truncate => true)
 
       log1 = sprintf(@fn_fmt, 1)
       assert_equal [log1, @fn], Dir.glob(@glob).sort
@@ -67,8 +66,7 @@ module TestAppenders
       FileUtils.touch(@fn)
 
       # keep only five files
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :keep => 5)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :keep => 5)
 
       # we still have 13 files because we did not truncate the log file,
       # and hence, we did not roll all the log files
@@ -89,12 +87,10 @@ module TestAppenders
       assert_equal [], Dir.glob(@glob)
 
       assert_raise(ArgumentError) do
-        ::Logging::Appenders::RollingFile.new(
-            NAME, :filename => @fn, :age => 'bob')
+        Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'bob')
       end
 
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :age => 1)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 1)
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 
@@ -103,8 +99,7 @@ module TestAppenders
       assert_equal 2, Dir.glob(@glob).length
 
       cleanup
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, 'age' => 'daily')
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, 'age' => 'daily')
       ap << "random message\n"
       assert_equal 2, Dir.glob(@glob).length
 
@@ -118,8 +113,7 @@ module TestAppenders
       assert_equal 3, Dir.glob(@glob).length
 
       cleanup
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :age => 'weekly')
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'weekly')
       ap << "random message\n"
       assert_equal 3, Dir.glob(@glob).length
 
@@ -131,8 +125,7 @@ module TestAppenders
       assert_equal 4, Dir.glob(@glob).length
 
       cleanup
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :age => 'monthly')
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'monthly')
       ap << "random message\n"
       assert_equal 4, Dir.glob(@glob).length
 
@@ -147,8 +140,7 @@ module TestAppenders
     def test_size
       assert_equal [], Dir.glob(@glob)
 
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :size => 100)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :size => 100)
 
       ap << 'X' * 100; ap.flush
       assert_equal 1, Dir.glob(@glob).length
@@ -174,8 +166,7 @@ module TestAppenders
     def test_file_removed
       assert_equal [], Dir.glob(@glob)
 
-      ap = ::Logging::Appenders::RollingFile.new(NAME,
-               :filename => @fn, :size => 100)
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :size => 100)
 
       ap << 'X' * 100; ap.flush
       assert_equal 1, Dir.glob(@glob).length
@@ -194,9 +185,9 @@ module TestAppenders
 
     private
     def cleanup
-      unless ::Logging::Appenders[NAME].nil?
-        ::Logging::Appenders[NAME].close false
-        ::Logging::Appenders[NAME] = nil
+      unless Logging.appenders[NAME].nil?
+        Logging.appenders[NAME].close false
+        Logging.appenders[NAME] = nil
       end
     end
 

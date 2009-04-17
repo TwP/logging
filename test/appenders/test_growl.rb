@@ -11,15 +11,14 @@ module TestAppenders
 
     def setup
       super
-      ::Logging.init
-      @levels = ::Logging::LEVELS
 
-      @appender = ::Logging::Appenders::Growl.new('growl',
+      @appender = Logging.appenders.growl('growl',
           :coalesce => true, :separator => "\000",
-          :layout => Logging::Layouts::Pattern.new(:pattern => "%5l - Test\000%m")
+          :layout => Logging.layouts.pattern(:pattern => "%5l - Test\000%m")
       )
       @appender.level = :all
       @growl = @appender.instance_variable_get(:@growl).dup
+      @levels = Logging.levels
     end
 
     def test_initialize
@@ -29,10 +28,10 @@ module TestAppenders
     end
 
     def test_append
-      info = ::Logging::LogEvent.new('TestLogger', @levels['info'],
-                                     'info message', false)
-      warn = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                     'warning message', false)
+      info = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                   'info message', false)
+      warn = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                   'warning message', false)
 
       flexmock(@appender).should_receive(:system => true).once.with(
           @growl % ['WARN - Test', "warning message\nwarning message\nwarning message", 0])
@@ -54,8 +53,8 @@ module TestAppenders
 
     def test_append_without_coalescing
       @appender.instance_variable_set(:@coalesce, false)
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      'warning message', false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    'warning message', false)
 
       flexmock(@appender).should_receive(:system => true).twice.with(
           @growl % ['WARN - Test', 'warning message', 0])
@@ -108,8 +107,8 @@ module TestAppenders
 
     def test_disabling
       @appender.instance_variable_set(:@coalesce, false)
-      event = ::Logging::LogEvent.new('TestLogger', @levels['warn'],
-                                      'warning message', false)
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'],
+                                    'warning message', false)
 
       flexmock(@appender).should_receive(:system => false).once.with(
           @growl % ['WARN - Test', 'warning message', 0])

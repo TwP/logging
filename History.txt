@@ -1,3 +1,16 @@
+== 1.0.0 / 2009-04-17
+
+2 major enhancements
+  - Refactored access to the appenders
+  - Created a much cleaner way to initialize the logging framework
+3 minor enhancements
+  - Added a YAML layout option
+  - Added a JSON layout option
+  - Cration of an "examples" directory or logging configurations
+1 bug fix
+  - Logging initialization happens implicitly when a logger, layout, or
+    appender is created
+
 == 0.9.8 / 2009-04-11
 
 2 minor enhancements
