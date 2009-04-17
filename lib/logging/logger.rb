@@ -12,8 +12,8 @@ module Logging
   #
   # Example:
   #
-  #    log = Logging::Logger['my logger']
-  #    log.add_appenders( Logging::Appender.stdout )   # append to STDOUT
+  #    log = Logging.logger['my logger']
+  #    log.add_appenders( Logging.appenders.stdout )   # append to STDOUT
   #    log.level = :info                               # log 'info' and above
   #
   #    log.info 'starting foo operation'
@@ -312,8 +312,8 @@ module Logging
     #
     def add_appenders( *args )
       args.flatten.each do |arg|
-        o = arg.kind_of?(::Logging::Appender) ? arg : ::Logging::Appender[arg]
-        raise ArgumentError, "unknown appender '#{arg}'" if o.nil?
+        o = arg.kind_of?(::Logging::Appender) ? arg : ::Logging::Appenders[arg.to_s]
+        raise ArgumentError, "unknown appender #{arg.inspect}" if o.nil?
         @appenders << o unless @appenders.include?(o)
       end
       self

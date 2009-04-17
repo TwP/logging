@@ -1,6 +1,4 @@
 
-require 'lockfile'
-
 module Logging::Appenders
 
   # An appender that writes to a file and ensures that the file size or age

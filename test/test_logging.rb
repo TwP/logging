@@ -50,11 +50,11 @@ module TestLogging
       assert_equal 3, ::Logging::Logger.root.level
 
       # verify the appenders
-      h = ::Logging::Appender.instance_variable_get :@appenders
+      h = ::Logging::Appenders.instance_variable_get :@appenders
       assert_equal ['logfile', 'stderr'], h.keys.sort
 
       # start with the File appender
-      logfile = ::Logging::Appender['logfile']
+      logfile = ::Logging::Appenders['logfile']
       assert_instance_of ::Logging::Appenders::File, logfile
       assert_equal 0, logfile.level
       assert_equal 'tmp/temp.log', logfile.instance_variable_get(:@fn)
@@ -66,7 +66,7 @@ module TestLogging
       assert_nil layout.date_pattern
 
       # and now the Stderr appender
-      stderr = ::Logging::Appender['stderr']
+      stderr = ::Logging::Appenders['stderr']
       assert_instance_of ::Logging::Appenders::Stderr, stderr
       assert_equal 0, stderr.level
 

@@ -79,9 +79,9 @@ module TestAppenders
 
     private
     def cleanup
-      unless ::Logging::Appender[NAME].nil?
-        ::Logging::Appender[NAME].close false
-        ::Logging::Appender[NAME] = nil
+      unless ::Logging::Appenders[NAME].nil?
+        ::Logging::Appenders[NAME].close false
+        ::Logging::Appenders[NAME] = nil
       end
     end
 

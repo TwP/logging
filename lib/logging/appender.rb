@@ -16,58 +16,6 @@ module Logging
 #
 class Appender
 
-  @appenders = Hash.new
-
-  class << self
-
-    # call-seq:
-    #    Appender[name]
-    #
-    # Returns the appender instance stroed in the Appender hash under the
-    # key _name_, or +nil+ if no appender has been created using that name.
-    #
-    def []( name ) @appenders[name] end
-
-    # call-seq:
-    #    Appender[name] = appender
-    #
-    # Stores the given _appender_ instance in the Appender hash under the
-    # key _name_.
-    #
-    def []=( name, val ) @appenders[name] = val end
-
-    # call-seq:
-    #    Appenders.remove( name )
-    #
-    # Removes the appender instance stored in the Appender hash under the
-    # key _name_.
-    #
-    def remove( name ) @appenders.delete(name) end
-
-    # call-seq:
-    #    Appender.stdout
-    #
-    # Returns an instance of the Stdout Appender. Unless the user explicitly
-    # creates a new Stdout Appender, the instance returned by this method
-    # will always be the same:
-    #
-    #    Appender.stdout.object_id == Appender.stdout.object_id    #=> true
-    #
-    def stdout( ) self['stdout'] || ::Logging::Appenders::Stdout.new end
-
-    # call-seq:
-    #    Appender.stderr
-    #
-    # Returns an instance of the Stderr Appender. Unless the user explicitly
-    # creates a new Stderr Appender, the instance returned by this method
-    # will always be the same:
-    #
-    #    Appender.stderr.object_id == Appender.stderr.object_id    #=> true
-    #
-    def stderr( ) self['stderr'] || ::Logging::Appenders::Stderr.new end
-
-  end  # class << self
-
   attr_reader :name, :layout, :level
 
   # call-seq:
@@ -85,6 +33,8 @@ class Appender
   #    :level    => the level at which to log
   #
   def initialize( name, opts = {} )
+    ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
+
     @name = name.to_s
     @closed = false
 
@@ -102,7 +52,7 @@ class Appender
       end
     end
 
-    ::Logging::Appender[@name] = self
+    ::Logging::Appenders[@name] = self
   end
 
   # call-seq:
@@ -217,7 +167,7 @@ class Appender
   #
   def close( footer = true )
     return self if @closed
-    ::Logging::Appender.remove(@name)
+    ::Logging::Appenders.remove(@name)
     @closed = true
 
     sync {flush}
@@ -297,7 +247,5 @@ class Appender
 
 end  # class Appender
 end  # module Logging
-
-Logging.require_all_libs_relative_to(__FILE__, 'appenders')
 
 # EOF

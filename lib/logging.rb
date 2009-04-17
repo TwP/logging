@@ -3,7 +3,24 @@
 # Used to prevent the class/module from being loaded more than once
 unless defined? Logging
 
+require 'yaml'
+require 'stringio'
 require 'thread'
+
+begin
+  require 'lockfile'
+rescue LoadError
+  retry if require 'rubygems'
+  raise
+end
+
+begin
+  require 'syslog'
+  HAVE_SYSLOG = true
+rescue LoadError
+  HAVE_SYSLOG = false
+end
+
 begin require 'fastthread'; rescue LoadError; end
 
 # TODO: Windows Log Service appender
@@ -13,7 +30,7 @@ begin require 'fastthread'; rescue LoadError; end
 module Logging
 
   # :stopdoc:
-  VERSION = '0.9.8'
+  VERSION = '1.0.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
@@ -85,6 +102,8 @@ module Logging
     # full description of the :pattern and :date_pattern formatting strings.
     #
     def logger( *args )
+      return ::Logging::Logger if args.empty?
+
       opts = args.pop if args.last.instance_of?(Hash)
       opts ||= Hash.new
 
@@ -139,6 +158,16 @@ module Logging
       end
 
       logger
+    end
+
+    # TODO: document method
+    def layouts
+      ::Logging::Layouts
+    end
+
+    # TODO: document method
+    def appenders
+      ::Logging::Appenders
     end
 
     # call-seq:
@@ -274,19 +303,6 @@ module Logging
       args.empty? ? PATH : ::File.join(PATH, args.flatten)
     end
 
-    # Utility method used to rquire all files ending in .rb that lie in the
-    # directory below this file that has the same name as the filename passed
-    # in. Optionally, a specific _directory_ name can be passed in such that
-    # the _filename_ does not have to be equivalent to the directory.
-    #
-    def require_all_libs_relative_to( fname, dir = nil )
-      dir ||= ::File.basename(fname, '.*')
-      search_me = ::File.expand_path(
-          ::File.join(::File.dirname(fname), dir, '*.rb'))
-
-      Dir.glob(search_me).sort.each {|rb| require rb}
-    end
-
     # call-seq:
     #    show_configuration( io = STDOUT, logger = 'root' )
     #
@@ -386,8 +402,21 @@ module Logging
   end
 end  # module Logging
 
-Logging.require_all_libs_relative_to(__FILE__)
-Logging.require_all_libs_relative_to(__FILE__, 'logging/config')
+
+require Logging.libpath(%w[logging utils])
+require Logging.libpath(%w[logging appender])
+require Logging.libpath(%w[logging layout])
+require Logging.libpath(%w[logging log_event])
+require Logging.libpath(%w[logging logger])
+require Logging.libpath(%w[logging repository])
+require Logging.libpath(%w[logging root_logger])
+require Logging.libpath(%w[logging stats])
+require Logging.libpath(%w[logging appenders])
+require Logging.libpath(%w[logging layouts])
+
+require Logging.libpath(%w[logging config configurator])
+require Logging.libpath(%w[logging config yaml_configurator])
+
 
 # This exit handler will close all the appenders that exist in the system.
 # This is needed for closing IO streams and connections to the syslog server
@@ -395,9 +424,7 @@ Logging.require_all_libs_relative_to(__FILE__, 'logging/config')
 #
 at_exit {
   Logging.log_internal {'at_exit hook called - closing all appenders'}
-  Logging::Appender.instance_variable_get(:@appenders).values.each do |ap|
-    ap.close
-  end
+  Logging::Appenders.each {|appender| appender.close}
 }
 
 end  # unless defined?

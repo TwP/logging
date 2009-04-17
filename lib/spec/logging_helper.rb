@@ -11,7 +11,7 @@ module Spec
       to = opts.getopt(:to, '__rspec__')
       exclusive = opts.getopt(:exclusive, true)
 
-      appender = Logging::Appender[to] || Logging::Appenders::StringIo.new(to)
+      appender = Logging::Appenders[to] || Logging::Appenders::StringIo.new(to)
       logger = Logging::Logger[from]
       if exclusive
         logger.appenders = appender
@@ -20,7 +20,7 @@ module Spec
       end
 
       before(:all) do
-        @log_output = Logging::Appender[to]
+        @log_output = Logging::Appenders[to]
       end
 
       before(:each) do

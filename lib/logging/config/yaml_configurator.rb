@@ -1,8 +1,5 @@
 
-require 'yaml'
-
-module Logging
-module Config
+module Logging::Config
 
   # The YamlConfigurator class is used to configure the Logging framework
   # using information found in a YAML file.
@@ -137,7 +134,7 @@ module Config
         l.trace = config['trace'] if l.respond_to? :trace=
 
         if config.has_key?('appenders')
-          l.appenders = config['appenders'].map {|n| ::Logging::Appender[n]}
+          l.appenders = config['appenders'].map {|n| ::Logging::Appenders[n]}
         end
       end
     end
@@ -189,7 +186,6 @@ module Config
     end
 
   end  # class YamlConfigurator
-end  # module Config
-end  # module Logging
+end  # module Logging::Config
 
 # EOF

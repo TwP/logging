@@ -37,7 +37,7 @@ module Logging
 
         m = CALLER_RGXP.match(t)
         @file = m[1]
-        @line = m[2]
+        @line = Integer(m[2])
         @method = m[3] unless m[3].nil?
       end
     end

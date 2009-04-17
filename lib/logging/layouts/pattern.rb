@@ -1,6 +1,5 @@
 
-module Logging
-module Layouts
+module Logging::Layouts
 
   # A flexible layout configurable with pattern string.
   #
@@ -57,9 +56,9 @@ module Layouts
   #  [t]  Used to output the object ID of the thread that generated the
   #       log event.
   #  [T]  Used to output the name of the thread that generated the log event.
-  #       Name can be specified using Thread.current[:name] notation. Output empty
-  #       string if name not specified. This options helps to create more human
-  #       readable output for multithread application log.
+  #       Name can be specified using Thread.current[:name] notation. Output
+  #       empty string if name not specified. This option helps to create
+  #       more human readable output for multithread application logs.
   #  [%]  The sequence '%%' outputs a single percent sign.
   #
   # The directives F, L, and M will only work if the Logger generating the
@@ -290,7 +289,6 @@ module Layouts
     # :startdoc:
 
   end  # class Pattern
-end  # module Layouts
-end  # module Logging
+end  # module Logging::Layouts
 
 # EOF

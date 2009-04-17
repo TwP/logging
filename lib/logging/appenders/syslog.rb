@@ -1,11 +1,4 @@
 
-begin
-  require 'syslog'
-  HAVE_SYSLOG = true
-rescue LoadError
-  HAVE_SYSLOG = false
-end
-
 # only load this class if we have the syslog library
 # Windows does not have syslog
 #

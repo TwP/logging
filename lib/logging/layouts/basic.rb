@@ -1,6 +1,5 @@
 
-module Logging
-module Layouts
+module Logging::Layouts
 
   # The +Basic+ layout class provides methods for simple formatting of log
   # events. The resulting string follows the format below.
@@ -28,7 +27,6 @@ module Layouts
     end
 
   end  # class Basic
-end  # module Layouts
-end  # module Logging
+end  # module Logging::Layouts
 
 # EOF

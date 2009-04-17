@@ -1,6 +1,4 @@
  
-require 'yaml'
-
 module Logging
 
 # The +Layout+ class provides methods for formatting log events into a
@@ -30,6 +28,8 @@ class Layout
   # then <tt>:string</tt> is used.
   #
   def initialize( opts = {} )
+    ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
+
     default = ::Logging.const_defined?('OBJ_FORMAT') ?
               ::Logging::OBJ_FORMAT : nil
 
@@ -113,7 +113,5 @@ class Layout
 
 end  # class Layout
 end  # module Logging
-
-Logging.require_all_libs_relative_to(__FILE__, 'layouts')
 
 # EOF

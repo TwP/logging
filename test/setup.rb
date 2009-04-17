@@ -59,7 +59,7 @@ module LoggingTestCase
     super
     ::Logging.backtrace
     ::Logging.__send__(:remove_instance_variable, :@backtrace)
-    h = ::Logging::Appender.instance_variable_get(:@appenders)
+    h = ::Logging::Appenders.instance_variable_get(:@appenders)
     h.each_value {|a| a.close(false) unless a.nil? || a.closed?}
     h.clear
     FileUtils.rm_rf TMP

@@ -48,7 +48,7 @@ module TestLogging
 
       @logger.trace = true
       @logger.error 'error message'
-      assert_match %r/\d+/, @appender.event.line
+      assert_equal 50, @appender.event.line
     end
 
     def test_logger
