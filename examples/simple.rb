@@ -1,0 +1,14 @@
+#
+# Logging provides a simple, default logger configured in the same manner as
+# the default Ruby Logger class -- i.e. the output of the two will be the
+# same. All log messags at "warn" or higher are printed to STDOUT; any
+# message below the "warn" level are discarded.
+#
+
+  require 'logging'
+
+  log = Logging.logger(STDOUT)
+  log.level = :warn
+
+  logger.debug "this debug message will not be output by the logger"
+  logger.warn "this is your last warning"
