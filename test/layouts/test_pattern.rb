@@ -10,8 +10,9 @@ module TestLayouts
     def setup
       super
       @layout = Logging.layouts.pattern({})
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
       @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
+      Thread.current[:name] = nil
     end
 
     def test_date_method

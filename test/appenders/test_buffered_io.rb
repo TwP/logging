@@ -12,8 +12,9 @@ module TestAppenders
       @appender = Logging.appenders.string_io(
         'test_appender', :auto_flushing => 3, :immediate_at => :error
       )
+      @appender.clear
       @sio = @appender.sio
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
       begin readline rescue EOFError end
     end
 
@@ -63,6 +64,16 @@ module TestAppenders
 
       assert_equal false, @appender.closed?
       assert_equal 5, @appender.level
+    end
+
+    def test_auto_flushing
+      assert_raise(ArgumentError) {
+        @appender.auto_flushing = Object.new
+      }
+
+      assert_raise(ArgumentError) {
+        @appender.auto_flushing = -1
+      }
     end
 
     def test_close

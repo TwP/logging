@@ -2,31 +2,43 @@
 module Logging
   module Appenders
 
+    # Accessor / Factory for the Email appender.
+    #
     def email( *args )
       return ::Logging::Appenders::Email if args.empty?
       ::Logging::Appenders::Email.new(*args)
     end
 
+    # Accessor / Factory for the File appender.
+    #
     def file( *args )
       return ::Logging::Appenders::File if args.empty?
       ::Logging::Appenders::File.new(*args)
     end
 
+    # Accessor / Factory for the Growl appender.
+    #
     def growl( *args )
       return ::Logging::Appenders::Growl if args.empty?
       ::Logging::Appenders::Growl.new(*args)
     end
 
+    # Accessor / Factory for the IO appender.
+    #
     def io( *args )
       return ::Logging::Appenders::IO if args.empty?
       ::Logging::Appenders::IO.new(*args)
     end
 
+    # Accessor / Factory for the RollingFile appender.
+    #
     def rolling_file( *args )
       return ::Logging::Appenders::RollingFile if args.empty?
       ::Logging::Appenders::RollingFile.new(*args)
     end
 
+    # Accessor / Factory for the Stderr appender.
+    #
     def stderr( *args )
       if args.empty?
         return self['stderr'] || ::Logging::Appenders::Stderr.new
@@ -34,6 +46,8 @@ module Logging
       ::Logging::Appenders::Stderr.new(*args)
     end
 
+    # Accessor / Factory for the Stdout appender.
+    #
     def stdout( *args )
       if args.empty?
         return self['stdout'] || ::Logging::Appenders::Stdout.new
@@ -41,12 +55,16 @@ module Logging
       ::Logging::Appenders::Stdout.new(*args)
     end
 
+    # Accessor / Factory for the StringIo appender.
+    #
     def string_io( *args )
       return ::Logging::Appenders::StringIo if args.empty?
       ::Logging::Appenders::StringIo.new(*args)
     end
 
   if HAVE_SYSLOG
+    # Accessor / Factory for the Syslog appender.
+    #
     def syslog( *args )
       return ::Logging::Appenders::Syslog if args.empty?
       ::Logging::Appenders::Syslog.new(*args)

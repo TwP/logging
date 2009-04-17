@@ -21,7 +21,7 @@ module Logging::Layouts
   # Let the conversion pattern be "%-5l [%c]: %m\n" and assume that the
   # logging environment was set to use a Pattern layout. Then the statements
   #
-  #    root = Logging::Logger[:root]
+  #    root = Logging.logger[:root]
   #    root.debug("Message 1")
   #    root.warn("Message 2")
   #

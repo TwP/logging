@@ -12,7 +12,7 @@ module TestAppenders
 
       @appender = Logging.appenders.string_io('test_appender')
       @sio = @appender.sio
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
     end
 
     def test_append

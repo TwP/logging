@@ -10,7 +10,7 @@ module TestLayouts
     def setup
       super
       @layout = Logging.layouts.basic({})
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
     end
 
     def test_format

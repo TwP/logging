@@ -13,7 +13,7 @@ module TestAppenders
     def setup
       super
       Logging.init
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
       @logopt = defined?(::Syslog::LOG_NDELAY) ?
                     (::Syslog::LOG_PERROR | ::Syslog::LOG_NDELAY) :
                     (::Syslog::LOG_PERROR)

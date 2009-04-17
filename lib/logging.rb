@@ -160,19 +160,16 @@ module Logging
       logger
     end
 
-    # TODO: document method
+    # Access to the layouts.
+    #
     def layouts
       ::Logging::Layouts
     end
 
-    # TODO: document method
+    # Access to the appenders.
+    #
     def appenders
       ::Logging::Appenders
-    end
-
-    # TODO: document method
-    def levels
-      LEVELS
     end
 
     # call-seq:

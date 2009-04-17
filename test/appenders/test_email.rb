@@ -23,7 +23,7 @@ module TestAppenders
           :buffer_size => '3', :immediate_at => 'error, fatal',
           :domain => 'test.logging', :acct => 'test', :passwd => 'test'
       )
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
     end
 
     def test_initialize

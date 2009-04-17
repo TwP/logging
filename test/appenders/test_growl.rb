@@ -18,7 +18,7 @@ module TestAppenders
       )
       @appender.level = :all
       @growl = @appender.instance_variable_get(:@growl).dup
-      @levels = Logging.levels
+      @levels = Logging::LEVELS
     end
 
     def test_initialize
