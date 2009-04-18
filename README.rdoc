@@ -75,6 +75,18 @@ the recommended way of accomplishing this.
     end
   end
 
+There are many more examples in the "examples" folder of the logging
+package. The recommended reading order is the following:
+
+  simple.rb
+  loggers.rb
+  classes.rb
+  hierarchies.rb
+  names.rb
+  appenders.rb
+  layouts.rb
+  formatting.rb
+
 == NOTES
 
 Although Logging is intended to supersede Log4r, it is not a one-to-one

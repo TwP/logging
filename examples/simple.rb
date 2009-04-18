@@ -10,5 +10,5 @@
   log = Logging.logger(STDOUT)
   log.level = :warn
 
-  logger.debug "this debug message will not be output by the logger"
-  logger.warn "this is your last warning"
+  log.debug "this debug message will not be output by the logger"
+  log.warn "this is your last warning"
