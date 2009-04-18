@@ -6,7 +6,7 @@
 3 minor enhancements
   - Added a YAML layout option
   - Added a JSON layout option
-  - Cration of an "examples" directory or logging configurations
+  - Cration of an "examples" directory
 1 bug fix
   - Logging initialization happens implicitly when a logger, layout, or
     appender is created

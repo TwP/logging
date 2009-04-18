@@ -27,6 +27,7 @@ PROJ.ignore_file = '.gitignore'
 
 PROJ.exclude << %w[^tags$ logging.gemspec]
 PROJ.rdoc.exclude << '^data'
+PROJ.rdoc.include << '^examples/.*\.rb'
 #PROJ.rdoc.dir = 'doc/rdoc'
 #PROJ.rdoc.remote_dir = 'rdoc'
 PROJ.rdoc.dir = 'doc'
