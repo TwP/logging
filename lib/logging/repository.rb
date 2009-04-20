@@ -18,6 +18,7 @@ module Logging
     # +Repository+ instance.
     #
     def initialize
+      @masters = []
       @h = {:root => ::Logging::RootLogger.new}
 
       # configures the internal logger which is disabled by default
@@ -129,6 +130,32 @@ module Logging
         ary << logger if parent == _parent_name(child)
       end
       return ary.sort
+    end
+
+    # TODO: document method
+    def add_master( *args )
+      args.map do |key|
+        key = to_key(key)
+        @masters << key
+        key
+      end
+    end
+
+    # TODO: document method
+    def master_for( key )
+      return if @masters.empty?
+      key = to_key(key)
+
+      loop do
+        break key if @masters.include? key
+        break nil if :root == key
+
+        if index = key.rindex(PATH_DELIMITER)
+          key = key.slice(0, index)
+        else
+          key = :root
+        end
+      end
     end
 
     # call-seq:

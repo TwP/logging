@@ -172,6 +172,20 @@ module Logging
       ::Logging::Appenders
     end
 
+    # TODO: document method
+    #
+    def consolidate( *args )
+      ::Logging::Repository.instance.add_master(*args)
+    end
+
+    # TODO: document method
+    #
+    def globally( name = :log )
+      Module.new {
+        eval "def #{name}() @__logging_logger ||= ::Logging::Logger[self] end; private :#{name}"
+      }
+    end
+
     # call-seq:
     #    Logging.init( levels )
     #
