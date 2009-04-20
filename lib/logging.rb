@@ -180,9 +180,9 @@ module Logging
 
     # TODO: document method
     #
-    def globally( name = :log )
+    def globally( name = :logger )
       Module.new {
-        eval "def #{name}() @__logging_logger ||= ::Logging::Logger[self] end; private :#{name}"
+        eval "def #{name}() @__logging_logger ||= ::Logging::Logger[self] end"
       }
     end
 
