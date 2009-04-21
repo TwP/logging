@@ -167,7 +167,13 @@ module Logging
       p
     end
 
-    # TODO: document method
+    # call-seq:
+    #    add_master( 'First::Name', 'Second::Name', ... )
+    #
+    # Add the given logger names to the list of consolidation masters. All
+    # classes in the given namespace(s) will use these loggers instead of
+    # creating their own individual loggers.
+    #
     def add_master( *args )
       args.map do |key|
         key = to_key(key)
@@ -176,7 +182,12 @@ module Logging
       end
     end
 
-    # TODO: document method
+    # call-seq:
+    #    master_for( key )
+    #
+    # Retruns the consolidation master name for the given _key_. If there is
+    # no consolidation master, then +nil+ is returned.
+    #
     def master_for( key )
       return if @masters.empty?
       key = to_key(key)
