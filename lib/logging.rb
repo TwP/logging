@@ -30,7 +30,7 @@ begin require 'fastthread'; rescue LoadError; end
 module Logging
 
   # :stopdoc:
-  VERSION = '1.0.0'
+  VERSION = '1.1.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
