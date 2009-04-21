@@ -170,6 +170,27 @@ module TestLayouts
       assert_equal 'tim    ', @layout.format(event)
     end
 
+    def test_pattern_logger_name_precision
+      event = Logging::LogEvent.new('Foo', @levels['info'], 'message', false)
+
+      @layout.pattern = '%c{2}'
+      assert_equal 'Foo', @layout.format(event)
+
+      event.logger = 'Foo::Bar::Baz::Buz'
+      assert_equal 'Baz::Buz', @layout.format(event)
+
+      assert_raise(ArgumentError) {
+        @layout.pattern = '%c{0}'
+      }
+
+      @layout.pattern = '%c{foo}'
+      event.logger = 'Foo::Bar'
+      assert_equal 'Foo::Bar{foo}', @layout.format(event)
+
+      @layout.pattern = '%m{42}'
+      assert_equal 'message{42}', @layout.format(event)
+    end
+
   end  # class TestBasic
 end  # module TestLayouts
 end  # module TestLogging

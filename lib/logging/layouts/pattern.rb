@@ -38,7 +38,7 @@ module Logging::Layouts
   # conversion characters are 
   #
   #  [c]  Used to output the name of the logger that generated the log
-  #       event.
+  #       event. Supports an optional "precision" described further below.
   #  [d]  Used to output the date of the log event. The format of the
   #       date is specified using the :date_pattern option when the Layout
   #       is created. ISO8601 format is assumed if not date pattern is given.
@@ -60,6 +60,11 @@ module Logging::Layouts
   #       empty string if name not specified. This option helps to create
   #       more human readable output for multithread application logs.
   #  [%]  The sequence '%%' outputs a single percent sign.
+  #
+  # The logger name directive 'c' accepts an optional precision that will
+  # only print the rightmost number of namespace identifiers for the logger.
+  # By default the logger name is printed in full. For example, for the
+  # logger name "Foo::Bar::Baz" the pattern %c{2} will output "Bar::Baz".
   #
   # The directives F, L, and M will only work if the Logger generating the
   # events is configured to generate tracing information. If this is not
@@ -118,30 +123,31 @@ module Logging::Layouts
 
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
-      'c' => 'event.logger',
-      'd' => 'format_date',
-      'F' => 'event.file',
-      'l' => '::Logging::LNAMES[event.level]',
-      'L' => 'event.line',
-      'm' => 'format_obj(event.data)',
-      'M' => 'event.method',
-      'p' => 'Process.pid',
-      'r' => 'Integer((Time.now-@created_at)*1000).to_s',
-      't' => 'Thread.current.object_id.to_s',
-      'T' => 'Thread.current[:name]',
+      'c' => 'event.logger'.freeze,
+      'd' => 'format_date'.freeze,
+      'F' => 'event.file'.freeze,
+      'l' => '::Logging::LNAMES[event.level]'.freeze,
+      'L' => 'event.line'.freeze,
+      'm' => 'format_obj(event.data)'.freeze,
+      'M' => 'event.method'.freeze,
+      'p' => 'Process.pid'.freeze,
+      'r' => 'Integer((Time.now-@created_at)*1000).to_s'.freeze,
+      't' => 'Thread.current.object_id.to_s'.freeze,
+      'T' => 'Thread.current[:name]'.freeze,
       '%' => :placeholder
-    }
+    }.freeze
 
     # Matches the first directive encountered and the stuff around it.
     #
     # * $1 is the stuff before directive or "" if not applicable
     # * $2 is the %#.# match within directive group
     # * $3 is the directive letter
-    # * $4 is the stuff after the directive or "" if not applicable
-    DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%]))?(.*)/m
+    # * $4 is the precision specifier for the logger name
+    # * $5 is the stuff after the directive or "" if not applicable
+    DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{(\d+)\})?)?(.*)/m
 
     # default date format
-    ISO8601 = "%Y-%m-%d %H:%M:%S"
+    ISO8601 = "%Y-%m-%d %H:%M:%S".freeze
 
     # call-seq:
     #    Pattern.create_date_format_methods( pf )
@@ -167,6 +173,7 @@ module Logging::Layouts
         code << "Time.now.#{pf.date_method}\n"
       end
       code << "end\n"
+      ::Logging.log_internal(0) {code}
 
       pf._meta_eval(code, __FILE__, __LINE__)
     end
@@ -191,22 +198,33 @@ module Logging::Layouts
 
         case m[3]
         when '%'; code << '%%'
+        when 'c' 
+          code << m[2] + 's'
+          args << DIRECTIVE_TABLE[m[3]].dup
+          if m[4]
+            raise ArgumentError, "logger name precision must be an integer greater than zero: #{m[4]}" unless Integer(m[4]) > 0
+            args.last <<
+                ".split(::Logging::Repository::PATH_DELIMITER)" \
+                ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
+          end
         when *DIRECTIVE_TABLE.keys
           code << m[2] + 's'
+          code << "{#{m[4]}}" if m[4]
           args << DIRECTIVE_TABLE[m[3]]
         when nil; break
         else
           raise ArgumentError, "illegal format character - '#{m[3]}'"
         end
 
-        break if m[4].empty?
-        pattern = m[4]
+        break if m[5].empty?
+        pattern = m[5]
       end
 
       code << '"'
       code << ', ' + args.join(', ') unless args.empty?
       code << ")\n"
       code << "end\n"
+      ::Logging.log_internal(0) {code}
 
       pf._meta_eval(code, __FILE__, __LINE__)
     end

@@ -1,8 +1,10 @@
 == 1.1.0 / 2009-04-
 
-2 minor enhancements
+3 minor enhancements
   - Added a "global" logger method
   - Loggers can be consolidated on a per-namespace basis
+  - Added a precision to the logger name specifier in the pattern layout
+    [addresses http://github.com/TwP/logging/issues#issue/1]
 
 == 1.0.0 / 2009-04-17
 
