@@ -178,11 +178,37 @@ module Logging
       ::Logging::Repository.instance.add_master(*args)
     end
 
-    # TODO: document method
+    # call-seq:
+    #    include Logging.globally
+    #    include Logging.globally( :logger )
+    #
+    # Add a "logger" method to the including context. If included from
+    # Object or Kernel, the logger method will be available to all objects.
+    #
+    # Optionally, a method name can be given and that will be used to
+    # provided access to the logger:
+    #
+    #    include Logging.globally( :log )
+    #    log.info "Just using a shorter method name"
+    #
+    # If you prefer to use the shorter "log" to access the logger.
+    #
+    # ==== Example
+    #
+    #   include Logging.globally
+    #
+    #   class Foo
+    #     logger.debug "Loading the Foo class"
+    #     def initialize
+    #       logger.info "Creating some new foo"
+    #     end
+    #   end
+    #
+    #   logger.fatal "End of example"
     #
     def globally( name = :logger )
       Module.new {
-        eval "def #{name}() @__logging_logger ||= ::Logging::Logger[self] end"
+        eval "def #{name}() @_logging_logger ||= ::Logging::Logger[self] end"
       }
     end
 

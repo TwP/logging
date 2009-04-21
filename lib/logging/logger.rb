@@ -52,7 +52,6 @@ module Logging
           logger = repo[name]
           if logger.nil?
 
-            # TODO: write some tests for all this master stuff
             master = repo.master_for(name)
             if master
               if repo.has_logger?(master)

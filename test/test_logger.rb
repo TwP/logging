@@ -6,10 +6,6 @@ module TestLogging
   class TestLogger < Test::Unit::TestCase
     include LoggingTestCase
 
-    def setup
-      super
-    end
-
     def test_initialize
       assert_nothing_raised {::Logging::Logger[:test]}
       assert_equal ::Logging::Logger[:test], ::Logging::Logger['test']

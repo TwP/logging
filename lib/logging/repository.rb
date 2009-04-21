@@ -108,7 +108,7 @@ module Logging
     # of B is A. Parents are determined by namespace.
     #
     def parent( key )
-      name = _parent_name(to_key(key))
+      name = parent_name(to_key(key))
       return if name.nil?
       @h[name]
     end
@@ -127,35 +127,9 @@ module Logging
 
       @h.each_pair do |child,logger|
         next if :root == child
-        ary << logger if parent == _parent_name(child)
+        ary << logger if parent == parent_name(child)
       end
       return ary.sort
-    end
-
-    # TODO: document method
-    def add_master( *args )
-      args.map do |key|
-        key = to_key(key)
-        @masters << key
-        key
-      end
-    end
-
-    # TODO: document method
-    def master_for( key )
-      return if @masters.empty?
-      key = to_key(key)
-
-      loop do
-        break key if @masters.include? key
-        break nil if :root == key
-
-        if index = key.rindex(PATH_DELIMITER)
-          key = key.slice(0, index)
-        else
-          key = :root
-        end
-      end
     end
 
     # call-seq:
@@ -181,7 +155,7 @@ module Logging
     # Returns the name of the parent for the logger identified by the given
     # _key_. If the _key_ is for the root logger, then +nil+ is returned.
     #
-    def _parent_name( key )
+    def parent_name( key )
       return if :root == key
 
       a = key.split PATH_DELIMITER
@@ -191,6 +165,32 @@ module Logging
         if @h.has_key? k then p = k; break end
       end
       p
+    end
+
+    # TODO: document method
+    def add_master( *args )
+      args.map do |key|
+        key = to_key(key)
+        @masters << key unless @masters.include? key
+        key
+      end
+    end
+
+    # TODO: document method
+    def master_for( key )
+      return if @masters.empty?
+      key = to_key(key)
+
+      loop do
+        break key if @masters.include? key
+        break nil if :root == key
+
+        if index = key.rindex(PATH_DELIMITER)
+          key = key.slice(0, index)
+        else
+          key = :root
+        end
+      end
     end
 
   end  # class Repository
