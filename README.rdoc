@@ -86,6 +86,7 @@ package. The recommended reading order is the following:
   appenders.rb
   layouts.rb
   formatting.rb
+  consolidation.rb
 
 == NOTES
 
