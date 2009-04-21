@@ -1,3 +1,9 @@
+== 1.1.0 / 2009-04-
+
+2 minor enhancements
+  - Added a "global" logger method
+  - Loggers can be consolidated on a per-namespace basis
+
 == 1.0.0 / 2009-04-17
 
 2 major enhancements
