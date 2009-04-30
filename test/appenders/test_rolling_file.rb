@@ -23,6 +23,7 @@ module TestAppenders
 
       # create a new appender
       ap = Logging.appenders.rolling_file(NAME, :filename => @fn)
+      assert_equal @fn, ap.filename
       assert File.exist?(@fn)
       assert_equal 0, File.size(@fn)
 
@@ -33,6 +34,7 @@ module TestAppenders
 
       # make sure we append to the current file (not truncate)
       ap = Logging.appenders.rolling_file(NAME, :filename => @fn)
+      assert_equal @fn, ap.filename
       assert_equal [@fn], Dir.glob(@glob)
       assert_equal 20, File.size(@fn)
 

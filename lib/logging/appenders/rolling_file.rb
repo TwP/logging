@@ -139,6 +139,10 @@ module Logging::Appenders
       super(name, open_logfile, opts)
     end
 
+    # Returns the path to the logfile.
+    #
+    def filename() @fn.dup end
+
 
     private
 

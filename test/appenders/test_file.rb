@@ -43,6 +43,7 @@ module TestAppenders
       log = File.join(TMP, 'file.log')
       appender = Logging.appenders.file(NAME, 'filename' => log)
       assert_equal 'logfile', appender.name
+      assert_equal log, appender.filename
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"
       appender.flush
@@ -55,6 +56,7 @@ module TestAppenders
 
       appender = Logging.appenders.file(NAME, :filename => log)
       assert_equal 'logfile', appender.name
+      assert_equal log, appender.filename
       appender << "This will be the third line\n"
       appender.flush
       File.open(log, 'r') do |file|

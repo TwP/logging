@@ -48,6 +48,10 @@ module Logging::Appenders
       super(name, ::File.new(@fn, mode), opts)
     end
 
+    # Returns the path to the logfile.
+    #
+    def filename() @fn.dup end
+
   end  # class FileAppender
 end  # module Logging::Appenders
 
