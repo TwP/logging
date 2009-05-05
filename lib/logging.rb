@@ -3,25 +3,17 @@
 # Used to prevent the class/module from being loaded more than once
 unless defined? Logging
 
+require File.expand_path(
+    File.join(File.dirname(__FILE__), %w[logging utils]))
+
 require 'yaml'
 require 'stringio'
 require 'thread'
 
-begin
-  require 'lockfile'
-rescue LoadError
-  retry if require 'rubygems'
-  raise
-end
+HAVE_LOCKFILE = require? 'lockfile'
+HAVE_SYSLOG   = require? 'syslog'
+require? 'fastthread'
 
-begin
-  require 'syslog'
-  HAVE_SYSLOG = true
-rescue LoadError
-  HAVE_SYSLOG = false
-end
-
-begin require 'fastthread'; rescue LoadError; end
 
 # TODO: Windows Log Service appender
 
@@ -30,10 +22,9 @@ begin require 'fastthread'; rescue LoadError; end
 module Logging
 
   # :stopdoc:
-  VERSION = '1.1.1'
+  VERSION = '1.1.2'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
-  WIN32 = %r/djgpp|(cyg|ms|bcc)win|mingw/ =~ RUBY_PLATFORM
   LEVELS = {}
   LNAMES = []
   # :startdoc:
@@ -466,7 +457,6 @@ module Logging
 end  # module Logging
 
 
-require Logging.libpath(%w[logging utils])
 require Logging.libpath(%w[logging appender])
 require Logging.libpath(%w[logging layout])
 require Logging.libpath(%w[logging log_event])
