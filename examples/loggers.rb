@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Multiple loggers can be created and each can be configured with it's own
 # log level and appenders. So one logger can be configured to output debug
@@ -24,3 +25,5 @@
   log1.info "this message will not get logged"
   log2.info "nor will this message"
   log3.info "but this message will get logged"
+
+# :startdoc:

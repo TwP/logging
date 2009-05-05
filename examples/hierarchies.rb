@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Loggers exist in a hierarchical relationship defined by their names. Each
 # logger has a parent (except for the root logger). A logger can zero or
@@ -69,3 +70,4 @@
   puts '='*76
   Logging.show_configuration
 
+# :startdoc:

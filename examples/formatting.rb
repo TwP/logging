@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Any Ruby object can be passed to the log methods of a logger. How these
 # objects are formatted by the Logging framework is controlled by a global
@@ -47,3 +48,4 @@
     log.error err
   end
 
+# :startdoc:

@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Appenders are used to output log events to some logging destination. The
 # same log event can be sent to multiple desitnations by associating
@@ -42,3 +43,5 @@
   # These messages will be logged to both the log file and to STDOUT
   log.debug "a very nice little debug message"
   log.warn "this is your last warning"
+
+# :startdoc:

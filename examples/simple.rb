@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Logging provides a simple, default logger configured in the same manner as
 # the default Ruby Logger class -- i.e. the output of the two will be the
@@ -12,3 +13,5 @@
 
   log.debug "this debug message will not be output by the logger"
   log.warn "this is your last warning"
+
+# :startdoc:

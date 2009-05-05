@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # The formatting of log messages is controlled by the layout given to the
 # appender. By default all appenders use the Basic layout. It's pretty
@@ -43,3 +44,5 @@
   log.warn "this is your last warning"
   log.error StandardError.new("something went horribly wrong")
   log.fatal "I Die!"
+
+# :startdoc:

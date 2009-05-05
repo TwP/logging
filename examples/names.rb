@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Loggers and appenders can be looked up by name. The bracket notation is
 # used to find these objects:
@@ -38,3 +39,5 @@
   # and now log some messages
   Logging.logger['Critical'].info 'just keeping you informed'
   Logging.logger['Critical'].fatal 'WTF!!'
+
+# :startdoc:

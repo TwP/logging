@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # The Logging framework is very good about figuring out predictable names
 # for loggers regardless of what object is used to create them. The name is
@@ -37,3 +38,4 @@
   foo.info 'this message came from Foo'
   bar.warn 'this is a warning from Foo::Bar'
 
+# :startdoc:

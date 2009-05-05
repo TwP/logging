@@ -1,3 +1,4 @@
+# :stopdoc:
 #
 # Logging support can be included globally giving all objects in the Ruby
 # space access to a logger instance. This "logger" method invokes
@@ -79,3 +80,4 @@
     end
   end
 
+# :startdoc:
