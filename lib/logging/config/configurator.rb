@@ -26,7 +26,7 @@ module Logging::Config
       raise Error, "missing configuration block" unless block
 
       dsl = TopLevelDSL.new
-      dsl.__instance_eval(&block)
+      dsl.instance_eval(&block)
 
       pre_config dsl.__pre_config
       ::Logging::Logger[:root]  # ensures the log levels are defined
@@ -130,15 +130,13 @@ module Logging::Config
     end
 
     class DSL
-      alias :__instance_eval :instance_eval
-
       instance_methods.each do |m|
-        undef_method m unless m[%r/^(__|object_id)/]
+        undef_method m unless m[%r/^(__|object_id|instance_eval)/]
       end
 
       def self.process( &block )
         dsl = new
-        dsl.__instance_eval(&block)
+        dsl.instance_eval(&block)
         dsl.__hash
       end
 
