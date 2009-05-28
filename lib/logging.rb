@@ -22,7 +22,7 @@ require? 'fastthread'
 module Logging
 
   # :stopdoc:
-  VERSION = '1.1.3'
+  VERSION = '1.1.4'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
@@ -452,6 +452,12 @@ module Logging
     def log_internal( level = 1, &block )
       ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
     end
+
+    # Close all appenders
+    def shutdown
+      log_internal {'shutdown called - closing all appenders'}
+      ::Logging::Appenders.each {|appender| appender.close}
+    end
     # :startdoc:
   end
 end  # module Logging
@@ -475,10 +481,7 @@ require Logging.libpath(%w[logging config yaml_configurator])
 # This is needed for closing IO streams and connections to the syslog server
 # or e-mail servers, etc.
 #
-at_exit {
-  Logging.log_internal {'at_exit hook called - closing all appenders'}
-  Logging::Appenders.each {|appender| appender.close}
-}
+at_exit {Logging.shutdown}
 
 end  # unless defined?
 
