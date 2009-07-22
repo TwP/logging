@@ -39,5 +39,6 @@ PROJ.ann.email[:from] = 'Tim Pease'
 
 depend_on 'flexmock'
 depend_on 'lockfile'
+depend_on 'little-plugger'
 
 # EOF

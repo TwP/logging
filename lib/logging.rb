@@ -9,24 +9,25 @@ require File.expand_path(
 require 'yaml'
 require 'stringio'
 require 'thread'
+require 'little-plugger'
 
 HAVE_LOCKFILE = require? 'lockfile'
 HAVE_SYSLOG   = require? 'syslog'
 require? 'fastthread'
 
 
-# TODO: Windows Log Service appender
-
 #
 #
 module Logging
+  extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.1.4'
+  VERSION = '1.2.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
   LNAMES = []
+  module Plugins; end
   # :startdoc:
 
   class << self
@@ -281,6 +282,8 @@ module Logging
       longest = names.inject {|x,y| (x.length > y.length) ? x : y}
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
+
+      initialize_plugins
 
       levels.keys
     end
