@@ -22,15 +22,15 @@ module TestLayouts
     def test_date_method_eq
       @layout.date_method = :to_f
       assert_equal :to_f, @layout.date_method
-      assert_instance_of Float, @layout.format_date
+      assert_instance_of Float, @layout.format_date(Time.now)
 
       @layout.date_method = 'usec'
       assert_equal 'usec', @layout.date_method
-      assert_instance_of Fixnum, @layout.format_date
+      assert_instance_of Fixnum, @layout.format_date(Time.now)
 
       @layout.date_method = :to_s
       assert_equal :to_s, @layout.date_method
-      assert_instance_of String, @layout.format_date
+      assert_instance_of String, @layout.format_date(Time.now)
 
       # now, even if we have defined a date_pattern, the date_method should
       # supersede the date_pattern
@@ -38,7 +38,7 @@ module TestLayouts
 
       @layout.date_method = 'usec'
       assert_equal 'usec', @layout.date_method
-      assert_instance_of Fixnum, @layout.format_date
+      assert_instance_of Fixnum, @layout.format_date(Time.now)
     end
 
     def test_date_pattern
@@ -48,11 +48,11 @@ module TestLayouts
     def test_date_pattern_eq
       @layout.date_pattern = '%Y'
       assert_equal '%Y', @layout.date_pattern
-      assert_match %r/\A\d{4}\z/, @layout.format_date
+      assert_match %r/\A\d{4}\z/, @layout.format_date(Time.now)
 
       @layout.date_pattern = '%H:%M'
       assert_equal '%H:%M', @layout.date_pattern
-      assert_match %r/\A\d{2}:\d{2}\z/, @layout.format_date
+      assert_match %r/\A\d{2}:\d{2}\z/, @layout.format_date(Time.now)
     end
 
     def test_format
@@ -84,7 +84,7 @@ module TestLayouts
 
     def test_format_date
       rgxp = Regexp.new @date_fmt
-      assert_match rgxp, @layout.format_date
+      assert_match rgxp, @layout.format_date(Time.now)
     end
 
     def test_pattern
@@ -103,9 +103,9 @@ module TestLayouts
     def test_pattern_all
       event = Logging::LogEvent.new('TestLogger', @levels['info'],
                                     'log message', false)
-      event.instance_variable_set :@file, 'test_file.rb'
-      event.instance_variable_set :@line, '123'
-      event.instance_variable_set :@method, 'method_name'
+      event.file = 'test_file.rb'
+      event.line = '123'
+      event.method = 'method_name'
 
       @layout.pattern = '%c'
       assert_equal 'TestLogger', @layout.format(event)

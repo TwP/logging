@@ -78,14 +78,14 @@ module Logging::Layouts
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
       'logger'    => 'event.logger',
-      'timestamp' => 'Time.now.strftime(Pattern::ISO8601)',
+      'timestamp' => 'event.time.strftime(Pattern::ISO8601)',
       'level'     => '::Logging::LNAMES[event.level]',
       'message'   => 'format_obj(event.data)',
       'file'      => 'event.file',
       'line'      => 'event.line',
       'method'    => 'event.method',
       'pid'       => 'Process.pid',
-      'millis'    => 'Integer((Time.now-@created_at)*1000)',
+      'millis'    => 'Integer((event.time-@created_at)*1000)',
       'thread_id' => 'Thread.current.object_id',
       'thread'    => 'Thread.current[:name]'
     }

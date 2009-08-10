@@ -124,14 +124,14 @@ module Logging::Layouts
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
       'c' => 'event.logger'.freeze,
-      'd' => 'format_date'.freeze,
+      'd' => 'format_date(event.time)'.freeze,
       'F' => 'event.file'.freeze,
       'l' => '::Logging::LNAMES[event.level]'.freeze,
       'L' => 'event.line'.freeze,
       'm' => 'format_obj(event.data)'.freeze,
       'M' => 'event.method'.freeze,
       'p' => 'Process.pid'.freeze,
-      'r' => 'Integer((Time.now-@created_at)*1000).to_s'.freeze,
+      'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
       't' => 'Thread.current.object_id.to_s'.freeze,
       'T' => 'Thread.current[:name]'.freeze,
       '%' => :placeholder
@@ -158,19 +158,18 @@ module Logging::Layouts
     #
     def self.create_date_format_methods( pf )
       code = "undef :format_date if method_defined? :format_date\n"
-      code << "def format_date\n"
+      code << "def format_date( time )\n"
       if pf.date_method.nil?
         if pf.date_pattern =~ %r/%s/
           code << <<-CODE
-            now = Time.now
-            dp = '#{pf.date_pattern}'.gsub('%s','%06d' % now.usec)
-            now.strftime dp
+            dp = '#{pf.date_pattern}'.gsub('%s','%06d' % time.usec)
+            time.strftime dp
           CODE
         else
-          code << "Time.now.strftime '#{pf.date_pattern}'\n"
+          code << "time.strftime '#{pf.date_pattern}'\n"
         end
       else
-        code << "Time.now.#{pf.date_method}\n"
+        code << "time.#{pf.date_method}\n"
       end
       code << "end\n"
       ::Logging.log_internal(0) {code}

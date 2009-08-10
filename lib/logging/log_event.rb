@@ -3,8 +3,7 @@ module Logging
 
   # This class defines a logging event.
   #
-  class LogEvent
-
+  LogEvent = Struct.new( :logger, :level, :data, :time, :file, :line, :method ) {
     # :stopdoc:
 
     # Regular expression used to parse out caller information
@@ -13,8 +12,8 @@ module Logging
     # * $2 == line number
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
-
-    CALLER_INDEX = RUBY_PLATFORM[%r/^java/i] ? 1 : 2
+    CALLER_INDEX = 2
+    #CALLER_INDEX = RUBY_PLATFORM[%r/^java/i] ? 1 : 2
     # :startdoc:
 
     # call-seq:
@@ -26,26 +25,21 @@ module Logging
     # invoked to get the execution trace of the logging method.
     #
     def initialize( logger, level, data, trace )
-      @logger = logger
-      @level = level
-      @data = data
-      @file = @line = @method = ''
+      f = l = m = ''
 
       if trace
-        t = Kernel.caller[CALLER_INDEX]
-        return if t.nil?
+        stack = Kernel.caller[CALLER_INDEX]
+        return if stack.nil?
 
-        m = CALLER_RGXP.match(t)
-        @file = m[1]
-        @line = Integer(m[2])
-        @method = m[3] unless m[3].nil?
+        match = CALLER_RGXP.match(stack)
+        f = match[1]
+        l = Integer(match[2])
+        m = match[3] unless match[3].nil?
       end
+
+      super(logger, level, data, Time.now, f, l, m)
     end
-
-    attr_accessor :logger, :level, :data
-    attr_reader :file, :line, :method
-
-  end  # class LogEvent
+  }
 end  # module Logging
 
 # EOF

@@ -68,9 +68,9 @@ module TestLayouts
     def test_items_all
       event = Logging::LogEvent.new('TestLogger', @levels['info'],
                                     'log message', false)
-      event.instance_variable_set :@file, 'test_file.rb'
-      event.instance_variable_set :@line, 123
-      event.instance_variable_set :@method, 'method_name'
+      event.file = 'test_file.rb'
+      event.line = 123
+      event.method = 'method_name'
 
       @layout.items = %w[logger]
       assert_equal %Q[{"logger":"TestLogger"}\n], @layout.format(event)
