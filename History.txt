@@ -1,7 +1,8 @@
 == 1.2.0 / 2009-07-
 
-1 minor enhancement
+2 minor enhancements
   - Added a gem based plugin system
+  - LogEvent is now a struct (slightly faster)
 
 == 1.1.4 / 2009-05-28
 
