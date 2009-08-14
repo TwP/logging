@@ -22,7 +22,7 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.2.0'
+  VERSION = '1.2.1'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}

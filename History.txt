@@ -1,3 +1,8 @@
+== 1.2.1 / 2009-08-14
+
+1 bug fix
+  - Using a bug-fix version of little-plugger
+
 == 1.2.0 / 2009-08-14
 
 2 minor enhancements
