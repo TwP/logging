@@ -1,4 +1,4 @@
-== 1.2.0 / 2009-07-
+== 1.2.0 / 2009-08-14
 
 2 minor enhancements
   - Added a gem based plugin system
