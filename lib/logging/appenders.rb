@@ -102,8 +102,19 @@ module Logging
     #
     def each( &block )
       @appenders.values.each(&block)
-      nil
+      return nil
     end
+
+    # :stopdoc:
+    def reset
+      @appenders.values.each {|appender|
+        next if appender.nil?
+        appender.close
+      }
+      @appenders.clear
+      return nil
+    end
+    # :startdoc:
 
     extend self
     @appenders = Hash.new

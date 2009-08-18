@@ -204,6 +204,28 @@ module Logging
       end
     end
 
+    # :stopdoc:
+    def self.reset
+      if defined?(@singleton__instance__)
+        @singleton__mutex__.synchronize {
+          @singleton__instance__ = nil
+        }
+      else
+        @__instance__ = nil
+        class << self
+          nonce = class << Singleton; self; end
+          if defined?(nonce::FirstInstanceCall)
+            define_method(:instance, nonce::FirstInstanceCall)
+          else
+            remove_method(:instance)
+            Singleton.__init__(::Logging::Repository)
+          end
+        end
+      end
+      return nil
+    end
+    # :startdoc:
+
   end  # class Repository
 end  # module Logging
 

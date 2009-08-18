@@ -1,3 +1,8 @@
+== 1.2.2 / 2009-08-18
+
+1 minor enhancement
+  - Created a reset method for the logging framework
+
 == 1.2.1 / 2009-08-14
 
 1 bug fix

@@ -26,42 +26,13 @@ module LoggingTestCase
 
   def setup
     super
-
+    Logging.reset
     FileUtils.rm_rf TMP
     FileUtils.mkdir TMP
-
-    ::Logging.module_eval do
-      ::Logging::LEVELS.clear
-      ::Logging::LNAMES.clear
-      remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
-      remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
-    end
-
-    ::Logging::Repository.class_eval do
-      if defined?(@singleton__instance__)
-        @singleton__instance__ = nil
-      else
-        @__instance__ = nil
-        class << self
-          nonce = class << Singleton; self; end
-          if defined?(nonce::FirstInstanceCall)
-            define_method(:instance, nonce::FirstInstanceCall)
-          else
-            remove_method(:instance)
-            Singleton.__init__(::Logging::Repository)
-          end
-        end
-      end
-    end
   end
     
   def teardown
     super
-    ::Logging.backtrace
-    ::Logging.__send__(:remove_instance_variable, :@backtrace)
-    h = ::Logging::Appenders.instance_variable_get(:@appenders)
-    h.each_value {|a| a.close(false) unless a.nil? || a.closed?}
-    h.clear
     FileUtils.rm_rf TMP
   end
 

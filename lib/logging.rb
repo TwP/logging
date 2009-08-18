@@ -22,7 +22,7 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.2.1'
+  VERSION = '1.2.2'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
@@ -460,6 +460,17 @@ module Logging
     def shutdown
       log_internal {'shutdown called - closing all appenders'}
       ::Logging::Appenders.each {|appender| appender.close}
+    end
+
+    # Reset the logging framework to it's uninitialized state
+    def reset
+      ::Logging::Repository.reset
+      ::Logging::Appenders.reset
+      LEVELS.clear
+      LNAMES.clear
+      remove_instance_variable :@backtrace if defined? @backtrace
+      remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
+      remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
     end
     # :startdoc:
   end
