@@ -110,73 +110,19 @@ end
 # --------------------------------------------------------------------------
 module Kernel
 
-  # Settiing this global variable to +false+ will disable rubygems from
-  # being loaded at all.
-  $use_rubygems = true unless defined? $use_rubygems
-
-  # Setting this global variable to +true+ will cause an error message to be
-  # displayed when a library cannot be required.
-  $whiny_require = false unless defined? $whiny_require
-
-  # call-seq:
-  #    require!( string )
-  #    require!( string, gem_version )
-  #    require!( string, gem_name, gem_version )
-  #
-  # Attempt to the load the library named _string_ using the standard
-  # Kernel#require method. If the library cannot be loaded then require
-  # rubygems and retry the original require of the library.
-  #
-  # Raises a LoadError if the library cannot be loaded.
-  #
-  # If a _gem_version_ is given, then the rubygems +gem+ command is used to
-  # load the specific version of the gem. The library _string_ is used for
-  # the _gem_name_ if one is omitted.
-  #
-  def require!( string, *args )
-    return require(string) if args.empty?
-
-    name, version = *args
-    version, name = name, string if name =~ %r/^[0-9<>=~]/
-    version ||= '> 0'
-
-    gem name, version
-    require(string)
-  rescue LoadError, NoMethodError
-    retry if $use_rubygems and require('rubygems')
-    if $whiny_require
-      name ||= string
-      $stderr.puts "Required library #{string.inspect} could not be loaded."
-      $stderr.puts "Try:\tgem install #{name}"
-    end
-    raise
-  end
-
   # call-seq:
   #    require?( string )
-  #    require?( string, gem_version )
-  #    require?( string, gem_name, gem_version )
   #
   # Attempt to the load the library named _string_ using the standard
-  # Kernel#require method. If the library cannot be loaded then require
-  # rubygems and retry the original require of the library.
+  # Kernel#require method. Returns +true+ if the library was successfully
+  # loaded. Returns +false+ if the library could not be loaded. This method
+  # will never raise an exception.
   #
-  # Returns +true+ if the library was successfully loaded. Returns +false+
-  # if the library could not be loaded. This method will never raise an
-  # exception.
-  #
-  # If a _gem_version_ is given, then the rubygems +gem+ command is used to
-  # load the specific version of the gem. The library _string_ is used for
-  # the _gem_name_ if one is omitted.
-  #
-  def require?( string, *args )
-    wr, $whiny_require = $whiny_require, false
-    require!(string, *args)
+  def require?( string )
+    require string
     return true
   rescue LoadError
     return false
-  ensure
-    $whiny_require = wr
   end
 end  # module Kernel
 

@@ -13,7 +13,6 @@ require 'little-plugger'
 
 HAVE_LOCKFILE = require? 'lockfile'
 HAVE_SYSLOG   = require? 'syslog'
-require? 'fastthread'
 
 
 #

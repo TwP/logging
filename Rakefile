@@ -1,44 +1,37 @@
 
 begin
   require 'bones'
-  Bones.setup
 rescue LoadError
-  begin
-    load 'tasks/setup.rb'
-  rescue LoadError
-    raise RuntimeError, '### please install the "bones" gem ###'
-  end
+  abort '### please install the "bones" gem ###'
 end
 
 ensure_in_path 'lib'
 require 'logging'
 
 task :default => 'test:run'
+task 'gem:release' => 'test:run'
 
-PROJ.name = 'logging'
-PROJ.summary = 'A flexible and extendable logging library for Ruby'
-PROJ.authors = 'Tim Pease'
-PROJ.email = 'tim.pease@gmail.com'
-PROJ.url = 'http://logging.rubyforge.org/'
-PROJ.rubyforge.name = 'logging'
-PROJ.version = Logging::VERSION
-PROJ.readme_file = 'README.rdoc'
-PROJ.ignore_file = '.gitignore'
+Bones {
+  name         'logging'
+  summary      'A flexible and extendable logging library for Ruby'
+  authors      'Tim Pease'
+  email        'tim.pease@gmail.com'
+  url          'http://gemcutter.org/gems/logging'
+  version      Logging::VERSION
+  readme_file  'README.rdoc'
+  ignore_file  '.gitignore'
 
-PROJ.exclude << %w[^tags$ logging.gemspec]
-PROJ.rdoc.exclude << '^data'
-PROJ.rdoc.include << '^examples/.*\.rb'
-#PROJ.rdoc.dir = 'doc/rdoc'
-#PROJ.rdoc.remote_dir = 'rdoc'
-PROJ.rdoc.dir = 'doc'
-PROJ.rdoc.remote_dir = ''
+  rdoc.exclude << '^data'
+  rdoc.include << '^examples/.*\.rb'
+  #rdoc.dir = 'doc/rdoc'
 
-PROJ.ann.email[:server] = 'smtp.gmail.com'
-PROJ.ann.email[:port] = 587
-PROJ.ann.email[:from] = 'Tim Pease'
+  use_gmail
+  enable_sudo
 
-depend_on 'flexmock'
-depend_on 'lockfile'
-depend_on 'little-plugger'
+  depend_on 'little-plugger'
+  depend_on 'lockfile'
+  depend_on 'flexmock',     :development => true
+  depend_on 'bones-git',    :development => true
+  depend_on 'bones-extras', :development => true
+}
 
-# EOF
