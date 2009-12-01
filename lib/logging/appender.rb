@@ -41,7 +41,7 @@ class Appender
     self.layout = opts.getopt(:layout, ::Logging::Layouts::Basic.new)
     self.level = opts.getopt(:level)
 
-    @mutex = Mutex.new
+    @mutex = ReentrantMutex.new
     header = @layout.header
 
     unless header.nil? || header.empty?
@@ -241,8 +241,8 @@ class Appender
   # the block completes. This method is re-entrant so that a single thread
   # can call +sync+ multiple times without hanging the thread.
   #
-  def sync
-    @mutex.synchronize {yield}
+  def sync( &block )
+    @mutex.synchronize(&block)
   end
 
 end  # class Appender

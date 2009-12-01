@@ -1,3 +1,8 @@
+== 1.2.3 / 2009-12-01
+
+1 bug fix
+  - Using a reentrant mutex to avoid deadlock in some Rails applications
+
 == 1.2.2 / 2009-08-18
 
 1 minor enhancement

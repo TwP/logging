@@ -21,7 +21,7 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.2.2'
+  VERSION = '1.2.3'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
@@ -398,7 +398,7 @@ module Logging
     #                    shows that the logger does not include trace
     #                    information in the log events)
     #
-    # If a logger has appenders then they are listed, on per line,
+    # If a logger has appenders then they are listed, one per line,
     # immediately below the logger. Appender lines are pre-pended with a
     # single dash:
     #
