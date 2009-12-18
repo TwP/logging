@@ -41,7 +41,7 @@ class Email < ::Logging::Appender
     @subject  = opts.getopt :subject, "Message of #{$0}"
     @params   = [@server, @port, @domain, @acct, @passwd, @authtype]
   end
-  
+
   # call-seq:
   #    flush
   #
