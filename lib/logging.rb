@@ -81,7 +81,7 @@ module Logging
     # The format of the log messages can be changed using a few optional
     # parameters. The <tt>:pattern</tt> can be used to change the log
     # message format. The <tt>:date_pattern</tt> can be used to change how
-    # timestamps are formatted. 
+    # timestamps are formatted.
     #
     #    log = Logging.logger(STDOUT,
     #              :pattern => "[%d] %-5l : %m\n",
@@ -129,7 +129,7 @@ module Logging
           case dev
           when String
             ::Logging::Appenders::RollingFile.new(name, a_opts)
-          else 
+          else
             ::Logging::Appenders::IO.new(name, dev, a_opts)
           end
 
@@ -159,6 +159,15 @@ module Logging
     #
     def appenders
       ::Logging::Appenders
+    end
+
+    # Reopen all appenders. This method should be called immediately after a
+    # fork to ensure no conflict with file descriptors and calls to fcntl or
+    # flock.
+    #
+    def reopen
+      log_internal {'re-opening all appenders'}
+      ::Logging::Appenders.each {|appender| appender.reopen}
     end
 
     # call-seq:
@@ -270,7 +279,7 @@ module Logging
       args.each do |lvl|
         lvl = levelify lvl
         unless levels.has_key?(lvl) or lvl == 'all' or lvl == 'off'
-          levels[lvl] = id 
+          levels[lvl] = id
           names[id] = lvl.upcase
           id += 1
         end
@@ -284,7 +293,7 @@ module Logging
 
       levels.keys
     end
-   
+
     # call-seq:
     #    Logging.format_as( obj_format )
     #
