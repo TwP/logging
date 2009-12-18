@@ -196,6 +196,15 @@ class Appender
     @closed
   end
 
+  # Reopen the connection to the underlying logging destination. If the
+  # connection is currently closed then it will be opened. If the connection
+  # is currently open then it will be closed and immediately opened.
+  #
+  def reopen
+    @closed = false
+    self
+  end
+
   # call-seq:
   #    flush
   #

@@ -43,14 +43,31 @@ module Logging::Appenders
       @fn = opts.getopt(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
       self.class.assert_valid_logfile(@fn)
-      mode = opts.getopt(:truncate) ? 'w' : 'a'
+      @mode = opts.getopt(:truncate) ? 'w' : 'a'
 
-      super(name, ::File.new(@fn, mode), opts)
+      super(name, ::File.new(@fn, @mode), opts)
     end
 
     # Returns the path to the logfile.
     #
     def filename() @fn.dup end
+
+    # Reopen the connection to the underlying logging destination. If the
+    # connection is currently closed then it will be opened. If the connection
+    # is currently open then it will be closed and immediately opened.
+    #
+    def reopen
+      @mutex.synchronize {
+        if defined? @io and @io
+          flush
+          @io.close rescue nil
+        end
+        @closed = false
+        @io = ::File.new(@fn, @mode)
+        @io.sync = true
+      }
+      self
+    end
 
   end  # class FileAppender
 end  # module Logging::Appenders

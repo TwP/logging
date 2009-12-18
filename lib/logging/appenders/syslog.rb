@@ -86,10 +86,10 @@ module Logging::Appenders
     #                  through LOG_LOCAL7.
     #
     def initialize( name, opts = {} )
-      ident = opts.getopt(:ident, name)
-      logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS), :as => Integer)
-      facility = opts.getopt(:facility, LOG_USER, :as => Integer)
-      @syslog = ::Syslog.open(ident, logopt, facility)
+      @ident = opts.getopt(:ident, name)
+      @logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS), :as => Integer)
+      @facility = opts.getopt(:facility, LOG_USER, :as => Integer)
+      @syslog = ::Syslog.open(@ident, @logopt, @facility)
 
       # provides a mapping from the default Logging levels
       # to the syslog levels
@@ -143,6 +143,22 @@ module Logging::Appenders
     #
     def closed?
       !@syslog.opened?
+    end
+
+    # Reopen the connection to the underlying logging destination. If the
+    # connection is currently closed then it will be opened. If the connection
+    # is currently open then it will be closed and immediately opened.
+    #
+    def reopen
+      @mutex.synchronize {
+        if @syslog.opened?
+          flush
+          @syslog.close
+        end
+        @syslog = ::Syslog.open(@ident, @logopt, @facility)
+        @closed = false
+      }
+      self
     end
 
 
