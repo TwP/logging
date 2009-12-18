@@ -5,9 +5,8 @@ module Logging::Appenders
   # never exceeds some user specified level.
   #
   # The goal of this class is to write log messages to a file. When the file
-  # age or size exceeds a given limit then the log file is closed, the name
-  # is changed to indicate it is an older log file, and a new log file is
-  # created.
+  # age or size exceeds a given limit then the log file is copied and then
+  # truncated. The name of the copy indicates it is an older log file.
   #
   # The name of the log file is changed by inserting the age of the log file
   # (as a single number) between the log file name and the extension. If the
@@ -16,14 +15,20 @@ module Logging::Appenders
   #
   #    /var/log/ruby.log   =>   /var/log/ruby.1.log
   #
-  # New log messages will be appended to a newly opened log file of the same
-  # name (<tt>/var/log/ruby.log</tt> in our example above). The age number
-  # for all older log files is incremented when the log file is rolled. The
-  # number of older log files to keep can be given, otherwise all the log
-  # files are kept.
+  # New log messages will continue to be appended to the same log file
+  # (<tt>/var/log/ruby.log</tt> in our example above). The age number for all
+  # older log files is incremented when the log file is rolled. The number of
+  # older log files to keep can be given, otherwise all the log files are
+  # kept.
   #
   # The actual process of rolling all the log file names can be expensive if
   # there are many, many older log files to process.
+  #
+  # NOTE: this class is not safe to use when log messages are written to files
+  # on NFS mounts or other remote file system. It should only be used for log
+  # files on the local file system. The exception to this if only a single
+  # process is writing to the log file; then remote file systems are safe to
+  # use but still not recommended.
   #
   class RollingFile < ::Logging::Appenders::IO
 
