@@ -11,9 +11,7 @@ require 'stringio'
 require 'thread'
 require 'little-plugger'
 
-HAVE_LOCKFILE = require? 'lockfile'
-HAVE_SYSLOG   = require? 'syslog'
-
+HAVE_SYSLOG = require? 'syslog'
 
 #
 #
@@ -21,7 +19,7 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.2.3'
+  VERSION = '1.3.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}

@@ -125,6 +125,46 @@ module Kernel
 end  # module Kernel
 
 # --------------------------------------------------------------------------
+class File
+
+  # Returns <tt>true</tt> if another process holds an exclusive lock on the
+  # file. Returns <tt>false</tt> if this is not the case.
+  #
+  # If a <tt>block</tt> of code is passed to this method, it will be run iff
+  # this process can obtain an exclusive lock on the file. The block will be
+  # run while this lock is held, and the exclusive lock will be released when
+  # the method returns.
+  #
+  # The exclusive lock is requested in a non-blocking mode. This method will
+  # return immediately (and the block will not be executed) if an exclusive
+  # lock cannot be obtained.
+  #
+  def flock?( &block )
+    status = flock(LOCK_EX|LOCK_NB)
+    case status
+    when false; true
+    when 0; block ? block.call : false
+    else
+      raise SystemCallError, "flock failed with status: #{status}"
+    end
+  ensure
+    flock LOCK_UN
+  end
+
+  # Execute the <tt>block</tt> in the context of a shared lock on this file. A
+  # shared lock will be obtained on the file, the block executed, and the lock
+  # released.
+  #
+  def flock_sh( &block )
+    flock LOCK_SH
+    block.call
+  ensure
+    flock LOCK_UN
+  end
+
+end
+
+# --------------------------------------------------------------------------
 class ReentrantMutex < Mutex
 
   def initialize

@@ -49,10 +49,6 @@ module Logging::Appenders
     #               rolled. The age can also be given as 'daily', 'weekly',
     #               or 'monthly'.
     #  [:keep]      The number of rolled log files to keep.
-    #  [:safe]      When set to true, extra checks are made to ensure that
-    #               only once process can roll the log files; this option
-    #               should only be used when multiple processes will be
-    #               logging to the same log file (does not work on Windows)
     #
     def initialize( name, opts = {} )
       # raise an error if a filename was not given
@@ -66,52 +62,45 @@ module Logging::Appenders
       @rgxp = %r/\.(\d+)#{Regexp.escape(ext)}\z/
       @glob = "#{bn}.*#{ext}"
       @logname_fmt = "#{bn}.%d#{ext}"
+      @fn_copy = @fn + '.copy'
 
       # grab our options
       @keep = opts.getopt(:keep, :as => Integer)
       @size = opts.getopt(:size, :as => Integer)
 
-      @lockfile = if HAVE_LOCKFILE and opts.getopt(:safe, false)
-        ::Lockfile.new(
-            @fn + '.lck',
-            :retries => 1,
-            :timeout => 2
-        )
-      end
-
       code = 'def sufficiently_aged?() false end'
       @age_fn = @fn + '.age'
+      @age_fn_mtime = nil
+      @roll = false
 
       case @age = opts.getopt(:age)
       when 'daily'
-        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
+          @age_fn_mtime ||= ::File.mtime(@age_fn)
           now = Time.now
-          start = ::File.mtime(@age_fn)
-          if (now.day != start.day) or (now - start) > 86400
+          if (now.day != @age_fn_mtime.day) or (now - @age_fn_mtime) > 86400
             return true
           end
           false
         end
         CODE
       when 'weekly'
-        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
-          if (Time.now - ::File.mtime(@age_fn)) > 604800
+          @age_fn_mtime ||= ::File.mtime(@age_fn)
+          if (Time.now - @age_fn_mtime) > 604800
             return true
           end
           false
         end
         CODE
       when 'monthly'
-        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
+          @age_fn_mtime ||= ::File.mtime(@age_fn)
           now = Time.now
-          start = ::File.mtime(@age_fn)
-          if (now.month != start.month) or (now - start) > 2678400
+          if (now.month != @age_fn_mtime.month) or (now - @age_fn_mtime) > 2678400
             return true
           end
           false
@@ -119,29 +108,52 @@ module Logging::Appenders
         CODE
       when Integer, String
         @age = Integer(@age)
-        FileUtils.touch(@age_fn) unless test(?f, @age_fn)
         code = <<-CODE
         def sufficiently_aged?
-          if (Time.now - ::File.mtime(@age_fn)) > @age
+          @age_fn_mtime ||= ::File.mtime(@age_fn)
+          if (Time.now - @age_fn_mtime) > @age
             return true
           end
           false
         end
         CODE
       end
+
+      FileUtils.touch(@age_fn) if @age and !test(?f, @age_fn)
+
       meta = class << self; self end
       meta.class_eval code, __FILE__, __LINE__
 
-      # if the truncate flag was set to true, then roll 
-      roll_now = opts.getopt(:truncate, false)
-      roll_files if roll_now
+      super(name, ::File.new(@fn, 'a'), opts)
 
-      super(name, open_logfile, opts)
+      # if the truncate flag was set to true, then roll
+      roll_now = opts.getopt(:truncate, false)
+      if roll_now
+        copy_truncate
+        roll_files
+      end
     end
 
     # Returns the path to the logfile.
     #
     def filename() @fn.dup end
+
+    # Reopen the connection to the underlying logging destination. If the
+    # connection is currently closed then it will be opened. If the connection
+    # is currently open then it will be closed and immediately opened.
+    #
+    def reopen
+      @mutex.synchronize {
+        if defined? @io and @io
+          flush
+          @io.close rescue nil
+        end
+        @closed = false
+        @io = ::File.new(@fn, 'a')
+        @io.sync = true
+      }
+      self
+    end
 
 
     private
@@ -158,43 +170,26 @@ module Logging::Appenders
             @layout.format(event) : event.to_s
       return if str.empty?
 
-      check_logfile
-      super(str)
+      @io.flock_sh { super(str) }
 
-      if roll_required?(str)
-        return roll unless @lockfile
-
-        @lockfile.lock {
-          check_logfile
-          roll if roll_required?
+      if roll_required?
+        @io.flock? {
+          @age_fn_mtime = nil
+          copy_truncate if roll_required?
         }
+        roll_files
       end
+    ensure
+      @roll = false
     end
 
-    # call-seq:
-    #    roll
-    #
-    # Close the currently open log file, roll all the log files, and open a
-    # new log file.
-    #
-    def roll
-      @io.close rescue nil
-      roll_files
-      open_logfile
-    end
-
-    # call-seq:
-    #    roll_required?( str )    => true or false
-    #
     # Returns +true+ if the log file needs to be rolled.
     #
-    def roll_required?( str = nil )
+    def roll_required?
+      return false if ::File.exist? @fn_copy
+
       # check if max size has been exceeded
-      s = if @size 
-        @file_size = @stat.size if @stat.size > @file_size
-        @file_size += str.size if str
-        @file_size > @size
-      end
+      s = @size ? ::File.size(@fn) > @size : false
 
       # check if max age has been exceeded
       a = sufficiently_aged?
@@ -202,9 +197,24 @@ module Logging::Appenders
       return (s || a)
     end
 
-    # call-seq:
-    #    roll_files
+    # Copy the contents of the logfile to another file. Truncate the logfile
+    # to zero length. This method will set the roll flag so that all the
+    # current logfiles will be rolled along with the copied file.
     #
+    def copy_truncate
+      return unless ::File.exist?(@fn)
+      FileUtils.copy @fn, @fn_copy
+      @io.truncate 0
+
+      # touch the age file if needed
+      if @age
+        FileUtils.touch @age_fn
+        @age_fn_mtime = nil
+      end
+
+      @roll = true
+    end
+
     # Roll the log files. This is accomplished by renaming the log files
     # starting with the oldest and working towards the youngest.
     #
@@ -213,16 +223,13 @@ module Logging::Appenders
     #    test.8.log   =>  test.9.log
     #    ...
     #    test.1.log   =>  test.2.log
-    #    
-    # Lastly the current log file is rolled to a numbered log file.
     #
-    #    test.log     =>  test.1.log
+    # Lastly the copied log file is rolled to a numbered log file.
     #
-    # This method leaves no <tt>test.log</tt> file when it is done. This
-    # file will be created elsewhere.
+    #    test.log.copy  =>  test.1.log
     #
     def roll_files
-      return unless ::File.exist?(@fn)
+      return unless @roll and ::File.exist?(@fn_copy)
 
       files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
       unless files.empty?
@@ -244,47 +251,8 @@ module Logging::Appenders
         end
       end
 
-      # finally reanme the base log file
-      ::File.rename(@fn, sprintf(@logname_fmt, 1))
-
-      # touch the age file if needed
-      FileUtils.touch(@age_fn) if @age
-    end
-
-    # call-seq:
-    #    open_logfile    => io
-    #
-    # Opens the logfile and stores the current file szie and inode.
-    #
-    def open_logfile
-      @io = ::File.new(@fn, 'a')
-      @io.sync = true
-
-      @stat = ::File.stat(@fn)
-      @file_size = @stat.size
-      @inode = @stat.ino
-
-      return @io
-    end
-
-    #
-    #
-    def check_logfile
-      retry_cnt ||= 0
-
-      if ::File.exist?(@fn) then
-        @stat = ::File.stat(@fn)
-        return unless @lockfile
-        return if @inode == @stat.ino
-
-        @io.close rescue nil
-      end
-      open_logfile
-    rescue SystemCallError
-      raise if retry_cnt > 3
-      retry_cnt += 1
-      sleep 0.08
-      retry
+      # finally reanme the copied log file
+      ::File.rename(@fn_copy, sprintf(@logname_fmt, 1))
     end
 
   end  # class RollingFile

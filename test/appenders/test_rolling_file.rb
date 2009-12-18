@@ -75,7 +75,8 @@ module TestAppenders
       assert_equal 13, Dir.glob(@glob).length
 
       # force the appender to roll the files
-      ap.send :roll
+      ap.send :copy_truncate
+      ap.send :roll_files
       assert_equal 6, Dir.glob(@glob).length
 
       (1..5).each do |cnt|
@@ -109,6 +110,7 @@ module TestAppenders
       now = ::File.mtime(age_fn)
       start = now - 3600 * 24
       ::File.utime(start, start, age_fn)
+      ap.instance_variable_set(:@age_fn_mtime, nil)
 
       sleep 0.250
       ap << "yet another random message\n"
@@ -121,6 +123,7 @@ module TestAppenders
 
       start = now - 3600 * 24 * 7
       ::File.utime(start, start, age_fn)
+      ap.instance_variable_set(:@age_fn_mtime, nil)
 
       sleep 0.250
       ap << "yet another random message\n"
@@ -133,6 +136,7 @@ module TestAppenders
 
       start = now - 3600 * 24 * 31
       ::File.utime(start, start, age_fn)
+      ap.instance_variable_set(:@age_fn_mtime, nil)
 
       sleep 0.250
       ap << "yet another random message\n"
@@ -173,16 +177,6 @@ module TestAppenders
       ap << 'X' * 100; ap.flush
       assert_equal 1, Dir.glob(@glob).length
       assert_equal 100, File.size(@fn)
-
-      # Now remove @fn and make sure that the log file is written to
-      # again
-      File.unlink(@fn)
-      assert_equal 0, Dir.glob(@glob).length
-
-      ap << 'X' * 50; ap.flush
-      assert_equal 1, Dir.glob(@glob).length
-      assert_equal 50, File.size(@fn)
-
     end
 
     private

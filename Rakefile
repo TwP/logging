@@ -29,7 +29,6 @@ Bones {
   enable_sudo
 
   depend_on 'little-plugger'
-  depend_on 'lockfile'
   depend_on 'flexmock',     :development => true
   depend_on 'bones-git',    :development => true
   depend_on 'bones-extras', :development => true
