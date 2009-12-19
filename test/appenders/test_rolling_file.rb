@@ -76,7 +76,7 @@ module TestAppenders
 
       # force the appender to roll the files
       ap.send :copy_truncate
-      ap.send :roll_files
+      ap.instance_variable_get(:@roller).roll_files
       assert_equal 6, Dir.glob(@glob).length
 
       (1..5).each do |cnt|
@@ -87,6 +87,10 @@ module TestAppenders
     end
 
     def test_age
+      d_glob = File.join(TMP, 'test.*.log')
+      dt_glob = File.join(TMP, 'test.*-*.log')
+      age_fn = @fn + '.age'
+
       assert_equal [], Dir.glob(@glob)
 
       assert_raise(ArgumentError) do
@@ -97,16 +101,20 @@ module TestAppenders
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 
-      sleep 1.250
+      now = ::File.mtime(age_fn)
+      start = now - 42
+      ::File.utime(start, start, age_fn)
+      ap.instance_variable_set(:@age_fn_mtime, nil)
       ap << "another random message\n"
-      assert_equal 2, Dir.glob(@glob).length
+      assert_equal 1, Dir.glob(dt_glob).length
 
+      Dir.glob(d_glob).each {|fn| ::File.delete fn}
       cleanup
+
       ap = Logging.appenders.rolling_file(NAME, :filename => @fn, 'age' => 'daily')
       ap << "random message\n"
-      assert_equal 2, Dir.glob(@glob).length
+      assert_equal 1, Dir.glob(@glob).length
 
-      age_fn = @fn + '.age'
       now = ::File.mtime(age_fn)
       start = now - 3600 * 24
       ::File.utime(start, start, age_fn)
@@ -114,12 +122,15 @@ module TestAppenders
 
       sleep 0.250
       ap << "yet another random message\n"
-      assert_equal 3, Dir.glob(@glob).length
+      assert_equal 0, Dir.glob(dt_glob).length
+      assert_equal 1, Dir.glob(d_glob).length
 
+      Dir.glob(d_glob).each {|fn| ::File.delete fn}
       cleanup
+
       ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'weekly')
       ap << "random message\n"
-      assert_equal 3, Dir.glob(@glob).length
+      assert_equal 1, Dir.glob(@glob).length
 
       start = now - 3600 * 24 * 7
       ::File.utime(start, start, age_fn)
@@ -127,12 +138,15 @@ module TestAppenders
 
       sleep 0.250
       ap << "yet another random message\n"
-      assert_equal 4, Dir.glob(@glob).length
+      assert_equal 0, Dir.glob(dt_glob).length
+      assert_equal 1, Dir.glob(d_glob).length
 
+      Dir.glob(d_glob).each {|fn| ::File.delete fn}
       cleanup
+
       ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'monthly')
       ap << "random message\n"
-      assert_equal 4, Dir.glob(@glob).length
+      assert_equal 1, Dir.glob(@glob).length
 
       start = now - 3600 * 24 * 31
       ::File.utime(start, start, age_fn)
@@ -140,7 +154,8 @@ module TestAppenders
 
       sleep 0.250
       ap << "yet another random message\n"
-      assert_equal 5, Dir.glob(@glob).length
+      assert_equal 0, Dir.glob(dt_glob).length
+      assert_equal 1, Dir.glob(d_glob).length
     end
 
     def test_size

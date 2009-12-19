@@ -24,6 +24,15 @@ module Logging::Appenders
   # The actual process of rolling all the log file names can be expensive if
   # there are many, many older log files to process.
   #
+  # If you do not wish to use numbered files when rolling, you can specify the
+  # :roll_by option as 'date'. This will use a date/time stamp to
+  # differentiate the older files from one another. If you configure your
+  # rolling file appender to roll daily and ignore the file size:
+  #
+  #    /var/log/ruby.log   =>   /var/log/ruby.20091225.log
+  #
+  # Where the date is expressed as <tt>%Y%m%d</tt> in the Time#strftime format.
+  #
   # NOTE: this class is not safe to use when log messages are written to files
   # on NFS mounts or other remote file system. It should only be used for log
   # files on the local file system. The exception to this if only a single
@@ -54,29 +63,22 @@ module Logging::Appenders
     #               rolled. The age can also be given as 'daily', 'weekly',
     #               or 'monthly'.
     #  [:keep]      The number of rolled log files to keep.
+    #  [:roll_by]   How to name the rolled log files. This can be 'number' or
+    #               'date'.
     #
     def initialize( name, opts = {} )
       # raise an error if a filename was not given
       @fn = opts.getopt(:filename, name)
+      @fn_copy = @fn + '._copy_'
       raise ArgumentError, 'no filename was given' if @fn.nil?
       ::Logging::Appenders::File.assert_valid_logfile(@fn)
 
-      # grab the information we need to properly roll files
-      ext = ::File.extname(@fn)
-      bn = ::File.join(::File.dirname(@fn), ::File.basename(@fn, ext))
-      @rgxp = %r/\.(\d+)#{Regexp.escape(ext)}\z/
-      @glob = "#{bn}.*#{ext}"
-      @logname_fmt = "#{bn}.%d#{ext}"
-      @fn_copy = @fn + '.copy'
-
       # grab our options
-      @keep = opts.getopt(:keep, :as => Integer)
       @size = opts.getopt(:size, :as => Integer)
 
       code = 'def sufficiently_aged?() false end'
       @age_fn = @fn + '.age'
       @age_fn_mtime = nil
-      @roll = false
 
       case @age = opts.getopt(:age)
       when 'daily'
@@ -131,11 +133,22 @@ module Logging::Appenders
 
       super(name, ::File.new(@fn, 'a'), opts)
 
+      # setup the file roller
+      @roller =
+          case opts.getopt(:roll_by)
+          when 'number'; NumberedRoller.new(@fn, opts)
+          when 'date'; DateRoller.new(@fn, opts)
+          else
+            (@age and !@size) ?
+                DateRoller.new(@fn, opts) :
+                NumberedRoller.new(@fn, opts)
+          end
+
       # if the truncate flag was set to true, then roll
       roll_now = opts.getopt(:truncate, false)
       if roll_now
         copy_truncate
-        roll_files
+        @roller.roll_files
       end
     end
 
@@ -182,10 +195,8 @@ module Logging::Appenders
           @age_fn_mtime = nil
           copy_truncate if roll_required?
         }
-        roll_files
+        @roller.roll_files
       end
-    ensure
-      @roll = false
     end
 
     # Returns +true+ if the log file needs to be rolled.
@@ -217,48 +228,96 @@ module Logging::Appenders
         @age_fn_mtime = nil
       end
 
-      @roll = true
+      @roller.roll = true
     end
 
-    # Roll the log files. This is accomplished by renaming the log files
-    # starting with the oldest and working towards the youngest.
-    #
-    #    test.10.log  =>  deleted (we are only keeping 10)
-    #    test.9.log   =>  test.10.log
-    #    test.8.log   =>  test.9.log
-    #    ...
-    #    test.1.log   =>  test.2.log
-    #
-    # Lastly the copied log file is rolled to a numbered log file.
-    #
-    #    test.log.copy  =>  test.1.log
-    #
-    def roll_files
-      return unless @roll and ::File.exist?(@fn_copy)
 
-      files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
-      unless files.empty?
-        # sort the files in revese order based on their count number
-        files = files.sort do |a,b|
-                  a = Integer(@rgxp.match(a)[1])
-                  b = Integer(@rgxp.match(b)[1])
-                  b <=> a
-                end
+    # :stopdoc:
+    class NumberedRoller
+      attr_accessor :roll
 
-        # for each file, roll its count number one higher
-        files.each do |fn|
-          cnt = Integer(@rgxp.match(fn)[1])
-          if @keep and cnt >= @keep
-            ::File.delete fn
-            next
+      def initialize( fn, opts )
+        # grab the information we need to properly roll files
+        ext = ::File.extname(fn)
+        bn = ::File.join(::File.dirname(fn), ::File.basename(fn, ext))
+        @rgxp = %r/\.(\d+)#{Regexp.escape(ext)}\z/
+        @glob = "#{bn}.*#{ext}"
+        @logname_fmt = "#{bn}.%d#{ext}"
+        @fn_copy = fn + '._copy_'
+        @keep = opts.getopt(:keep, :as => Integer)
+        @roll = false
+      end
+
+      def roll_files
+        return unless @roll and ::File.exist?(@fn_copy)
+
+        files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
+        unless files.empty?
+          # sort the files in revese order based on their count number
+          files = files.sort do |a,b|
+                    a = Integer(@rgxp.match(a)[1])
+                    b = Integer(@rgxp.match(b)[1])
+                    b <=> a
+                  end
+
+          # for each file, roll its count number one higher
+          files.each do |fn|
+            cnt = Integer(@rgxp.match(fn)[1])
+            if @keep and cnt >= @keep
+              ::File.delete fn
+              next
+            end
+            ::File.rename fn, sprintf(@logname_fmt, cnt+1)
           end
-          ::File.rename fn, sprintf(@logname_fmt, cnt+1)
+        end
+
+        # finally reanme the copied log file
+        ::File.rename(@fn_copy, sprintf(@logname_fmt, 1))
+      ensure
+        @roll = false
+      end
+    end
+
+    class DateRoller
+      attr_accessor :roll
+
+      def initialize( fn, opts )
+        @fn_copy = fn + '._copy_'
+        @roll = false
+        @keep = opts.getopt(:keep, :as => Integer)
+
+        ext = ::File.extname(fn)
+        bn = ::File.join(::File.dirname(fn), ::File.basename(fn, ext))
+
+        if @keep
+          @rgxp = %r/\.(\d+)(-\d+)?#{Regexp.escape(ext)}\z/
+          @glob = "#{bn}.*#{ext}"
+        end
+
+        if %w[daily weekly monthly].include?(opts.getopt(:age)) and !opts.getopt(:size)
+          @logname_fmt = "#{bn}.%Y%m%d#{ext}"
+        else
+          @logname_fmt = "#{bn}.%Y%m%d-%H%M%S#{ext}"
         end
       end
 
-      # finally reanme the copied log file
-      ::File.rename(@fn_copy, sprintf(@logname_fmt, 1))
+      def roll_files
+        return unless @roll and ::File.exist?(@fn_copy)
+
+        if @keep
+          files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
+          if files.length > @keep
+            files.sort {|a,b| b <=> a}.slice(@keep..-1).each {|fn| ::File.delete fn}
+          end
+        end
+
+        # reanme the copied log file
+        ::File.rename(@fn_copy, Time.now.strftime(@logname_fmt))
+      ensure
+        @roll = false
+      end
     end
+    # :startdoc:
 
   end  # class RollingFile
 end  # module Logging::Appenders
