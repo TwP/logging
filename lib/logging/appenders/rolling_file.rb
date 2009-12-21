@@ -35,9 +35,9 @@ module Logging::Appenders
   #
   # NOTE: this class is not safe to use when log messages are written to files
   # on NFS mounts or other remote file system. It should only be used for log
-  # files on the local file system. The exception to this if only a single
-  # process is writing to the log file; then remote file systems are safe to
-  # use but still not recommended.
+  # files on the local file system. The exception to this is when a single
+  # process is writing to the log file; remote file systems are safe to
+  # use in this case but still not recommended.
   #
   class RollingFile < ::Logging::Appenders::IO
 
@@ -304,15 +304,17 @@ module Logging::Appenders
       def roll_files
         return unless @roll and ::File.exist?(@fn_copy)
 
-        if @keep
-          files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
-          if files.length > @keep
-            files.sort {|a,b| b <=> a}.slice(@keep..-1).each {|fn| ::File.delete fn}
-          end
-        end
-
         # reanme the copied log file
         ::File.rename(@fn_copy, Time.now.strftime(@logname_fmt))
+
+        # prune old log files
+        if @keep
+          files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
+          length = files.length
+          if length > @keep
+            files.sort {|a,b| b <=> a}.last(length-@keep).each {|fn| ::File.delete fn}
+          end
+        end
       ensure
         @roll = false
       end
