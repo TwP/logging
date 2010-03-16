@@ -19,7 +19,6 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  VERSION = '1.3.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   LEVELS = {}
@@ -347,7 +346,7 @@ module Logging
     # Returns the version string for the library.
     #
     def version
-      VERSION
+      @version ||= File.read(path('version.txt')).strip
     end
 
     # Returns the library path for the module. If any arguments are given,
