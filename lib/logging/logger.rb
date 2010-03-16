@@ -183,6 +183,7 @@ module Logging
       @appenders.each {|a| a << msg}
       @parent << msg if @additive
     end
+    alias :write :<<
 
     # call-seq:
     #    add( severity, message = nil ) {block}
