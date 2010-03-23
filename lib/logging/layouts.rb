@@ -38,10 +38,10 @@ module Logging
   end  # module Layouts
 end  # module Logging
 
-
-%w[basic parseable pattern].
-each do |fn|
-  require ::Logging.libpath('logging', 'layouts', fn)
-end
+Logging.libpath {
+  require 'logging/layouts/basic'
+  require 'logging/layouts/parseable'
+  require 'logging/layouts/pattern'
+}
 
 # EOF

@@ -122,10 +122,16 @@ module Logging
   end  # module Appenders
 end  # module Logging
 
-
-%w[buffering io console email file growl rolling_file string_io syslog].
-each do |fn|
-  require ::Logging.libpath('logging', 'appenders', fn)
-end
+Logging.libpath {
+  require 'logging/appenders/buffering'
+  require 'logging/appenders/io'
+  require 'logging/appenders/console'
+  require 'logging/appenders/email'
+  require 'logging/appenders/file'
+  require 'logging/appenders/growl'
+  require 'logging/appenders/rolling_file'
+  require 'logging/appenders/string_io'
+  require 'logging/appenders/syslog'
+}
 
 # EOF

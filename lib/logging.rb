@@ -353,16 +353,34 @@ module Logging
     # they will be joined to the end of the libray path using
     # <tt>File.join</tt>.
     #
-    def libpath( *args )
-      args.empty? ? LIBPATH : ::File.join(LIBPATH, args.flatten)
+    def libpath( *args, &block )
+      rv = args.empty? ? LIBPATH : ::File.join(LIBPATH, args.flatten)
+      if block
+        begin
+          $LOAD_PATH.unshift LIBPATH
+          rv = block.call
+        ensure
+          $LOAD_PATH.shift
+        end
+      end
+      return rv
     end
 
     # Returns the lpath for the module. If any arguments are given,
     # they will be joined to the end of the path using
     # <tt>File.join</tt>.
     #
-    def path( *args )
-      args.empty? ? PATH : ::File.join(PATH, args.flatten)
+    def path( *args, &block )
+      rv = args.empty? ? PATH : ::File.join(PATH, args.flatten)
+      if block
+        begin
+          $LOAD_PATH.unshift PATH
+          rv = block.call
+        ensure
+          $LOAD_PATH.shift
+        end
+      end
+      return rv
     end
 
     # call-seq:
@@ -482,18 +500,20 @@ module Logging
 end  # module Logging
 
 
-require Logging.libpath(%w[logging appender])
-require Logging.libpath(%w[logging layout])
-require Logging.libpath(%w[logging log_event])
-require Logging.libpath(%w[logging logger])
-require Logging.libpath(%w[logging repository])
-require Logging.libpath(%w[logging root_logger])
-require Logging.libpath(%w[logging stats])
-require Logging.libpath(%w[logging appenders])
-require Logging.libpath(%w[logging layouts])
+Logging.libpath {
+  require 'logging/appender'
+  require 'logging/layout'
+  require 'logging/log_event'
+  require 'logging/logger'
+  require 'logging/repository'
+  require 'logging/root_logger'
+  require 'logging/stats'
+  require 'logging/appenders'
+  require 'logging/layouts'
 
-require Logging.libpath(%w[logging config configurator])
-require Logging.libpath(%w[logging config yaml_configurator])
+  require 'logging/config/configurator'
+  require 'logging/config/yaml_configurator'
+}
 
 
 # This exit handler will close all the appenders that exist in the system.

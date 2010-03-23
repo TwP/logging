@@ -162,6 +162,14 @@ class File
     flock LOCK_UN
   end
 
+  # :stopdoc:
+  if %r/mswin|mingw/ =~ RUBY_PLATFORM
+    undef :flock?, :flock_sh
+    def flock?() yield; end
+    def flock_sh() yield; end
+  end
+  # :startdoc:
+
 end
 
 # --------------------------------------------------------------------------

@@ -1,3 +1,8 @@
+== 1.4.1 / 2010-03-23
+
+Bug Fixes
+- flock(LOCK_UN) was causing errors on windows [issue 4]
+
 == 1.4.0 / 2010-03-16
 
 Minor Enhancements
