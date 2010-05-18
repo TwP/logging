@@ -9,6 +9,7 @@ require File.expand_path(
 require 'yaml'
 require 'stringio'
 require 'thread'
+require 'fileutils'
 require 'little-plugger'
 
 HAVE_SYSLOG = require? 'syslog'

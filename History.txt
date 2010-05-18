@@ -1,3 +1,8 @@
+== 1.4.2 / 2010-04-18
+
+Bug Fixes
+- missing require for fileutils
+
 == 1.4.1 / 2010-03-23
 
 Bug Fixes
