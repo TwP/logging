@@ -176,6 +176,8 @@ module Logging::Appenders
 
     private
 
+    alias :_write :write
+
     # call-seq:
     #    write( event )
     #
@@ -188,7 +190,7 @@ module Logging::Appenders
             @layout.format(event) : event.to_s
       return if str.empty?
 
-      @io.flock_sh { super(str) }
+      @io.flock_sh { _write(str) }
 
       if roll_required?
         @io.flock? {
