@@ -1,5 +1,5 @@
 
-require File.join(File.dirname(__FILE__), %w[setup])
+require File.expand_path('setup', File.dirname(__FILE__))
 
 module TestLogging
 
@@ -122,7 +122,7 @@ module TestLogging
 
     def test_add_master
       ary = @repo.instance_variable_get(:@masters)
-      assert true, ary.empty?
+      assert ary.empty?
 
       @repo.add_master 'root'
       assert_equal [:root], ary

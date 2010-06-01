@@ -1,5 +1,5 @@
 
-require File.join(File.dirname(__FILE__), %w[.. setup])
+require File.expand_path('../setup', File.dirname(__FILE__))
 
 if HAVE_SYSLOG
 
