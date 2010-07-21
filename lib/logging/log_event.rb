@@ -11,7 +11,7 @@ module Logging
     # * $1 == filename
     # * $2 == line number
     # * $3 == method name (might be nil)
-    CALLER_RGXP = %r/([\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
+    CALLER_RGXP = %r/([-\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
     CALLER_INDEX = 2
     #CALLER_INDEX = RUBY_PLATFORM[%r/^java/i] ? 1 : 2
     # :startdoc:
