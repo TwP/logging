@@ -64,7 +64,6 @@ module Logging::Appenders
         end
         @closed = false
         @io = ::File.new(@fn, @mode)
-        @io.sync = true
       }
       self
     end

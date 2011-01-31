@@ -26,12 +26,20 @@ module Logging::Appenders
     #
     attr_reader :auto_flushing
 
-    # This message must be implemented by the including class. The method
-    # should write the contents of the buffer to the logging destination,
-    # and it should clear the buffer when done.
+    # Call +flush+ to force an appender to write out any buffered log events.
+    # Similar to IO#flush, so use in a similar fashion.
     #
     def flush
-      raise NotImplementedError
+      return self if @buffer.empty?
+
+      str = nil
+      sync {
+        str = @buffer.join
+        @buffer.clear
+      }
+
+      canonical_write str unless str.nil?
+      self
     end
 
     # Configure the levels that will trigger and immediate flush of the
@@ -61,7 +69,7 @@ module Logging::Appenders
         when String; level.split(',').map {|x| x.strip}
         when Array; level
         else Array(level) end
-      
+
       immediate_at.each do |lvl|
         num = ::Logging.level_num(lvl)
         next if num.nil?
@@ -108,7 +116,7 @@ module Logging::Appenders
     end
 
 
-    protected
+  protected
 
     # Configure the buffering using the arguments found in the give options
     # hash. This method must be called in order to use the message buffer.
@@ -124,20 +132,6 @@ module Logging::Appenders
       self.auto_flushing = opts.getopt(:auto_flushing, true)
     end
 
-    # Append the given event to the message buffer. The event can be either
-    # a string or a LogEvent object.
-    #
-    def add_to_buffer( event )
-      str = event.instance_of?(::Logging::LogEvent) ?
-            layout.format(event) : event.to_s
-      return if str.empty?
-
-      buffer << str
-      flush if buffer.length >= auto_flushing || immediate?(event)
-
-      self
-    end
-
     # Returns true if the _event_ level matches one of the configured
     # immediate logging levels. Otherwise returns false.
     #
@@ -147,7 +141,7 @@ module Logging::Appenders
     end
 
 
-    private
+  private
 
     # call-seq:
     #    write( event )
@@ -156,13 +150,25 @@ module Logging::Appenders
     # be either a LogEvent or a String. If a LogEvent, then it will be
     # formatted using the layout given to the appender when it was created.
     #
+    # The _event_ will be formatted and then buffered until the
+    # "auto_flushing" level has been reached. At thsi time the canonical_write
+    # method will be used to log all events stored in the buffer.
+    #
     def write( event )
-      add_to_buffer event
+      str = event.instance_of?(::Logging::LogEvent) ?
+            layout.format(event) : event.to_s
+      return if str.empty?
+
+      if @auto_flushing == 1
+        canonical_write(str)
+      else
+        sync { @buffer << str }
+        flush if @buffer.length >= @auto_flushing || immediate?(event)
+      end
+
       self
     end
-
 
   end  # module Buffering
 end  # module Logging::Appenders
 
-# EOF

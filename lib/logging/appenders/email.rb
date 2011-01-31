@@ -42,21 +42,20 @@ class Email < ::Logging::Appender
     @params   = [@server, @port, @domain, @acct, @passwd, @authtype]
   end
 
-  # call-seq:
-  #    flush
-  #
-  # Create and send an email containing the current message buffer.
-  #
-  def flush
-    return self if buffer.empty?
 
+private
+
+  # This method is called by the buffering code when messages need to be
+  # sent out as an email.
+  #
+  def canonical_write( str )
     ### build a mail header for RFC 822
     rfc822msg =  "From: #{@from}\n"
     rfc822msg << "To: #{@to.join(",")}\n"
     rfc822msg << "Subject: #{@subject}\n"
     rfc822msg << "Date: #{Time.new.rfc822}\n"
     rfc822msg << "Message-Id: <#{"%.8f" % Time.now.to_f}@#{@domain}>\n\n"
-    rfc822msg << buffer.join
+    rfc822msg << str
 
     ### send email
     Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
@@ -65,11 +64,8 @@ class Email < ::Logging::Appender
     self.level = :off
     ::Logging.log_internal {'e-mail notifications have been disabled'}
     ::Logging.log_internal(-2) {err}
-  ensure
-    buffer.clear
   end
 
 end   # class Email
 end   # module Logging::Appenders
 
-# EOF

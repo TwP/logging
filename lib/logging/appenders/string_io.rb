@@ -65,4 +65,3 @@ module Logging::Appenders
   end  # class StringIo
 end  # module Logging::Appenders
 
-# EOF

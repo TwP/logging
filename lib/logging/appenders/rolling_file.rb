@@ -168,29 +168,21 @@ module Logging::Appenders
         end
         @closed = false
         @io = ::File.new(@fn, 'a')
-        @io.sync = true
       }
       self
     end
 
 
-    private
+  private
 
-    alias :_write :write
-
-    # call-seq:
-    #    write( event )
-    #
     # Write the given _event_ to the log file. The log file will be rolled
     # if the maximum file size is exceeded or if the file is older than the
     # maximum age.
     #
-    def write( event )
-      str = event.instance_of?(::Logging::LogEvent) ?
-            @layout.format(event) : event.to_s
-      return if str.empty?
+    def canonical_write( str )
+      return self if @io.nil?
 
-      @io.flock_sh { _write(str) }
+      @io.flock_sh { @io.syswrite(str) }
 
       if roll_required?
         @io.flock? {
@@ -199,6 +191,11 @@ module Logging::Appenders
         }
         @roller.roll_files
       end
+      self
+    rescue StandardError => err
+      self.level = :off
+      ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
+      ::Logging.log_internal(-2) {err}
     end
 
     # Returns +true+ if the log file needs to be rolled.
@@ -326,4 +323,3 @@ module Logging::Appenders
   end  # class RollingFile
 end  # module Logging::Appenders
 
-# EOF

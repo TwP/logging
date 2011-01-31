@@ -45,8 +45,8 @@ class Appender
     header = @layout.header
 
     unless header.nil? || header.empty?
-      begin 
-        sync {write(header)}
+      begin
+        write(header)
       rescue StandardError => err
         ::Logging.log_internal(-2) {err}
       end
@@ -71,7 +71,7 @@ class Appender
     # appender level
     unless @level > event.level
       begin
-        sync {write(event)}
+        write(event)
       rescue StandardError => err
         ::Logging.log_internal(-2) {err}
       end
@@ -94,7 +94,7 @@ class Appender
 
     unless @level >= ::Logging::LEVELS.length
       begin
-        sync {write(str)}
+        write(str)
       rescue StandardError => err
         ::Logging.log_internal(-2) {err}
       end
@@ -170,13 +170,13 @@ class Appender
     ::Logging::Appenders.remove(@name)
     @closed = true
 
-    sync {flush}
+    flush
 
     if footer
       footer = @layout.footer
       unless footer.nil? || footer.empty?
         begin
-          sync {write(footer)}
+          write(footer)
         rescue StandardError => err
           ::Logging.log_internal(-2) {err}
         end
@@ -229,7 +229,7 @@ class Appender
   end
 
 
-  private 
+private
 
   # call-seq:
   #    write( event )
