@@ -38,7 +38,7 @@ module Logging::Appenders
         @buffer.clear
       }
 
-      canonical_write str unless str.nil?
+      canonical_write str unless str.empty?
       self
     end
 
