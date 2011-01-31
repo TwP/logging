@@ -131,7 +131,7 @@ module Logging::Appenders
     #
     def close( footer = true )
       super
-      @syslog.close
+      @syslog.close if @syslog.opened?
       self
     end
 
