@@ -434,7 +434,7 @@ module Logging
     #
     # Configures internal variables for the logger. This method can be used
     # to avoid storing the logger in the repository.
-    # 
+    #
     def _setup( name, opts = {} )
       @name      = name
       @parent    = opts.getopt(:parent)
@@ -498,7 +498,6 @@ module Logging
     end
     # :startdoc:
 
-  end  # class Logger
-end  # module Logging
+  end  # Logger
+end  # Logging
 
-# EOF
