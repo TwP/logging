@@ -1,4 +1,6 @@
 
+require 'thread'
+
 # --------------------------------------------------------------------------
 class Hash
 
@@ -196,6 +198,5 @@ class ReentrantMutex < Mutex
       }
     end
   end
-end  # class ReentrantMutex
+end  # ReentrantMutex
 
-# EOF
