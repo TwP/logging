@@ -3,12 +3,10 @@
 # Used to prevent the class/module from being loaded more than once
 unless defined? Logging
 
-require File.expand_path(
-    File.join(File.dirname(__FILE__), %w[logging utils]))
+require File.expand_path('../logging/utils', __FILE__)
 
 require 'yaml'
 require 'stringio'
-require 'thread'
 require 'fileutils'
 require 'little-plugger'
 
@@ -20,8 +18,8 @@ module Logging
   extend LittlePlugger
 
   # :stopdoc:
-  LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
-  PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
+  LIBPATH = ::File.expand_path('..', __FILE__) + ::File::SEPARATOR
+  PATH = ::File.expand_path('../..', __FILE__) + ::File::SEPARATOR
   LEVELS = {}
   LNAMES = []
   module Plugins; end
@@ -511,6 +509,7 @@ Logging.libpath {
   require 'logging/stats'
   require 'logging/appenders'
   require 'logging/layouts'
+  require 'logging/proxy'
 
   require 'logging/config/configurator'
   require 'logging/config/yaml_configurator'
