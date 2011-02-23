@@ -1,15 +1,11 @@
 
-begin
-  require 'logging'
-rescue LoadError
-  path = File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
-  raise if $:.include? path
-  $: << path
-  retry
-end
+require 'rubygems'
+
+libpath = File.expand_path('../../lib', __FILE__)
+$:.unshift libpath
+require 'logging'
 
 begin
-  require 'rubygems'
   gem 'log4r'
   require 'log4r'
   $log4r = true
@@ -26,10 +22,18 @@ module Logging
     def run
       this_many = 300_000
 
-      sio = StringIO.new
+      Logging.appenders.string_io(
+        'sio',
+        :layout => Logging.layouts.pattern(
+          :pattern => '%.1l, [%d] %5l -- %c: %m\n',
+          :date_pattern => "%Y-%m-%dT%H:%M:%S.%s"
+        )
+      )
+      sio = Logging.appenders['sio'].sio
 
-      logging = ::Logging.logger sio
+      logging = ::Logging.logger('benchmark')
       logging.level = :warn
+      logging.appenders = 'sio'
 
       logger = ::Logger.new sio
       logger.level = ::Logger::WARN
