@@ -1,3 +1,10 @@
+== 1.5.0 / 2011-02-24
+
+Minor Enhancements
+- removed mutexes in favor of IO#syswrite
+- no round tripping through the buffer array when auto_flushing is true
+- added a Proxy object that will log all methods called on it
+
 == 1.4.3 / 2010-05-31
 
 Bug Fixes
