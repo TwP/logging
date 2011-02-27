@@ -135,15 +135,10 @@ module TestAppenders
     end
 
     def test_flush
-      ary = []
-      @sio.instance_variable_set :@ary, ary
-      def @sio.flush() @ary << :flush end
-
       @appender << "this is a test message\n"
       assert_nil(readline)
 
       @appender.flush
-      assert_equal :flush, ary.pop
       assert_equal "this is a test message\n", readline
       assert_nil(readline)
     end
@@ -163,7 +158,7 @@ module TestAppenders
       assert_nil(readline)
     end
 
-    private
+  private
     def readline
       @appender.readline
     end

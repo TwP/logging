@@ -103,12 +103,11 @@ module TestAppenders
     end
 
     def test_flush
-      ary = []
-      @sio.instance_variable_set :@ary, ary
-      def @sio.flush() @ary << :flush end
+      @appender.buffer << 'flush'
+      assert_nil @appender.readline
 
       @appender.flush
-      assert_equal :flush, ary.pop
+      assert_equal 'flush', @appender.readline
     end
 
     def test_initialize
