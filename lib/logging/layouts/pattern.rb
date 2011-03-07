@@ -186,19 +186,18 @@ module Logging::Layouts
     #
     def self.create_format_method( pf )
       # Create the format(event) method
-      code = "undef :format if method_defined? :format\n"
-      code << "def format( event )\nsprintf(\""
+      format_string = '"'
       pattern = pf.pattern.dup
       args = []
 
       while true
         m = DIRECTIVE_RGXP.match(pattern)
-        code << m[1] unless m[1].empty?
+        format_string << m[1] unless m[1].empty?
 
         case m[3]
-        when '%'; code << '%%'
+        when '%'; format_string << '%%'
         when 'c'
-          code << m[2] + 's'
+          format_string << m[2] + 's'
           args << DIRECTIVE_TABLE[m[3]].dup
           if m[4]
             raise ArgumentError, "logger name precision must be an integer greater than zero: #{m[4]}" unless Integer(m[4]) > 0
@@ -207,8 +206,8 @@ module Logging::Layouts
                 ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
           end
         when *DIRECTIVE_TABLE.keys
-          code << m[2] + 's'
-          code << "{#{m[4]}}" if m[4]
+          format_string << m[2] + 's'
+          format_string << "{#{m[4]}}" if m[4]
           args << DIRECTIVE_TABLE[m[3]]
         when nil; break
         else
@@ -219,7 +218,11 @@ module Logging::Layouts
         pattern = m[5]
       end
 
-      code << '"'
+      format_string << '"'
+
+      code = "undef :format if method_defined? :format\n"
+      code << "def format( event )\nsprintf("
+      code << format_string
       code << ', ' + args.join(', ') unless args.empty?
       code << ")\n"
       code << "end\n"
