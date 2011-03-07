@@ -35,7 +35,7 @@ module Logging::Layouts
   # conversion specifier when it reads a conversion character. In the example
   # above the conversion specifier %-5l means the level of the logging event
   # should be left justified to a width of five characters. The recognized
-  # conversion characters are 
+  # conversion characters are
   #
   #  [c]  Used to output the name of the logger that generated the log
   #       event. Supports an optional "precision" described further below.
@@ -95,7 +95,7 @@ module Logging::Layouts
   #
   # Below are various format modifier examples for the category conversion
   # specifier.
-  # 
+  #
   #  [%20c]      Left pad with spaces if the logger name is less than 20
   #              characters long
   #  [%-20c]     Right pad with spaces if the logger name is less than 20
@@ -197,7 +197,7 @@ module Logging::Layouts
 
         case m[3]
         when '%'; code << '%%'
-        when 'c' 
+        when 'c'
           code << m[2] + 's'
           args << DIRECTIVE_TABLE[m[3]].dup
           if m[4]
