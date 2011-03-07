@@ -507,6 +507,7 @@ Logging.libpath {
   require 'logging/repository'
   require 'logging/root_logger'
   require 'logging/stats'
+  require 'logging/color_scheme'
   require 'logging/appenders'
   require 'logging/layouts'
   require 'logging/proxy'
