@@ -26,7 +26,6 @@ module Logging::Layouts
               ::Logging::LNAMES[event.level], event.logger, obj)
     end
 
-  end  # class Basic
-end  # module Logging::Layouts
+  end  # Basic
+end  # Logging::Layouts
 
-# EOF
