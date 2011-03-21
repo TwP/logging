@@ -159,6 +159,21 @@ module Logging
       ::Logging::Appenders
     end
 
+    # Returns the color scheme identified by the given _name_. If there is no
+    # color scheme +nil+ is returned.
+    #
+    # If color scheme options are supplied then a new color scheme is created.
+    # Any existing color scheme with the given _name_ will be replaced by the
+    # new color scheme.
+    #
+    def color_scheme( name, opts = {} )
+      if opts.empty?
+        ::Logging::ColorScheme[name]
+      else
+        ::Logging::ColorScheme.new(name, opts)
+      end
+    end
+
     # Reopen all appenders. This method should be called immediately after a
     # fork to ensure no conflict with file descriptors and calls to fcntl or
     # flock.
@@ -287,8 +302,8 @@ module Logging
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
+      ::Logging::ColorScheme.init
       initialize_plugins
-
       levels.keys
     end
 
@@ -466,7 +481,7 @@ module Logging
 
     # Convert the given level into a level number.
     def level_num( level )
-      l = levelify level
+      l = levelify(level) rescue level
       case l
       when 'all'; 0
       when 'off'; LEVELS.length
@@ -525,4 +540,3 @@ at_exit {Logging.shutdown}
 
 end  # unless defined?
 
-# EOF

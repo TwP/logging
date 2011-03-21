@@ -18,15 +18,85 @@ module Logging
   #
   class ColorScheme
 
+    class << self
+      # Retrieve a color scheme by name.
+      #
+      def []( name )
+        @color_schemes[name.to_s]
+      end
+
+      # Store a color scheme by name.
+      #
+      def []=( name, value )
+        raise ArgumentError, "Silly! That's not a ColorSchmeme!" unless ColorScheme === value
+        @color_schemes[name.to_s] = value
+      end
+
+      # Clear all color schemes and setup a default color scheme.
+      #
+      def init
+        @color_schemes.clear
+        new(:default, :levels => {
+          :info  => :green,
+          :warn  => :yellow,
+          :error => :red,
+          :fatal => [:white, :on_red]
+        })
+      end
+    end
+
+    @color_schemes = {}
+
     # Create an instance of Logging::ColorScheme. The customization can
     # happen as a passed in Hash or via the yielded block.  Key's are
     # converted to <tt>strings</tt> and values are converted to color
     # constants.
     #
-    def initialize( h = nil )
+    #    :colorize_lines => {
+    #      :debug => :blue,
+    #      :info  => :cyan,
+    #      :warn  => :yellow,
+    #      :error => :red,
+    #      :fatal => [:white, :on_red]
+    #    }
+    #
+    #    :colorize_levels => {
+    #      :debug => :blue,
+    #      :info  => :cyan,
+    #      :warn  => :yellow,
+    #      :error => :red,
+    #      :fatal => [:white, :on_red]
+    #    }
+    #
+    #    :colorize_tokens => {
+    #      '%c' => :black,
+    #      '%d' => :red,
+    #      '%F' => :green,
+    #      '%L' => :yellow,
+    #      '%m' => :blue,
+    #      '%M' => :magenta,
+    #      '%p' => :cyan,
+    #      '%r' => :white,
+    #      '%t' => [:blue, :on_white],
+    #      '%T' => [:green, :on_yellow]
+    #    }
+    #
+    #
+    def initialize( name, opts = {} )
       @scheme = Hash.new
-      load_from_hash(h) unless h.nil?
-      yield self if block_given?
+
+      @lines = opts.key? :lines
+      @levels = opts.key? :levels
+      raise ArgumentError, "Found both :lines and :levels - only one can be used." if lines? and levels?
+
+      lines = opts.delete :lines
+      levels = opts.delete :levels
+
+      load_from_hash(opts)
+      load_from_hash(lines) if lines?
+      load_from_hash(levels) if levels?
+
+      ::Logging::ColorScheme[name] = self
     end
 
     # Load multiple colors from key/value pairs.
@@ -37,22 +107,35 @@ module Logging
       end
     end
 
+    #
+    #
+    def lines?
+      @lines
+    end
+
+    #
+    #
+    def levels?
+      @levels
+    end
+
     # Does this color scheme include the given tag name?
     #
     def include?( color_tag )
-      @scheme.key?(to_symbol(color_tag))
+      @scheme.key?(to_key(color_tag))
     end
 
     # Allow the scheme to be accessed like a Hash.
     #
     def []( color_tag )
-      @scheme[to_symbol(color_tag)]
+      @scheme[to_key(color_tag)]
     end
 
     # Allow the scheme to be set like a Hash.
     #
     def []=( color_tag, constants )
-      @scheme[to_symbol(color_tag)] = constants.map { |c| to_constant(c) }
+      @scheme[to_key(color_tag)] = constants.respond_to?(:map) ?
+          constants.map { |c| to_constant(c) }.join : to_constant(constants)
     end
 
     # This method provides easy access to ANSI color sequences, without the user
@@ -64,18 +147,22 @@ module Logging
     #
     def color( string, *colors )
       colors.map! { |color|
-        color_tag = to_symbol(color)
+        color_tag = to_key(color)
         @scheme.key?(color_tag) ? @scheme[color_tag] : to_constant(color)
       }
-      "#{colors.flatten.join}#{string}#{CLEAR}"
+
+      colors.compact!
+      return string if colors.empty?
+
+      "#{colors.join}#{string}#{CLEAR}"
     end
 
   private
 
     # Return a normalized representation of a color name.
     #
-    def to_symbol( t )
-      t.to_s.downcase
+    def to_key( t )
+      t.to_s
     end
 
     # Return a normalized representation of a color setting.
@@ -83,7 +170,7 @@ module Logging
     def to_constant( v )
       ColorScheme.const_get(v.to_s.upcase)
     rescue NameError
-      return  v
+      return  nil
     end
 
     # Embed in a String to clear all previous ANSI sequences.  This *MUST* be
