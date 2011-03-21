@@ -27,6 +27,5 @@ Bones {
 
   depend_on 'flexmock',     :development => true
   depend_on 'bones-git',    :development => true
-  depend_on 'bones-extras', :development => true
 }
 
