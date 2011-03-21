@@ -35,7 +35,9 @@ module Logging
       # Clear all color schemes and setup a default color scheme.
       #
       def reset
+        @color_schemes ||= {}
         @color_schemes.clear
+
         new(:default, :levels => {
           :info  => :green,
           :warn  => :yellow,
@@ -45,14 +47,16 @@ module Logging
       end
     end
 
-    @color_schemes = {}
 
     # Create an instance of Logging::ColorScheme. The customization can
     # happen as a passed in Hash or via the yielded block.  Key's are
     # converted to <tt>strings</tt> and values are converted to color
     # constants.
     #
-    #    :colorize_lines => {
+    # The following options are used by the PatternLayout class to colorize
+    # log messages:
+    #
+    #    :levels => {
     #      :debug => :blue,
     #      :info  => :cyan,
     #      :warn  => :yellow,
@@ -60,7 +64,7 @@ module Logging
     #      :fatal => [:white, :on_red]
     #    }
     #
-    #    :colorize_levels => {
+    #    :lines => {
     #      :debug => :blue,
     #      :info  => :cyan,
     #      :warn  => :yellow,
@@ -68,19 +72,16 @@ module Logging
     #      :fatal => [:white, :on_red]
     #    }
     #
-    #    :colorize_tokens => {
-    #      '%c' => :black,
-    #      '%d' => :red,
-    #      '%F' => :green,
-    #      '%L' => :yellow,
-    #      '%m' => :blue,
-    #      '%M' => :magenta,
-    #      '%p' => :cyan,
-    #      '%r' => :white,
-    #      '%t' => [:blue, :on_white],
-    #      '%T' => [:green, :on_yellow]
-    #    }
-    #
+    #    :logger       [%c] name of the logger that generate the log event
+    #    :date         [%d] datestamp
+    #    :message      [%m] the user supplied log message
+    #    :pid          [%p] PID of the current process
+    #    :time         [%r] the time in milliseconds since the program started
+    #    :thread       [%T] the name of the thread Thread.current[:name]
+    #    :thread_id    [%t] object_id of the thread
+    #    :file         [%F] filename where the logging request was issued
+    #    :line         [%L] line number where the logging request was issued
+    #    :method       [%M] method name where the logging request was issued
     #
     def initialize( name, opts = {} )
       @scheme = Hash.new
@@ -206,5 +207,9 @@ module Logging
     ON_WHITE   = "\e[47m".freeze    # Set the terminal's background ANSI color to white.
 
   end  # ColorScheme
+
+  # setup the default color scheme
+  ColorScheme.reset
+
 end  # Logging
 
