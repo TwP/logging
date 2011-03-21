@@ -302,7 +302,6 @@ module Logging
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
-      ::Logging::ColorScheme.reset
       initialize_plugins
       levels.keys
     end
@@ -503,6 +502,7 @@ module Logging
     def reset
       ::Logging::Repository.reset
       ::Logging::Appenders.reset
+      ::Logging::ColorScheme.reset
       LEVELS.clear
       LNAMES.clear
       remove_instance_variable :@backtrace if defined? @backtrace
