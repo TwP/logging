@@ -65,7 +65,7 @@ module Logging::Layouts
   # own line in the log output. Therefore, to parse the output you must read
   # it line by line and parse the individual objects. Taking the same
   # example above the JSON output would be:
-  # 
+  #
   #   {"timestamp":"2009-04-17 16:15:42","level":"INFO","logger":"Foo::Bar","message":"this is a log message"}
   #   {"timestamp":"2009-04-17 16:15:43","level":"ERROR","logger":"Foo","message":"<RuntimeError> Oooops!!"}
   #
@@ -124,7 +124,7 @@ module Logging::Layouts
         "\\\"#{name}\\\":%s"
       }.join(',')
       code << "}\\n\" % [#{args.join(', ')}]\nend"
-      
+
       (class << layout; self end).class_eval(code, __FILE__, __LINE__)
     end
     # :startdoc:
@@ -183,8 +183,7 @@ module Logging::Layouts
       create_format_method
     end
 
-
-    private
+  private
 
     # Take the given _value_ and format it into a JSON compatible string.
     #
@@ -205,7 +204,6 @@ module Logging::Layouts
       else raise ArgumentError, "unknown format style '#@style'" end
     end
 
-  end  # class Parseable
-end  # module Logging::Layouts
+  end  # Parseable
+end  # Logging::Layouts
 
-# EOF
