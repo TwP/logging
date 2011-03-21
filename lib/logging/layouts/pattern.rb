@@ -149,6 +149,20 @@ module Logging::Layouts
     # default date format
     ISO8601 = "%Y-%m-%d %H:%M:%S".freeze
 
+    # Human name aliases for directives - used for colorization of tokens
+    COLOR_ALIAS_TABLE = {
+      'c' => :logger,
+      'd' => :date,
+      'm' => :message,
+      'p' => :pid,
+      'r' => :time,
+      'T' => :thread,
+      't' => :thread_id,
+      'F' => :file,
+      'L' => :line,
+      'M' => :method
+    }.freeze
+
     # call-seq:
     #    Pattern.create_date_format_methods( pf )
     #
@@ -199,7 +213,10 @@ module Logging::Layouts
         case m[3]
         when '%'; format_string << '%%'
         when 'c'
-          format_string << m[2] + 's'
+          fmt = m[2] + 's'
+          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+          format_string << fmt
           args << DIRECTIVE_TABLE[m[3]].dup
           if m[4]
             raise ArgumentError, "logger name precision must be an integer greater than zero: #{m[4]}" unless Integer(m[4]) > 0
@@ -209,7 +226,7 @@ module Logging::Layouts
           end
         when 'l'
           if color_scheme and color_scheme.levels?
-            name_map = ::Logging::LNAMES.map { |name| color_scheme.color("#{m[2]}s" % name, name) }
+            name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{m[2]}s" % name), name) }
             var = "@name_map_#{name_map_count}"
             pf.instance_variable_set(var.to_sym, name_map)
             name_map_count += 1
@@ -224,7 +241,10 @@ module Logging::Layouts
           end
 
         when *DIRECTIVE_TABLE.keys
-          format_string << m[2] + 's'
+          fmt = m[2] + 's'
+          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+          format_string << fmt
           format_string << "{#{m[4]}}" if m[4]
           args << DIRECTIVE_TABLE[m[3]]
         when nil; break
@@ -266,6 +286,12 @@ module Logging::Layouts
     #    :color_scheme  =>  :default
     #
     # If used, :date_method will supersede :date_pattern.
+    #
+    # The :color_scheme is used to apply color formatting to the log messages.
+    # Individual tokens can be colorized witch the level token [%l] receiving
+    # distinct colors based on the level of the log event. The entire
+    # generated log message can also be colorized based on the level of the
+    # log event. See the ColorScheme documentation for more details.
     #
     def initialize( opts = {} )
       super
@@ -339,7 +365,6 @@ module Logging::Layouts
     end
     # :startdoc:
 
-  end  # class Pattern
-end  # module Logging::Layouts
+  end  # Pattern
+end  # Logging::Layouts
 
-# EOF
