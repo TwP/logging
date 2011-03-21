@@ -1,5 +1,5 @@
 
-require File.expand_path('../setup', File.dirname(__FILE__))
+require File.expand_path('../../setup', __FILE__)
 
 module TestLogging
 module TestLayouts
@@ -191,8 +191,7 @@ module TestLayouts
       assert_equal 'message{42}', @layout.format(event)
     end
 
-  end  # class TestBasic
-end  # module TestLayouts
-end  # module TestLogging
+  end  # TestBasic
+end  # TestLayouts
+end  # TestLogging
 
-# EOF
