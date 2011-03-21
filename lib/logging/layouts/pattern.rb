@@ -188,7 +188,9 @@ module Logging::Layouts
       # Create the format(event) method
       format_string = '"'
       pattern = pf.pattern.dup
+      color_scheme = pf.color_scheme
       args = []
+      name_map_count = 0
 
       while true
         m = DIRECTIVE_RGXP.match(pattern)
@@ -205,6 +207,22 @@ module Logging::Layouts
                 ".split(::Logging::Repository::PATH_DELIMITER)" \
                 ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
           end
+        when 'l'
+          if color_scheme and color_scheme.levels?
+            name_map = ::Logging::LNAMES.map { |name| color_scheme.color("#{m[2]}s" % name, name) }
+            var = "@name_map_#{name_map_count}"
+            pf.instance_variable_set(var.to_sym, name_map)
+            name_map_count += 1
+
+            format_string << '%s'
+            format_string << "{#{m[4]}}" if m[4]
+            args << "#{var}[event.level]"
+          else
+            format_string << m[2] + 's'
+            format_string << "{#{m[4]}}" if m[4]
+            args << DIRECTIVE_TABLE[m[3]]
+          end
+
         when *DIRECTIVE_TABLE.keys
           format_string << m[2] + 's'
           format_string << "{#{m[4]}}" if m[4]
@@ -220,12 +238,17 @@ module Logging::Layouts
 
       format_string << '"'
 
+      sprintf = "sprintf("
+      sprintf << format_string
+      sprintf << ', ' + args.join(', ') unless args.empty?
+      sprintf << ")"
+
+      if color_scheme and color_scheme.lines?
+        sprintf = "color_scheme.color(#{sprintf}, ::Logging::LNAMES[event.level])"
+      end
+
       code = "undef :format if method_defined? :format\n"
-      code << "def format( event )\nsprintf("
-      code << format_string
-      code << ', ' + args.join(', ') unless args.empty?
-      code << ")\n"
-      code << "end\n"
+      code << "def format( event )\n#{sprintf}\nend\n"
       ::Logging.log_internal(0) {code}
 
       pf._meta_eval(code, __FILE__, __LINE__)
@@ -240,6 +263,7 @@ module Logging::Layouts
     #    :pattern       =>  "[%d] %-5l -- %c : %m\n"
     #    :date_pattern  =>  "%Y-%m-%d %H:%M:%S"
     #    :date_method   =>  'usec' or 'to_s'
+    #    :color_scheme  =>  :default
     #
     # If used, :date_method will supersede :date_pattern.
     #
@@ -254,11 +278,18 @@ module Logging::Layouts
       @pattern = opts.getopt(:pattern,
           "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n")
 
+      cs_name = opts.getopt(:color_scheme)
+      @color_scheme =
+          case cs_name
+          when false, nil; nil
+          when true; ::Logging::ColorScheme[:default]
+          else ::Logging::ColorScheme[cs_name] end
+
       Pattern.create_date_format_methods(self)
       Pattern.create_format_method(self)
     end
 
-    attr_reader :pattern, :date_pattern, :date_method
+    attr_reader :pattern, :date_pattern, :date_method, :color_scheme
 
     # call-seq:
     #    appender.pattern = "[%d] %-5l -- %c : %m\n"

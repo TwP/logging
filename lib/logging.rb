@@ -302,7 +302,7 @@ module Logging
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
-      ::Logging::ColorScheme.init
+      ::Logging::ColorScheme.reset
       initialize_plugins
       levels.keys
     end

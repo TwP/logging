@@ -34,7 +34,7 @@ module Logging
 
       # Clear all color schemes and setup a default color scheme.
       #
-      def init
+      def reset
         @color_schemes.clear
         new(:default, :levels => {
           :info  => :green,
@@ -162,7 +162,7 @@ module Logging
     # Return a normalized representation of a color name.
     #
     def to_key( t )
-      t.to_s
+      t.to_s.downcase
     end
 
     # Return a normalized representation of a color setting.
