@@ -14,12 +14,10 @@ Bones {
   authors      'Tim Pease'
   email        'tim.pease@gmail.com'
   url          'http://rubygems.org/gems/logging'
-  readme_file  'README.rdoc'
-  ignore_file  '.gitignore'
 
   rdoc.exclude << '^data'
   rdoc.include << '^examples/.*\.rb'
-  #rdoc.dir = 'doc/rdoc'
+  rcov.opts    << '-x' << '~/.rvm/'
 
   use_gmail
 
@@ -27,5 +25,6 @@ Bones {
 
   depend_on 'flexmock',     :development => true
   depend_on 'bones-git',    :development => true
+  depend_on 'bones-rcov',   :development => true
 }
 
