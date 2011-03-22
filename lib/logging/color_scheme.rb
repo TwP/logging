@@ -14,7 +14,18 @@ module Logging
   #
   #   scheme.color("This is a warning", :warning)
   #
-  # A ColorScheme contains named sets of color constants.
+  # ColorScheme objects are used by the Pattern layout code to colorize log
+  # messages. Each color scheme is given a unique name which is used by the
+  # Pattern layout to lookup the appropriate color scheme to use. Please
+  # refere to the Pattern layout documentation for more details - specifically
+  # the initializer documentation.
+  #
+  # The color scheme can be applied to the Pattern layout in several ways.
+  # Each token in the log pattern can be colorized with the log level (debug,
+  # info, warn, etc) receiving unique colors based on the level itself.
+  # Another option is to colorize the enitre log message based on the log
+  # level; in this mode tokens do not get their own colors. Please see the
+  # ColorScheme initializer for the list of colorization options.
   #
   class ColorScheme
 
@@ -47,14 +58,22 @@ module Logging
       end
     end
 
-
-    # Create an instance of Logging::ColorScheme. The customization can
-    # happen as a passed in Hash or via the yielded block.  Key's are
-    # converted to <tt>strings</tt> and values are converted to color
-    # constants.
+    # Create a ColorScheme instance that can be accessed using the given
+    # _name_. If a color scheme already exists with the given _name_ it will
+    # be replaced by the new color scheme.
     #
-    # The following options are used by the PatternLayout class to colorize
-    # log messages:
+    # The color names are passed as options to the method with each name
+    # mapping to one or more color codes. For example:
+    #
+    #    ColorScheme.new('example', :logger => [:white, :on_green], :message => :magenta)
+    #
+    # The color codes are the lowercase names of the constants defined at the
+    # end of this file. Multiple color codes can be aliased by grouping them
+    # in an array as shown in the example above.
+    #
+    # Since color schems are primary inteneded to be used with the Pattern
+    # layout, there are a few special options of note. First the log levels
+    # are enumerated in their own hash:
     #
     #    :levels => {
     #      :debug => :blue,
@@ -64,6 +83,11 @@ module Logging
     #      :fatal => [:white, :on_red]
     #    }
     #
+    # The log level token will be colorized differently based on the value of
+    # the log level itself. Similarly the entire log message can be colorized
+    # based on the value of the log level. A dfferent option should be given
+    # for this behavior:
+    #
     #    :lines => {
     #      :debug => :blue,
     #      :info  => :cyan,
@@ -71,6 +95,13 @@ module Logging
     #      :error => :red,
     #      :fatal => [:white, :on_red]
     #    }
+    #
+    # The :levels and :lines options cannot be used together; only one or the
+    # other should be given.
+    #
+    # The remaining tokens defined in the Pattern layout can be colorized
+    # using the following aliases. Their meaning in the Pattern layout are
+    # repeated here for sake of clarity.
     #
     #    :logger       [%c] name of the logger that generate the log event
     #    :date         [%d] datestamp
@@ -82,6 +113,9 @@ module Logging
     #    :file         [%F] filename where the logging request was issued
     #    :line         [%L] line number where the logging request was issued
     #    :method       [%M] method name where the logging request was issued
+    #
+    # Please refer to the "examples/colorization.rb" file for a working
+    # example of log colorization.
     #
     def initialize( name, opts = {} )
       @scheme = Hash.new
@@ -108,13 +142,13 @@ module Logging
       end
     end
 
-    #
+    # Returns +true+ if the :lines option was passed to the constructor.
     #
     def lines?
       @lines
     end
 
-    #
+    # Returns +true+ if the :levels option was passed to the constructor.
     #
     def levels?
       @levels
