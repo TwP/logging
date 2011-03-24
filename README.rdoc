@@ -1,7 +1,7 @@
 Logging
     by Tim Pease
 
-* {Homepage}[http://logging.rubyforge.org/]
+* {Homepage}[http://github.com/TwP/logging]
 * {Rubyforge Project}[http://rubyforge.org/projects/logging]
 * email tim dot pease at gmail dot com
 
@@ -14,7 +14,7 @@ formatting, and more.
 
 == INSTALL
 
-  sudo gem install logging
+  gem install logging
 
 == EXAMPLE
 
@@ -57,36 +57,38 @@ the recommended way of accomplishing this.
 
   class FirstClass
     def initialize
-      @log = Logging.logger[self]
+      @logger = Logging.logger[self]
     end
 
     def some_method
-      @log.debug "some method was called on #{self.inspect}"
+      @logger.debug "some method was called on #{self.inspect}"
     end
   end
 
   class SecondClass
     def initialize
-      @log = Logging.logger[self]
+      @logger = Logging.logger[self]
     end
 
     def another_method
-      @log.debug "another method was called on #{self.inspect}"
+      @logger.debug "another method was called on #{self.inspect}"
     end
   end
 
 There are many more examples in the "examples" folder of the logging
 package. The recommended reading order is the following:
 
-  simple.rb
-  loggers.rb
-  classes.rb
-  hierarchies.rb
-  names.rb
-  appenders.rb
-  layouts.rb
-  formatting.rb
-  consolidation.rb
+  {simple.rb}[http://github.com/TwP/logging/blob/master/examples/simple.rb]
+  {loggers.rb}[http://github.com/TwP/logging/blob/master/examples/loggers.rb]
+  {classes.rb}[http://github.com/TwP/logging/blob/master/examples/classes.rb]
+  {hierarchies.rb}[http://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
+  {names.rb}[http://github.com/TwP/logging/blob/master/examples/names.rb]
+  {appenders.rb}[http://github.com/TwP/logging/blob/master/examples/appenders.rb]
+  {layouts.rb}[http://github.com/TwP/logging/blob/master/examples/layouts.rb]
+  {formatting.rb}[http://github.com/TwP/logging/blob/master/examples/formatting.rb]
+  {colorization.rb}[http://github.com/TwP/logging/blob/master/examples/colorization.rb]
+  {consolidation.rb}[http://github.com/TwP/logging/blob/master/examples/consolidation.rb]
+  {fork.rb}[http://github.com/TwP/logging/blob/master/examples/fork.rb]
 
 == NOTES
 
@@ -99,16 +101,18 @@ class names.
 
 == REQUIREMENTS
 
-Logging requires the "lockfile" gem to run and the "flexmock" gem to run the
-tests"
-
-== DEVELOPMENT REQUIREMENTS
-
 The Logging source code relies on the Mr Bones project for default rake tasks.
 You will need to install the Mr Bones gem if you want to build or test the
 logging gem.
 
    gem install bones
+
+After Mr Bones is installed you can install all the depdencies via the rake
+task.
+
+   rake gem:install_dependencies
+
+Always remember that "rake -T" is your friend!
 
 == LICENSE
 
