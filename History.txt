@@ -1,3 +1,8 @@
+== 1.5.1 / 2011-03-
+
+Bug Fixes
+- IO streams cannot be buffered when using syswrite
+
 == 1.5.0 / 2011-03-22
 
 Minor Enhancements
