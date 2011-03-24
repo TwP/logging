@@ -1,8 +1,8 @@
 Logging
     by Tim Pease
 
-* {Homepage}[http://github.com/TwP/logging]
-* {Rubyforge Project}[http://rubyforge.org/projects/logging]
+* {Homepage}[http://rubygems.org/gems/logging]
+* {Github Project}[http://github.com/TwP/logging]
 * email tim dot pease at gmail dot com
 
 == DESCRIPTION
