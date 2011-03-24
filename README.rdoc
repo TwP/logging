@@ -78,17 +78,17 @@ the recommended way of accomplishing this.
 There are many more examples in the "examples" folder of the logging
 package. The recommended reading order is the following:
 
-  {simple.rb}[http://github.com/TwP/logging/blob/master/examples/simple.rb]
-  {loggers.rb}[http://github.com/TwP/logging/blob/master/examples/loggers.rb]
-  {classes.rb}[http://github.com/TwP/logging/blob/master/examples/classes.rb]
-  {hierarchies.rb}[http://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
-  {names.rb}[http://github.com/TwP/logging/blob/master/examples/names.rb]
-  {appenders.rb}[http://github.com/TwP/logging/blob/master/examples/appenders.rb]
-  {layouts.rb}[http://github.com/TwP/logging/blob/master/examples/layouts.rb]
-  {formatting.rb}[http://github.com/TwP/logging/blob/master/examples/formatting.rb]
-  {colorization.rb}[http://github.com/TwP/logging/blob/master/examples/colorization.rb]
-  {consolidation.rb}[http://github.com/TwP/logging/blob/master/examples/consolidation.rb]
-  {fork.rb}[http://github.com/TwP/logging/blob/master/examples/fork.rb]
+* {simple.rb}[http://github.com/TwP/logging/blob/master/examples/simple.rb]
+* {loggers.rb}[http://github.com/TwP/logging/blob/master/examples/loggers.rb]
+* {classes.rb}[http://github.com/TwP/logging/blob/master/examples/classes.rb]
+* {hierarchies.rb}[http://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
+* {names.rb}[http://github.com/TwP/logging/blob/master/examples/names.rb]
+* {appenders.rb}[http://github.com/TwP/logging/blob/master/examples/appenders.rb]
+* {layouts.rb}[http://github.com/TwP/logging/blob/master/examples/layouts.rb]
+* {formatting.rb}[http://github.com/TwP/logging/blob/master/examples/formatting.rb]
+* {colorization.rb}[http://github.com/TwP/logging/blob/master/examples/colorization.rb]
+* {consolidation.rb}[http://github.com/TwP/logging/blob/master/examples/consolidation.rb]
+* {fork.rb}[http://github.com/TwP/logging/blob/master/examples/fork.rb]
 
 == NOTES
 
