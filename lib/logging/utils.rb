@@ -164,6 +164,17 @@ class File
     flock LOCK_UN
   end
 
+  # Execute the <tt>block</tt> in the context of an exclusive lock on this file. A
+  # shared lock will be obtained on the file, the block executed, and the lock
+  # released.
+  #
+  def flock_ex( &block )
+    flock LOCK_EX
+    block.call
+  ensure
+    flock LOCK_UN
+  end
+
   # :stopdoc:
   if %r/mswin|mingw/ =~ RUBY_PLATFORM
     undef :flock?, :flock_sh
