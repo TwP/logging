@@ -1,7 +1,9 @@
-== 1.5.1 / 2011-03-
+== 1.5.1 / 2011-06-03
 
 Bug Fixes
 - IO streams cannot be buffered when using syswrite
+- JRuby does not allow shared locks on write only file descriptors
+- Fixing tests for JRuby 1.6.X
 
 == 1.5.0 / 2011-03-22
 
