@@ -131,7 +131,9 @@ module Logging::Appenders
       meta = class << self; self end
       meta.class_eval code, __FILE__, __LINE__
 
-      super(name, ::File.new(@fn, 'a'), opts)
+      # we are opening the file in read/write mode so that a shared lock can
+      # be used on the file descriptor => http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
+      super(name, ::File.new(@fn, 'a+'), opts)
 
       # setup the file roller
       @roller =
@@ -167,7 +169,7 @@ module Logging::Appenders
           @io.close rescue nil
         end
         @closed = false
-        @io = ::File.new(@fn, 'a')
+        @io = ::File.new(@fn, 'a+')
       }
       self
     end
