@@ -12,8 +12,8 @@ module Logging
     # * $2 == line number
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([-\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
-    CALLER_INDEX = 2
-    #CALLER_INDEX = RUBY_PLATFORM[%r/^java/i] ? 1 : 2
+    #CALLER_INDEX = 2
+    CALLER_INDEX = (defined? JRUBY_VERSION and JRUBY_VERSION[%r/^1.6/]) ? 1 : 2
     # :startdoc:
 
     # call-seq:
@@ -42,4 +42,3 @@ module Logging
   }
 end  # module Logging
 
-# EOF

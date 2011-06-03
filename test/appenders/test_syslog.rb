@@ -20,7 +20,7 @@ module TestAppenders
     end
 
     def test_append
-      return if RUBY_PLATFORM =~ %r/cygwin/
+      return if RUBY_PLATFORM =~ %r/cygwin|java/i
 
       stderr = IO::pipe
 
@@ -78,7 +78,7 @@ module TestAppenders
     end
 
     def test_concat
-      return if RUBY_PLATFORM =~ %r/cygwin/
+      return if RUBY_PLATFORM =~ %r/cygwin|java/i
 
       stderr = IO::pipe
 
