@@ -141,11 +141,11 @@ class File
   # return immediately (and the block will not be executed) if an exclusive
   # lock cannot be obtained.
   #
-  def flock?( &block )
+  def flock?
     status = flock(LOCK_EX|LOCK_NB)
     case status
     when false; true
-    when 0; block ? block.call : false
+    when 0; block_given? ? yield : false
     else
       raise SystemCallError, "flock failed with status: #{status}"
     end
@@ -153,13 +153,13 @@ class File
     flock LOCK_UN
   end
 
-  # Execute the <tt>block</tt> in the context of a shared lock on this file. A
+  # Execute a <tt>block</tt> in the context of a shared lock on this file. A
   # shared lock will be obtained on the file, the block executed, and the lock
   # released.
   #
-  def flock_sh( &block )
+  def flock_sh
     flock LOCK_SH
-    block.call
+    yield
   ensure
     flock LOCK_UN
   end
