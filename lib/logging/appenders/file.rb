@@ -42,6 +42,8 @@ module Logging::Appenders
     def initialize( name, opts = {} )
       @fn = opts.getopt(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
+
+      @fn = ::File.expand_path(@fn)
       self.class.assert_valid_logfile(@fn)
       @mode = opts.getopt(:truncate) ? 'w' : 'a'
 

@@ -69,8 +69,10 @@ module Logging::Appenders
     def initialize( name, opts = {} )
       # raise an error if a filename was not given
       @fn = opts.getopt(:filename, name)
-      @fn_copy = @fn + '._copy_'
       raise ArgumentError, 'no filename was given' if @fn.nil?
+
+      @fn = ::File.expand_path(@fn)
+      @fn_copy = @fn + '._copy_'
       ::Logging::Appenders::File.assert_valid_logfile(@fn)
 
       # grab our options
