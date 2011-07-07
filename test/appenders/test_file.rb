@@ -43,7 +43,7 @@ module TestAppenders
       log = File.join(TMP, 'file.log')
       appender = Logging.appenders.file(NAME, 'filename' => log)
       assert_equal 'logfile', appender.name
-      assert_equal log, appender.filename
+      assert_equal ::File.expand_path(log), appender.filename
       appender << "This will be the first line\n"
       appender << "This will be the second line\n"
       appender.flush
@@ -56,7 +56,7 @@ module TestAppenders
 
       appender = Logging.appenders.file(NAME, :filename => log)
       assert_equal 'logfile', appender.name
-      assert_equal log, appender.filename
+      assert_equal ::File.expand_path(log), appender.filename
       appender << "This will be the third line\n"
       appender.flush
       File.open(log, 'r') do |file|
@@ -79,7 +79,23 @@ module TestAppenders
       cleanup
     end
 
-    private
+    def test_changing_directories
+      log = File.join(TMP, 'file.log')
+      appender = Logging.appenders.file(NAME, 'filename' => log)
+
+      assert_equal 'logfile', appender.name
+      assert_equal ::File.expand_path(log), appender.filename
+
+      begin
+        pwd = Dir.pwd
+        Dir.chdir TMP
+        assert_nothing_raised { appender.reopen }
+      ensure
+        Dir.chdir pwd
+      end
+    end
+
+  private
     def cleanup
       unless Logging.appenders[NAME].nil?
         Logging.appenders[NAME].close false
@@ -87,9 +103,8 @@ module TestAppenders
       end
     end
 
-  end  # class TestFile
+  end  # TestFile
 
-end  # module TestAppenders
-end  # module TestLogging
+end  # TestAppenders
+end  # TestLogging
 
-# EOF

@@ -29,15 +29,14 @@ module LoggingTestCase
     FileUtils.rm_rf TMP
     FileUtils.mkdir TMP
   end
-    
+
   def teardown
     super
     FileUtils.rm_rf TMP
   end
 
-end  # module LoggingTestCase
-end  # module TestLogging
+end  # LoggingTestCase
+end  # TestLogging
 
-end  # unless defined?
+end  # defined?
 
-# EOF

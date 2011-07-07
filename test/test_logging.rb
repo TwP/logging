@@ -57,7 +57,7 @@ module TestLogging
       logfile = ::Logging::Appenders['logfile']
       assert_instance_of ::Logging::Appenders::File, logfile
       assert_equal 0, logfile.level
-      assert_equal 'tmp/temp.log', logfile.instance_variable_get(:@fn)
+      assert_equal ::File.expand_path('tmp/temp.log'), logfile.instance_variable_get(:@fn)
 
       layout = logfile.layout
       assert_instance_of ::Logging::Layouts::Pattern, layout

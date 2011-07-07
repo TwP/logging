@@ -13,9 +13,9 @@ module TestAppenders
       super
       Logging.init
 
-      @fn = File.join(TMP, 'test.log')
-      @fn_fmt = File.join(TMP, 'test.%d.log')
-      @glob = File.join(TMP, '*.log')
+      @fn = File.expand_path('test.log', TMP)
+      @fn_fmt = File.expand_path('test.%d.log', TMP)
+      @glob = File.expand_path('*.log', TMP)
     end
 
     def test_initialize
@@ -194,7 +194,24 @@ module TestAppenders
       assert_equal 100, File.size(@fn)
     end
 
-    private
+    def test_changing_directories
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :size => 100)
+
+      begin
+        pwd = Dir.pwd
+        Dir.chdir TMP
+
+        ap << 'X' * 100; ap.flush
+        assert_equal 1, Dir.glob(@glob).length
+
+        ap << 'X'; ap.flush
+        assert_equal 2, Dir.glob(@glob).length
+      ensure
+        Dir.chdir pwd
+      end
+    end
+
+  private
     def cleanup
       unless Logging.appenders[NAME].nil?
         Logging.appenders[NAME].close false
@@ -202,8 +219,7 @@ module TestAppenders
       end
     end
 
-  end  # class TestRollingFile
-end  # module TestAppenders
-end  # module TestLogging
+  end  # TestRollingFile
+end  # TestAppenders
+end  # TestLogging
 
-# EOF
