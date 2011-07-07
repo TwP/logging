@@ -1,3 +1,8 @@
+== 1.5.2 / 2011-07-07
+
+Bug Fixes
+- Changing working directory breaks rolling file appenders [issue #8]
+
 == 1.5.1 / 2011-06-03
 
 Bug Fixes
