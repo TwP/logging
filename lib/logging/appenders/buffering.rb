@@ -26,6 +26,38 @@ module Logging::Appenders
     #
     attr_reader :auto_flushing
 
+    # When set, the buffer will be flushed at regular intervals defined by the
+    # flush_period.
+    #
+    attr_reader :flush_period
+
+    # Setup the message buffer and other variables for automatically and
+    # periodically flushing the buffer.
+    #
+    def initialize( *args, &block )
+      @buffer = []
+      @immediate = []
+      @auto_flushing = 1
+      @flush_period = @periodic_flusher = nil
+
+      super(*args, &block)
+    end
+
+    # Close the message buffer by flusing all log events to the appender. If a
+    # periodic flusher thread is running, shut it down and allow it to exit.
+    #
+    def close( *args )
+      flush
+
+      if @periodic_flusher
+        @periodic_flusher.stop
+        @periodic_flusher = nil
+        Thread.pass
+      end
+
+      super(*args)
+    end
+
     # Call +flush+ to force an appender to write out any buffered log events.
     # Similar to IO#flush, so use in a similar fashion.
     #
@@ -42,7 +74,7 @@ module Logging::Appenders
       self
     end
 
-    # Configure the levels that will trigger and immediate flush of the
+    # Configure the levels that will trigger an immediate flush of the
     # logging buffer. When a log event of the given level is seen, the
     # buffer will be flushed immediately. Only the levels explicitly given
     # in this assignment will flush the buffer; if an "error" message is
@@ -59,7 +91,6 @@ module Logging::Appenders
     #   immediate_at = "warn, error"
     #
     def immediate_at=( level )
-      @immediate ||= []
       @immediate.clear
 
       # get the immediate levels -- no buffering occurs at these levels, and
@@ -77,8 +108,8 @@ module Logging::Appenders
       end
     end
 
-    # Configure the auto-flushing period. Auto-flushing is used to flush the
-    # contents of the logging buffer to the logging destination
+    # Configure the auto-flushing threshold. Auto-flushing is used to flush
+    # the contents of the logging buffer to the logging destination
     # automatically when the buffer reaches a certain threshold.
     #
     # By default, the auto-flushing will be configured to flush after each
@@ -109,12 +140,59 @@ module Logging::Appenders
                 "unrecognized auto_flushing period: #{period.inspect}"
         end
 
-      if @auto_flushing < 0
+      if @auto_flushing <= 0
         raise ArgumentError,
-          "auto_flushing period cannot be negative: #{period.inspect}"
+          "auto_flushing period must be greater than zero: #{period.inspect}"
       end
+
+      @auto_flushing = DEFAULT_BUFFER_SIZE if @flush_period and @auto_flushing <= 1
     end
 
+    # Configure periodic flushing of the message buffer. Periodic flushing is
+    # used to flush the contents of the logging buffer at some regular
+    # interval. Periodic flushing is disabled by default.
+    #
+    # When enabling periodic flushing the flush period should be set using one
+    # of the following formats: "HH:MM:SS" or seconds as an numeric or string.
+    #
+    #   "01:00:00"  : every hour
+    #   "00:05:00"  : every 5 minutes
+    #   "00:00:30"  : every 30 seconds
+    #   60          : every 60 seconds (1 minute)
+    #   "120"       : every 120 seconds (2 minutes)
+    #
+    # For the periodic flusher to work properly, the auto-flushing threshold
+    # will be set to the default value of 500. The auto-flushing threshold can
+    # be changed, but it must be greater than 1.
+    #
+    # To disable the periodic flusher simply set the flush period to +nil+.
+    # The auto-flushing threshold will not be changed; it must be disabled
+    # manually if so desired.
+    #
+    def flush_period=( period )
+      period =
+        case period
+        when Integer, Float, nil; period
+        when String;
+          num = _parse_hours_minutes_seconds(period) || _parse_numeric(period)
+          num = ArgumentError.new("unrecognized flush period: #{period.inspect}") if num.nil?
+          num
+        else ArgumentError.new("unrecognized flush period: #{period.inspect}") end
+
+      raise period if Exception === period
+      @flush_period = period
+
+      if @periodic_flusher
+        @periodic_flusher.stop
+        @periodic_flusher = nil
+      end
+
+      if @flush_period
+        @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
+        @periodic_flusher = PeriodicFlusher.new(self, @flush_period)
+        @periodic_flusher.start
+      end
+    end
 
   protected
 
@@ -127,9 +205,9 @@ module Logging::Appenders
     def configure_buffering( opts )
       ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
 
-      @buffer = []
       self.immediate_at = opts.getopt(:immediate_at, '')
       self.auto_flushing = opts.getopt(:auto_flushing, true)
+      self.flush_period = opts.getopt(:flush_period, nil)
     end
 
     # Returns true if the _event_ level matches one of the configured
@@ -151,7 +229,7 @@ module Logging::Appenders
     # formatted using the layout given to the appender when it was created.
     #
     # The _event_ will be formatted and then buffered until the
-    # "auto_flushing" level has been reached. At thsi time the canonical_write
+    # "auto_flushing" level has been reached. At this time the canonical_write
     # method will be used to log all events stored in the buffer.
     #
     def write( event )
@@ -163,11 +241,126 @@ module Logging::Appenders
         canonical_write(str)
       else
         sync { @buffer << str }
+        @periodic_flusher.signal if @periodic_flusher
         flush if @buffer.length >= @auto_flushing || immediate?(event)
       end
 
       self
     end
+
+    # Attempt to parse an hours/minutes/seconds value from the string and return
+    # an integer number of seconds.
+    #
+    #   _parse_hours_minutes_seconds("14:12:42")  #=> 51162
+    #   _parse_hours_minutes_seconds("foo")       #=> nil
+    #
+    def _parse_hours_minutes_seconds( str )
+      m = %r/^\s*(\d{2,}):(\d{2}):(\d{2}(?:\.\d+)?)\s*$/.match(str)
+      return if m.nil?
+
+      (3600 * m[1].to_i) + (60 * m[2].to_i) + (m[3].to_f)
+    end
+
+    # Convert the string into a numeric value. If the string does not
+    # represent a valid Integer or Float then +nil+ is returned.
+    #
+    #   _parse_numeric("10")   #=> 10
+    #   _parse_numeric("1.0")  #=> 1.0
+    #   _parse_numeric("foo")  #=> nil
+    #
+    def _parse_numeric( str )
+      Integer(str) rescue (Float(str) rescue nil)
+    end
+
+    # :stopdoc:
+
+    #
+    #
+    class PeriodicFlusher
+
+      #
+      #
+      def initialize( appender, period )
+        @appender = appender
+        @period = period
+
+        @mutex = Mutex.new
+        @cv = ConditionVariable.new
+        @thread = nil
+        @waiting = nil
+        @signaled = false
+      end
+
+      #
+      #
+      def start
+        return if @thread
+
+        @thread = Thread.new { loop {
+          begin
+            break if Thread.current[:stop]
+            wait_for_signal
+            sleep @period unless Thread.current[:stop]
+            @appender.flush
+          rescue => err
+            ::Logging.log_internal {"PeriodicFlusher for appender #{@appender.inspect} encountered an error"}
+            ::Logging.log_internal(-2) {err}
+          end
+        }; @thread = nil }
+
+        self
+      end
+
+      #
+      #
+      def stop
+        return if @thread.nil?
+        @thread[:stop] = true
+        signal if waiting?
+        @thread = nil
+        self
+      end
+
+      #
+      #
+      def signal
+        return if Thread.current == @thread   # don't signal ourselves
+        return if @signaled                   # don't need to signal again
+
+        @mutex.synchronize {
+          @signaled = true
+          @cv.signal
+        }
+        self
+      end
+
+      # Returns +true+ if the flusher is waiting for a signal. Returns +false+
+      # if the flusher is somewhere in the processing loop.
+      #
+      def waiting?
+        @waiting
+      end
+
+    private
+
+      def wait_for_signal
+        @mutex.synchronize {
+          begin
+            # wait on the condition variable only if we have NOT been signaled
+            unless @signaled
+              @waiting = true
+              @cv.wait(@mutex)
+              @waiting = false
+            end
+          ensure
+            @signaled = false
+          end
+        }
+      ensure
+        @waiting = false
+      end
+    end  # class PeriodicFlusher
+    # :startdoc:
 
   end  # module Buffering
 end  # module Logging::Appenders
