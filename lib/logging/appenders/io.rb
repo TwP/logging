@@ -22,8 +22,8 @@ module Logging::Appenders
       @io = io
       @io.sync = true if io.respond_to? :sync=    # syswrite complains if the IO stream is buffered
 
-      configure_buffering(opts)
       super(name, opts)
+      configure_buffering(opts)
     end
 
     # call-seq:
