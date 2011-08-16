@@ -74,6 +74,9 @@ module TestAppenders
       assert_raise(ArgumentError) {
         @appender.auto_flushing = -1
       }
+
+      @appender.auto_flushing = 0
+      assert_equal Logging::Appenders::Buffering::DEFAULT_BUFFER_SIZE, @appender.auto_flushing
     end
 
     def test_close
