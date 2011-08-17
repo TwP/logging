@@ -182,11 +182,13 @@ module Logging::Appenders
       raise period if Exception === period
       @flush_period = period
 
+      # stop and remove any existing periodic flusher instance
       if @periodic_flusher
         @periodic_flusher.stop
         @periodic_flusher = nil
       end
 
+      # create a new periodic flusher if we have a valid flush period
       if @flush_period
         @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
         @periodic_flusher = PeriodicFlusher.new(self, @flush_period)
@@ -274,11 +276,16 @@ module Logging::Appenders
 
     # :stopdoc:
 
-    #
+    # The PeriodicFlusher contains an internal run loop that will periodically
+    # wake up and flush any log events contained in the message buffer of the
+    # owning appender instance. The PeriodicFlusher relies on a _signal_ from
+    # the appender in order to wakeup and perform the flush on the appender.
     #
     class PeriodicFlusher
 
-      #
+      # Create a new PeriodicFlusher instance that will call the +flush+
+      # method on the given _appender_. The +flush+ method will be called
+      # every _period_ seconds, but only when the message buffer is non-empty.
       #
       def initialize( appender, period )
         @appender = appender
@@ -291,7 +298,7 @@ module Logging::Appenders
         @signaled = false
       end
 
-      #
+      # Start the periodic flusher's internal run loop.
       #
       def start
         return if @thread
@@ -299,7 +306,7 @@ module Logging::Appenders
         @thread = Thread.new { loop {
           begin
             break if Thread.current[:stop]
-            wait_for_signal
+            _wait_for_signal
             sleep @period unless Thread.current[:stop]
             @appender.flush
           rescue => err
@@ -311,7 +318,7 @@ module Logging::Appenders
         self
       end
 
-      #
+      # Stop the periodic flusher's internal run loop.
       #
       def stop
         return if @thread.nil?
@@ -321,7 +328,10 @@ module Logging::Appenders
         self
       end
 
-      #
+      # Signal the periodic flusher. This will wake up the run loop if it is
+      # currently waiting for something to do. If the signal method is never
+      # called, the periodic flusher will never perform the flush action on
+      # the appender.
       #
       def signal
         return if Thread.current == @thread   # don't signal ourselves
@@ -343,7 +353,7 @@ module Logging::Appenders
 
     private
 
-      def wait_for_signal
+      def _wait_for_signal
         @mutex.synchronize {
           begin
             # wait on the condition variable only if we have NOT been signaled
