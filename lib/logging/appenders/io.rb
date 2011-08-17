@@ -7,6 +7,12 @@ module Logging::Appenders
   class IO < ::Logging::Appender
     include Buffering
 
+    # The method that will be used to close the IO stream. Defaults to :close
+    # but can be :close_read, :close_write or nil. When nil, the IO stream
+    # will not be closed when the appender's close method is called.
+    #
+    attr_accessor :close_method
+
     # call-seq:
     #    IO.new( name, io )
     #    IO.new( name, io, :layout => layout )
@@ -21,6 +27,7 @@ module Logging::Appenders
 
       @io = io
       @io.sync = true if io.respond_to? :sync=    # syswrite complains if the IO stream is buffered
+      @close_method = :close
 
       super(name, opts)
       configure_buffering(opts)
@@ -37,8 +44,11 @@ module Logging::Appenders
     def close( *args )
       return self if @io.nil?
       super
+
       io, @io = @io, nil
-      io.close unless [STDIN, STDERR, STDOUT].include?(io)
+      unless [STDIN, STDERR, STDOUT].include?(io)
+        io.send(@close_method) if @close_method and io.respond_to? @close_method
+      end
     rescue IOError => err
     ensure
       return self
