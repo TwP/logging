@@ -133,9 +133,8 @@ module TestAppenders
       @appender.readline
     end
 
-  end  # class TestBufferedIO
+  end  # class TestPeriodicFlushing
 
 end  # module TestAppenders
 end  # module TestLogging
 
-# EOF
