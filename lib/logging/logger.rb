@@ -124,7 +124,7 @@ module Logging
 
     end  # class << self
 
-    attr_reader :name, :parent, :additive, :trace
+    attr_reader :name, :parent, :additive, :trace, :appenders
 
     # call-seq:
     #    Logger.new( name )
