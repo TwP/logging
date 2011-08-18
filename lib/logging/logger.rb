@@ -124,7 +124,7 @@ module Logging
 
     end  # class << self
 
-    attr_reader :name, :parent, :additive, :trace, :appenders
+    attr_reader :name, :parent, :additive, :trace
 
     # call-seq:
     #    Logger.new( name )
@@ -305,6 +305,12 @@ module Logging
 
       define_log_methods(true)
       self.level
+    end
+
+    # Returns the list of appenders.
+    #
+    def appenders
+      @appenders.dup
     end
 
     # call-seq:
