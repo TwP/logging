@@ -2,6 +2,8 @@
 
 Enhancements
 - Adding periodic flushing of buffered messages [issue #10]
+- Accessor for a logger's appenders [issue #9]
+- Better support for capturing log messages in RSpec version 1 & 2
 
 == 1.5.2 / 2011-07-07
 
