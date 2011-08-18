@@ -22,11 +22,29 @@ module Logging::Appenders
       super(name, @sio, opts)
     end
 
+    # Reopen the underlying StringIO instance. If the instance is currently
+    # closed then it will be opened. If the instance is currently open then it
+    # will be closed and immediately opened.
+    #
+    def reopen
+      @mutex.synchronize {
+        if defined? @io and @io
+          flush
+          @io.close rescue nil
+        end
+        @io = @sio = StringIO.new
+        @sio.extend IoToS
+        @pos = 0
+      }
+      super
+      self
+    end
+
     # Clears the internal StringIO instance. All log messages are removed
     # from the buffer.
     #
     def clear
-      sync {
+      @mutex.synchronize {
         @pos = 0
         @sio.seek 0
         @sio.truncate 0
