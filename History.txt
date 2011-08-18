@@ -1,3 +1,8 @@
+== 1.6.0 / 2011-08-
+
+Enhancements
+- Adding periodic flushing of buffered messages [issue #10]
+
 == 1.5.2 / 2011-07-07
 
 Bug Fixes
