@@ -64,9 +64,9 @@ module Logging::Appenders
           flush
           @io.close rescue nil
         end
-        @closed = false
         @io = ::File.new(@fn, @mode)
       }
+      super
       self
     end
 

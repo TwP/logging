@@ -58,6 +58,15 @@ module Logging::Appenders
       super(*args)
     end
 
+    # Reopen the connection to the underlying logging destination. In addtion
+    # if the appender is configured for periodic flushing, then the flushing
+    # thread will be stopped and restarted.
+    #
+    def reopen
+      _setup_periodic_flusher
+      super
+    end
+
     # Call +flush+ to force an appender to write out any buffered log events.
     # Similar to IO#flush, so use in a similar fashion.
     #
@@ -182,18 +191,7 @@ module Logging::Appenders
       raise period if Exception === period
       @flush_period = period
 
-      # stop and remove any existing periodic flusher instance
-      if @periodic_flusher
-        @periodic_flusher.stop
-        @periodic_flusher = nil
-      end
-
-      # create a new periodic flusher if we have a valid flush period
-      if @flush_period
-        @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
-        @periodic_flusher = PeriodicFlusher.new(self, @flush_period)
-        @periodic_flusher.start
-      end
+      _setup_periodic_flusher
     end
 
   protected
@@ -274,6 +272,27 @@ module Logging::Appenders
       Integer(str) rescue (Float(str) rescue nil)
     end
 
+    # Using the flush_period, create a new PeriodicFlusher attached to this
+    # appender. If the flush_period is nil, then no action will be taken. If a
+    # PeriodicFlusher alreayd exists, it will be stopped and a new one will be
+    # created.
+    #
+    def _setup_periodic_flusher
+      # stop and remove any existing periodic flusher instance
+      if @periodic_flusher
+        @periodic_flusher.stop
+        @periodic_flusher = nil
+        Thread.pass
+      end
+
+      # create a new periodic flusher if we have a valid flush period
+      if @flush_period
+        @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
+        @periodic_flusher = PeriodicFlusher.new(self, @flush_period)
+        @periodic_flusher.start
+      end
+    end
+
     # :stopdoc:
 
     # The PeriodicFlusher contains an internal run loop that will periodically
@@ -324,7 +343,6 @@ module Logging::Appenders
         return if @thread.nil?
         @thread[:stop] = true
         signal if waiting?
-        @thread = nil
         self
       end
 

@@ -156,8 +156,8 @@ module Logging::Appenders
           @syslog.close
         end
         @syslog = ::Syslog.open(@ident, @logopt, @facility)
-        @closed = false
       }
+      super
       self
     end
 
