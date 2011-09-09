@@ -529,6 +529,8 @@ Logging.libpath {
 
   require 'logging/config/configurator'
   require 'logging/config/yaml_configurator'
+
+  require 'logging/rails_compat'
 }
 
 
@@ -536,7 +538,7 @@ Logging.libpath {
 # This is needed for closing IO streams and connections to the syslog server
 # or e-mail servers, etc.
 #
-at_exit {Logging.shutdown}
+at_exit { Logging.shutdown }
 
 end  # unless defined?
 
