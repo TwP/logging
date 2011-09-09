@@ -1,4 +1,10 @@
-== 1.6.0 / 2011-08-
+== 1.6.1 / 2011-09-09
+
+Bug Fixes
+- Rails compatibility methods [issue #11]
+- Blocked rolling file appender [issue #12]
+
+== 1.6.0 / 2011-08-22
 
 Enhancements
 - Adding periodic flushing of buffered messages [issue #10]
