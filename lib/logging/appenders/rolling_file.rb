@@ -205,7 +205,7 @@ module Logging::Appenders
     # Returns +true+ if the log file needs to be rolled.
     #
     def roll_required?
-      return false if ::File.exist? @fn_copy
+      return false if ::File.exist?(@fn_copy) and (Time.now - ::File.mtime(@fn_copy)) < 180
 
       # check if max size has been exceeded
       s = @size ? ::File.size(@fn) > @size : false
@@ -222,7 +222,7 @@ module Logging::Appenders
     #
     def copy_truncate
       return unless ::File.exist?(@fn)
-      FileUtils.copy @fn, @fn_copy
+      FileUtils.concat @fn, @fn_copy
       @io.truncate 0
 
       # touch the age file if needed

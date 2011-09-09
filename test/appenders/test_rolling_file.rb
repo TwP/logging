@@ -211,6 +211,37 @@ module TestAppenders
       end
     end
 
+    def test_stale_copy_file
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :size => 100)
+
+      fn_copy = @fn + '._copy_'
+      File.open(fn_copy, 'w') { |copy| copy.puts 'stale copy file' }
+
+      ap << 'X' * 100; ap.flush
+      assert_equal 1, Dir.glob(@glob).length
+      assert_equal 100, File.size(@fn)
+
+      # this character is appended to the log file (bringing its size to 101)
+      # but the file is NOT ROLLED because the _copy_ file is in the way
+      ap << 'X'
+      assert_equal 1, Dir.glob(@glob).length
+      assert_equal 101, File.size(@fn)
+      assert_equal 16, File.size(fn_copy)
+
+      # if the _copy_ file is older than three minutes, it will be
+      # concatenated to and moved out of the way
+      time = Time.now - 200
+      ::File.utime(time, time, fn_copy)
+
+      ap << 'X'
+      assert_equal 2, Dir.glob(@glob).length
+      assert_equal 0, File.size(@fn)
+      assert_equal 118, File.size(Dir.glob(@glob).sort.first)
+      assert !File.exist?(fn_copy), '_copy_ file should not exist'
+
+      cleanup
+    end
+
   private
     def cleanup
       unless Logging.appenders[NAME].nil?
