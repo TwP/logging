@@ -175,6 +175,32 @@ class File
 end
 
 # --------------------------------------------------------------------------
+module FileUtils
+
+  # Concatenate the contents of the _src_ file to the end of the _dest_ file.
+  # If the _dest_ file does not exist, then the _src_ file is copied to the
+  # _dest_ file using +copy_file+.
+  #
+  def concat( src, dest )
+    if File.exist?(dest)
+      bufsize = File.stat(dest).blksize || 8192
+      buffer = String.new
+
+      File.open(dest, 'a') { |d|
+        File.open(src, 'r') { |r|
+          while bytes = r.read(bufsize, buffer)
+            d.syswrite bytes
+          end
+        }
+      }
+    else
+      copy_file(src, dest)
+    end
+  end
+  module_function :concat
+end
+
+# --------------------------------------------------------------------------
 class ReentrantMutex < Mutex
 
   def initialize
