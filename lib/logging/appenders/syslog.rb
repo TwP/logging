@@ -107,7 +107,7 @@ module Logging::Appenders
     # Configure the mapping from the Logging levels to the syslog levels.
     # This is needed in order to log events at the proper syslog level.
     #
-    # Without any configuration, the following maping will be used:
+    # Without any configuration, the following mapping will be used:
     #
     #    :debug  =>  LOG_DEBUG
     #    :info   =>  LOG_INFO
@@ -127,7 +127,7 @@ module Logging::Appenders
     # call-seq:
     #    close
     #
-    # Closes the connetion to the syslog facility.
+    # Closes the connection to the syslog facility.
     #
     def close( footer = true )
       super
@@ -168,7 +168,7 @@ module Logging::Appenders
     #    write( event )
     #
     # Write the given _event_ to the syslog facility. The log event will be
-    # processed through the Layout assciated with this appender. The message
+    # processed through the Layout associated with this appender. The message
     # will be logged at the level specified by the event.
     #
     def write( event )

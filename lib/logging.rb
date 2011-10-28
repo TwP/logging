@@ -192,8 +192,8 @@ module Logging
     #
     # If the "root" logger name is passed to this method then all loggers
     # will consolidate to the root logger. In other words, only the root
-    # logger will be created, and it will be used by all classes and moduels
-    # in the applicaiton.
+    # logger will be created, and it will be used by all classes and modules
+    # in the application.
     #
     # ==== Example
     #
@@ -363,7 +363,7 @@ module Logging
     end
 
     # Returns the library path for the module. If any arguments are given,
-    # they will be joined to the end of the libray path using
+    # they will be joined to the end of the library path using
     # <tt>File.join</tt>.
     #
     def libpath( *args, &block )
@@ -419,7 +419,7 @@ module Logging
     #
     #    1) name       - the name of the logger
     #
-    #    2) level      - the logger level; if it is preceeded by an
+    #    2) level      - the logger level; if it is preceded by an
     #                    asterisk then the level was explicitly set for that
     #                    logger (as opposed to being inherited from the parent
     #                    logger)
@@ -470,7 +470,7 @@ module Logging
     end
 
     # :stopdoc:
-    # Convert the given level into a connaconical form - a lowercase string.
+    # Convert the given level into a canonical form - a lowercase string.
     def levelify( level )
       case level
       when String; level.downcase

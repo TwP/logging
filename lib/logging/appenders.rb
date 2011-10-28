@@ -74,7 +74,7 @@ module Logging
     # call-seq:
     #    Appenders[name]
     #
-    # Returns the appender instance stroed in the appender hash under the
+    # Returns the appender instance stored in the appender hash under the
     # key _name_, or +nil+ if no appender has been created using that name.
     #
     def []( name ) @appenders[name] end

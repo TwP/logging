@@ -4,7 +4,7 @@ module RSpec
 
     # Capture log messages from the Logging framework and make them
     # available via a @log_output instance variable. The @log_output
-    # supports a readline method to access the log messags.
+    # supports a readline method to access the log messages.
     #
     def capture_log_messages( opts = {} )
       from = opts.getopt(:from, 'root')

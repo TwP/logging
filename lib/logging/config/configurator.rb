@@ -10,7 +10,7 @@ module Logging::Config
     class Error < StandardError; end  # :nodoc:
 
     # call-seq:
-    #    Configuraotr.process( &block )
+    #    Configurator.process( &block )
     #
     def self.process( &block )
       new.load(&block)
