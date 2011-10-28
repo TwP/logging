@@ -1,9 +1,9 @@
 # :stopdoc:
 #
 # Because of the global interpreter lock, Kernel#fork is the best way
-# to acheive true concurrency in Ruby scripts. However, there are pecularities
-# when using frok and passing file descriptors between process. These
-# pecularities affect the logging framework.
+# to achieve true concurrency in Ruby scripts. However, there are peculiarities
+# when using fork and passing file descriptors between process. These
+# peculiarities affect the logging framework.
 #
 # In short, always reopen file descriptors in the child process after fork has
 # been called. The RollingFile appender uses flock to safely coordinate the
