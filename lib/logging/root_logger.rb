@@ -3,7 +3,7 @@ module Logging
 
   # The root logger exists to ensure that all loggers have a parent and a
   # defined logging level. If a logger is additive, eventually its log
-  # events will propogate up to the root logger.
+  # events will propagate up to the root logger.
   #
   class RootLogger < Logger
 

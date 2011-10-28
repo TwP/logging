@@ -280,7 +280,7 @@ module Logging
     #    log.level = 'off'
     #    log.level = :all
     #
-    # These prodcue an +ArgumentError+
+    # These produce an +ArgumentError+
     #
     #    log.level = Object
     #    log.level = -1

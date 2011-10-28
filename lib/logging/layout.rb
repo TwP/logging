@@ -14,7 +14,7 @@ class Layout
   # call-seq:
   #    Layout.new( :format_as => :string )
   #
-  # Creates a new layout that will format objecs as strings using the
+  # Creates a new layout that will format objects as strings using the
   # given <tt>:format_as</tt> style. This can be one of <tt>:string</tt>,
   # <tt>:inspect</tt>, or <tt>:yaml</tt>. These formatting commands map to
   # the following object methods:
@@ -52,7 +52,7 @@ class Layout
   # call-seq:
   #    format( event )
   #
-  # Returns a string representation of the given loggging _event_. It is
+  # Returns a string representation of the given logging _event_. It is
   # up to subclasses to implement this method.
   #
   def format( event ) nil end
@@ -77,7 +77,7 @@ class Layout
   #
   # Return a string representation of the given object. Depending upon
   # the configuration of the logger system the format will be an +inspect+
-  # based represenation or a +yaml+ based representation.
+  # based representation or a +yaml+ based representation.
   #
   def format_obj( obj )
     case obj

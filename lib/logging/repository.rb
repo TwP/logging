@@ -185,7 +185,7 @@ module Logging
     # call-seq:
     #    master_for( key )
     #
-    # Retruns the consolidation master name for the given _key_. If there is
+    # Returns the consolidation master name for the given _key_. If there is
     # no consolidation master, then +nil+ is returned.
     #
     def master_for( key )

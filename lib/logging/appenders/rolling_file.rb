@@ -256,7 +256,7 @@ module Logging::Appenders
 
         files = Dir.glob(@glob).find_all {|fn| @rgxp =~ fn}
         unless files.empty?
-          # sort the files in revese order based on their count number
+          # sort the files in reverse order based on their count number
           files = files.sort do |a,b|
                     a = Integer(@rgxp.match(a)[1])
                     b = Integer(@rgxp.match(b)[1])
@@ -274,7 +274,7 @@ module Logging::Appenders
           end
         end
 
-        # finally reanme the copied log file
+        # finally rename the copied log file
         ::File.rename(@fn_copy, sprintf(@logname_fmt, 1))
       ensure
         @roll = false
@@ -307,7 +307,7 @@ module Logging::Appenders
       def roll_files
         return unless @roll and ::File.exist?(@fn_copy)
 
-        # reanme the copied log file
+        # rename the copied log file
         ::File.rename(@fn_copy, Time.now.strftime(@logname_fmt))
 
         # prune old log files

@@ -14,7 +14,7 @@ module Logging
 
     # A no-op implementation of the +silence+ method. Setting of log levels
     # should be done during the Logging configuration. It is the author's
-    # opinion that overriding the log level programmaticaly is a logical
+    # opinion that overriding the log level programmatically is a logical
     # error.
     #
     # Please see https://github.com/TwP/logging/issues/11 for a more detail
