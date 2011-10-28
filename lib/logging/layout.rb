@@ -52,7 +52,7 @@ class Layout
   # call-seq:
   #    format( event )
   #
-  # Returns a string representation of the given loggging _event_. It is
+  # Returns a string representation of the given logging _event_. It is
   # up to subclasses to implement this method.
   #
   def format( event ) nil end
@@ -77,7 +77,7 @@ class Layout
   #
   # Return a string representation of the given object. Depending upon
   # the configuration of the logger system the format will be an +inspect+
-  # based represenation or a +yaml+ based representation.
+  # based representation or a +yaml+ based representation.
   #
   def format_obj( obj )
     case obj

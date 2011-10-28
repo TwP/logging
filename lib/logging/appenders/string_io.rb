@@ -12,7 +12,7 @@ module Logging::Appenders
     # call-seq:
     #    StringIo.new( name, opts = {} )
     #
-    # Creates a new StrinIo appender that will append log messages to a
+    # Creates a new StringIo appender that will append log messages to a
     # StringIO instance.
     #
     def initialize( name, opts = {} )

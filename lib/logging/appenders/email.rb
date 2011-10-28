@@ -2,7 +2,7 @@
 require 'net/smtp'
 require 'time' # get rfc822 time format
 
-# a replacement EmailOutputter.  This is essentially the default EmailOutptter from Log4r but with the following
+# a replacement EmailOutputter.  This is essentially the default EmailOutputter from Log4r but with the following
 # changes:
 #   1) if there is data to send in an email, then do not send anything
 #   2) connect to the smtp server at the last minute, do not connect at startup and then send later on.

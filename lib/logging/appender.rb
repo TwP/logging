@@ -122,7 +122,7 @@ class Appender
   #    appender.level = 'off'
   #    appender.level = :all
   #
-  # These prodcue an +ArgumentError+
+  # These produce an +ArgumentError+
   #
   #    appender.level = Object
   #    appender.level = -1

@@ -75,7 +75,7 @@ module Logging
 
       # This is where the actual logging methods are defined. Two methods
       # are created for each log level. The first is a query method used to
-      # determine if that perticular logging level is enabled. The second is
+      # determine if that particular logging level is enabled. The second is
       # the actual logging method that accepts a list of objects to be
       # logged or a block. If a block is given, then the object returned
       # from the block will be logged.
@@ -194,7 +194,7 @@ module Logging
     #
     # <b>Message format</b>: +message+ can be any object, but it has to be
     # converted to a String in order to log it. The Logging::format_as
-    # method is used to determine how objects chould be converted to
+    # method is used to determine how objects should be converted to
     # strings. Generally, +inspect+ is used.
     #
     # A special case is an +Exception+ object, which will be printed in
@@ -280,7 +280,7 @@ module Logging
     #    log.level = 'off'
     #    log.level = :all
     #
-    # These prodcue an +ArgumentError+
+    # These produce an +ArgumentError+
     #
     #    log.level = Object
     #    log.level = -1

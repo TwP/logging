@@ -132,7 +132,7 @@ module Logging::Layouts
     # call-seq:
     #    Parseable.json( opts )
     #
-    # Create a new Parseable layout that outputs log events usig JSON style
+    # Create a new Parseable layout that outputs log events using JSON style
     # formatting. See the initializer documentation for available options.
     #
     def self.json( opts = {} )
@@ -143,7 +143,7 @@ module Logging::Layouts
     # call-seq:
     #    Parseable.yaml( opts )
     #
-    # Create a new Parseable layout that outputs log events usig YAML style
+    # Create a new Parseable layout that outputs log events using YAML style
     # formatting. See the initializer documentation for available options.
     #
     def self.yaml( opts = {} )

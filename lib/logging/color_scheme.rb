@@ -17,13 +17,13 @@ module Logging
   # ColorScheme objects are used by the Pattern layout code to colorize log
   # messages. Each color scheme is given a unique name which is used by the
   # Pattern layout to lookup the appropriate color scheme to use. Please
-  # refere to the Pattern layout documentation for more details - specifically
+  # refer to the Pattern layout documentation for more details - specifically
   # the initializer documentation.
   #
   # The color scheme can be applied to the Pattern layout in several ways.
   # Each token in the log pattern can be colorized with the log level (debug,
   # info, warn, etc) receiving unique colors based on the level itself.
-  # Another option is to colorize the enitre log message based on the log
+  # Another option is to colorize the entire log message based on the log
   # level; in this mode tokens do not get their own colors. Please see the
   # ColorScheme initializer for the list of colorization options.
   #
@@ -71,7 +71,7 @@ module Logging
     # end of this file. Multiple color codes can be aliased by grouping them
     # in an array as shown in the example above.
     #
-    # Since color schems are primary inteneded to be used with the Pattern
+    # Since color schemes are primary intended to be used with the Pattern
     # layout, there are a few special options of note. First the log levels
     # are enumerated in their own hash:
     #
@@ -85,7 +85,7 @@ module Logging
     #
     # The log level token will be colorized differently based on the value of
     # the log level itself. Similarly the entire log message can be colorized
-    # based on the value of the log level. A dfferent option should be given
+    # based on the value of the log level. A different option should be given
     # for this behavior:
     #
     #    :lines => {

@@ -17,7 +17,7 @@ module Logging
   #     result   # <-- always return the result
   #   end
   #
-  # The proxied object is avaiable as the "@object" variable. The logger is
+  # The proxied object is available as the "@object" variable. The logger is
   # available as the "@logger" variable.
   #
   class Proxy
