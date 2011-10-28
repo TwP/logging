@@ -19,7 +19,7 @@ class Hash
   #     String
   #     Symbol
   #
-  # If the value is +nil+, then no converstion will be performed.
+  # If the value is +nil+, then no conversion will be performed.
   #
   def getopt( *args )
     opts = args.last.instance_of?(Hash) ? args.pop : {}

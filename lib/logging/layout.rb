@@ -14,7 +14,7 @@ class Layout
   # call-seq:
   #    Layout.new( :format_as => :string )
   #
-  # Creates a new layout that will format objecs as strings using the
+  # Creates a new layout that will format objects as strings using the
   # given <tt>:format_as</tt> style. This can be one of <tt>:string</tt>,
   # <tt>:inspect</tt>, or <tt>:yaml</tt>. These formatting commands map to
   # the following object methods:
