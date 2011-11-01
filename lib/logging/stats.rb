@@ -40,7 +40,7 @@ module Logging::Stats
     # Coalesce the statistics from the _other_ sampler into this one. The
     # _other_ sampler is not modified by this method.
     #
-    # Coalescing the same two samplers mutliple times should only be done if
+    # Coalescing the same two samplers multiple times should only be done if
     # one of the samplers is reset between calls to this method. Otherwise
     # statistics will be counted multiple times.
     #
@@ -148,7 +148,7 @@ module Logging::Stats
 
     attr_reader :stats
 
-    # Create a new Tracker instance. An optional boolean can be bassed in to
+    # Create a new Tracker instance. An optional boolean can be passed in to
     # change the "threadsafe" value of the tracker. By default all trackers
     # are created to be threadsafe.
     #
@@ -163,7 +163,7 @@ module Logging::Stats
     # Coalesce the samplers from the _other_ tracker into this one. The
     # _other_ tracker is not modified by this method.
     #
-    # Coalescing the same two trackers mutliple times should only be done if
+    # Coalescing the same two trackers multiple times should only be done if
     # one of the trackers is reset between calls to this method. Otherwise
     # statistics will be counted multiple times.
     #

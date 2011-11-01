@@ -2,7 +2,7 @@
 #
 # Logging provides a simple, default logger configured in the same manner as
 # the default Ruby Logger class -- i.e. the output of the two will be the
-# same. All log messags at "warn" or higher are printed to STDOUT; any
+# same. All log messages at "warn" or higher are printed to STDOUT; any
 # message below the "warn" level are discarded.
 #
 

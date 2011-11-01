@@ -49,7 +49,7 @@ module Logging::Appenders
     # notification levels. This is needed in order to log events at the
     # proper Growl level.
     #
-    # Without any configuration, the following maping will be used:
+    # Without any configuration, the following mapping will be used:
     #
     #    :debug  =>  -2
     #    :info   =>  -1
@@ -73,7 +73,7 @@ module Logging::Appenders
     #    write( event )
     #
     # Write the given _event_ to the growl notification facility. The log
-    # event will be processed through the Layout assciated with this
+    # event will be processed through the Layout associated with this
     # appender. The message will be logged at the level specified by the
     # event.
     #

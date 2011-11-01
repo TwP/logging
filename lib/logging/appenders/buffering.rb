@@ -43,7 +43,7 @@ module Logging::Appenders
       super(*args, &block)
     end
 
-    # Close the message buffer by flusing all log events to the appender. If a
+    # Close the message buffer by flushing all log events to the appender. If a
     # periodic flusher thread is running, shut it down and allow it to exit.
     #
     def close( *args )
@@ -58,7 +58,7 @@ module Logging::Appenders
       super(*args)
     end
 
-    # Reopen the connection to the underlying logging destination. In addtion
+    # Reopen the connection to the underlying logging destination. In addition
     # if the appender is configured for periodic flushing, then the flushing
     # thread will be stopped and restarted.
     #
@@ -91,8 +91,8 @@ module Logging::Appenders
     # even though it is a higher level. Both must be explicitly passed to
     # this assignment.
     #
-    # You can pass in a single leveal name or number, and array of level
-    # names or numbers, or a string containg a comma separated list of level
+    # You can pass in a single level name or number, an array of level
+    # names or numbers, or a string containing a comma separated list of level
     # names or numbers.
     #
     #   immediate_at = :error
@@ -132,8 +132,8 @@ module Logging::Appenders
     #   nil    OR
     #   0      : only flush when the buffer is full (500 messages)
     #
-    # If the default buffer size of 500 is too small, you can manuall
-    # configure to be as large as you want. This will consume more memory.
+    # If the default buffer size of 500 is too small, then you can manually
+    # configure it to be as large as you want. This will consume more memory.
     #
     #   auto_flushing = 42_000
     #
@@ -274,7 +274,7 @@ module Logging::Appenders
 
     # Using the flush_period, create a new PeriodicFlusher attached to this
     # appender. If the flush_period is nil, then no action will be taken. If a
-    # PeriodicFlusher alreayd exists, it will be stopped and a new one will be
+    # PeriodicFlusher already exists, it will be stopped and a new one will be
     # created.
     #
     def _setup_periodic_flusher

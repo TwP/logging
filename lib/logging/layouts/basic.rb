@@ -17,7 +17,7 @@ module Logging::Layouts
     # call-seq:
     #    format( event )
     #
-    # Returns a string representation of the given loggging _event_. See the
+    # Returns a string representation of the given logging _event_. See the
     # class documentation for details about the formatting used.
     #
     def format( event )

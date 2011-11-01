@@ -37,7 +37,7 @@ module Logging::Appenders
     # logging destination. If the file does not already exist it will be
     # created. If the :truncate option is set to +true+ then the file will
     # be truncated before writing begins; otherwise, log messages will be
-    # appened to the file.
+    # appended to the file.
     #
     def initialize( name, opts = {} )
       @fn = opts.getopt(:filename, name)
