@@ -209,7 +209,7 @@ module Logging
     # This method returns +true+ if the message was logged, and +false+ is
     # returned if the message was not logged.
     #
-    def add( lvl, data = nil )
+    def add( lvl, data = nil, progname = nil )
       lvl = Integer(lvl)
       return false if lvl < level
 
