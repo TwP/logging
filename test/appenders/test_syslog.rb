@@ -51,12 +51,14 @@ module TestAppenders
       stderr[1].close
       Process.waitpid(pid)
 
-      assert_equal("syslog_test:  INFO  TestLogger : <Array> #{[1,2,3,4]}\n",
-                   stderr[0].gets)
-      assert_equal("syslog_test: DEBUG  TestLogger : the big log message\n",
-                   stderr[0].gets)
-      assert_equal("syslog_test:  WARN  TestLogger : this is your last warning\n",
-                   stderr[0].gets)
+      if defined?(::Syslog::LOG_PERROR)
+        assert_equal("syslog_test:  INFO  TestLogger : <Array> #{[1,2,3,4]}\n",
+                     stderr[0].gets)
+        assert_equal("syslog_test: DEBUG  TestLogger : the big log message\n",
+                     stderr[0].gets)
+        assert_equal("syslog_test:  WARN  TestLogger : this is your last warning\n",
+                     stderr[0].gets)
+      end
     end
 
     def test_append_error
@@ -98,9 +100,11 @@ module TestAppenders
       stderr[1].close
       Process.waitpid(pid)
 
-      assert_equal("syslog_test: this is a test message\n", stderr[0].gets)
-      assert_equal("syslog_test: this is another message\n", stderr[0].gets)
-      assert_equal("syslog_test: some other line\n", stderr[0].gets)
+      if defined?(::Syslog::LOG_PERROR)
+        assert_equal("syslog_test: this is a test message\n", stderr[0].gets)
+        assert_equal("syslog_test: this is another message\n", stderr[0].gets)
+        assert_equal("syslog_test: some other line\n", stderr[0].gets)
+      end
     end
 
     def test_concat_error
