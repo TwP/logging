@@ -39,7 +39,7 @@ module Logging::Appenders
     #                  which file descriptors are allocated.
     #
     #    LOG_PERROR    Write the message to standard error output as well to
-    #                  the system log.
+    #                  the system log.  Not available on Solaris.
     #
     #    LOG_PID       Log the process id with each message: useful for
     #                  identifying instantiations of daemons.
