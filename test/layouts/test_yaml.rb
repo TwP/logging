@@ -1,4 +1,3 @@
-
 require File.expand_path('../setup', File.dirname(__FILE__))
 
 module TestLogging
@@ -55,7 +54,13 @@ module TestLayouts
 
       @layout.items = %w[timestamp]
       assert_equal %w[timestamp], @layout.items
-      assert_match %r/--- \ntimestamp: #@date_fmt\n/, @layout.format(event)
+
+      expected = %r/--- \ntimestamp: #@date_fmt\n/
+      if RUBY_VERSION >= '1.9' and YAML::ENGINE.yamler == 'psych' then
+        expected = %r/---\ntimestamp: '#@date_fmt'\n/
+      end
+
+      assert_match expected, @layout.format(event)
 
       # 'foo' is not a recognized item
       assert_raise(ArgumentError) {
@@ -71,36 +76,60 @@ module TestLayouts
       event.method = 'method_name'
 
       @layout.items = %w[logger]
-      assert_equal %Q[--- \nlogger: TestLogger\n], @layout.format(event)
+
+      expected = { :logger    => %Q[--- \nlogger: TestLogger\n],
+                   :file      => %Q[--- \nfile: test_file.rb\n],
+                   :level     => %Q[--- \nlevel: INFO\n],
+                   :line      => %Q[--- \nline: 123\n],
+                   :message   => %Q[--- \nmessage: log message\n],
+                   :method    => %Q[--- \nmethod: method_name\n],
+                   :pid       => %r/\A--- \npid: \d+\n\z/,
+                   :millis    => %r/\A--- \nmillis: \d+\n\z/,
+                   :thread_id => %r/\A--- \nthread_id: -?\d+\n\z/,
+                   :thread    => %Q[--- \nthread: \n],
+                   :thread_m  => %Q[--- \nthread: Main\n]
+                 }
+
+      if RUBY_VERSION >= '1.9' and YAML::ENGINE.yamler == 'psych' then
+        expected.each_pair do |k, v|
+          if v.kind_of? String then
+            v.sub!(/--- /, '---')
+          else # Regexp
+            expected[k] = Regexp.new(v.to_s.sub(/--- /, '---'))
+          end
+        end
+      end
+
+      assert_equal expected[:logger], @layout.format(event)
 
       @layout.items = %w[file]
-      assert_equal %Q[--- \nfile: test_file.rb\n], @layout.format(event)
+      assert_equal expected[:file], @layout.format(event)
 
       @layout.items = %w[level]
-      assert_equal %Q[--- \nlevel: INFO\n], @layout.format(event)
+      assert_equal expected[:level], @layout.format(event)
 
       @layout.items = %w[line]
-      assert_equal %Q[--- \nline: 123\n], @layout.format(event)
+      assert_equal expected[:line], @layout.format(event)
 
       @layout.items = %w[message]
-      assert_equal %Q[--- \nmessage: log message\n], @layout.format(event)
+      assert_equal expected[:message], @layout.format(event)
 
       @layout.items = %w[method]
-      assert_equal %Q[--- \nmethod: method_name\n], @layout.format(event)
+      assert_equal expected[:method], @layout.format(event)
 
       @layout.items = %w[pid]
-      assert_match %r/\A--- \npid: \d+\n\z/, @layout.format(event)
+      assert_match expected[:pid], @layout.format(event)
 
       @layout.items = %w[millis]
-      assert_match %r/\A--- \nmillis: \d+\n\z/, @layout.format(event)
+      assert_match expected[:millis], @layout.format(event)
 
       @layout.items = %w[thread_id]
-      assert_match %r/\A--- \nthread_id: -?\d+\n\z/, @layout.format(event)
+      assert_match expected[:thread_id], @layout.format(event)
 
       @layout.items = %w[thread]
-      assert_equal %Q[--- \nthread: \n], @layout.format(event)
+      assert_equal expected[:thread], @layout.format(event)
       Thread.current[:name] = "Main"
-      assert_equal %Q[--- \nthread: Main\n], @layout.format(event)
+      assert_equal expected[:thread_m], @layout.format(event)
     end
 
     private
