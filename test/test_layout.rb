@@ -75,10 +75,18 @@ module TestLogging
 
       @layout = ::Logging::Layout.new :format_as => :yaml
       r = @layout.format_obj obj
-      assert_equal "<Array> \n--- \n- one\n- two\n- three\n- four\n", r
+
+      expected_array = "<Array> \n--- \n- one\n- two\n- three\n- four\n"
+      expected_class = "<Class> Class"
+      if RUBY_VERSION >= '1.9' and YAML::ENGINE.yamler == 'psych' then
+        expected_array = "<Array> \n---\n- one\n- two\n- three\n- four\n"
+        expected_class = "<Class> \n--- !ruby/class 'Class'\n"
+      end
+
+      assert_equal expected_array, r
       
       r = @layout.format_obj Class
-      assert_equal "<Class> Class", r
+      assert_equal expected_class, r
     end
 
     def test_format_obj_without_backtrace
