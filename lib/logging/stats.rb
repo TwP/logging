@@ -72,7 +72,7 @@ module Logging::Stats
 
     # Returns statistics in a common format.
     #
-    def to_s  
+    def to_s
       "[%s]: SUM=%0.6f, SUMSQ=%0.6f, NUM=%d, MEAN=%0.6f, SD=%0.6f, MIN=%0.6f, MAX=%0.6f" % to_a
     end
 
@@ -127,7 +127,7 @@ module Logging::Stats
 
     # Adds a time delta between now and the last time you called this.  This
     # will give you the average time between two activities.
-    # 
+    #
     # An example is:
     #
     #  t = Sampler.new("do_stuff")
@@ -275,4 +275,3 @@ module Logging::Stats
 
 end  # module Logging::Stats
 
-# EOF

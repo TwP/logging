@@ -58,4 +58,3 @@ module Logging
   end  # class RootLogger
 end  # module Logging
 
-# EOF

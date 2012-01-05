@@ -134,4 +134,3 @@ Logging.libpath {
   require 'logging/appenders/syslog'
 }
 
-# EOF

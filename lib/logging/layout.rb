@@ -1,4 +1,4 @@
- 
+
 module Logging
 
 # The +Layout+ class provides methods for formatting log events into a
@@ -70,7 +70,7 @@ class Layout
   #
   # Returns a footer string to be used at the end of a logging appender.
   #
-  def footer( ) '' end 
+  def footer( ) '' end
 
   # call-seq:
   #    format_obj( obj )
@@ -82,7 +82,7 @@ class Layout
   def format_obj( obj )
     case obj
     when String; obj
-    when Exception 
+    when Exception
       str = "<#{obj.class.name}> #{obj.message}"
       if @backtrace && !obj.backtrace.nil?
         str << "\n\t" << obj.backtrace.join("\n\t")
@@ -114,4 +114,3 @@ class Layout
 end  # class Layout
 end  # module Logging
 
-# EOF

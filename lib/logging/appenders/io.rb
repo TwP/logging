@@ -49,7 +49,7 @@ module Logging::Appenders
       unless [STDIN, STDERR, STDOUT].include?(io)
         io.send(@close_method) if @close_method and io.respond_to? @close_method
       end
-    rescue IOError => err
+    rescue IOError
     ensure
       return self
     end

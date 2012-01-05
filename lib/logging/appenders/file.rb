@@ -73,4 +73,3 @@ module Logging::Appenders
   end  # class FileAppender
 end  # module Logging::Appenders
 
-# EOF

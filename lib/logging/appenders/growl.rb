@@ -145,7 +145,7 @@ module Logging::Appenders
           qmsg = @c_queue.last
           if qmsg.first != msg.first or qmsg.last != msg.last
             @c_queue << msg
-          else 
+          else
             qmsg[1] << "\n" << msg[1]
           end
         end
@@ -194,4 +194,3 @@ module Logging::Appenders
   end  # class Growl
 end  # module Logging::Appenders
 
-# EOF

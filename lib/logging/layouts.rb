@@ -44,4 +44,3 @@ Logging.libpath {
   require 'logging/layouts/pattern'
 }
 
-# EOF

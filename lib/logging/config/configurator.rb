@@ -79,7 +79,7 @@ module Logging::Config
       ary.each do |name, config|
         l = Logging::Logger[name]
         l.level     = config[:level] if config[:level]
-        l.additive  = config[:additive] if l.respond_to? :additive= 
+        l.additive  = config[:additive] if l.respond_to? :additive=
         l.trace     = config[:trace]
         l.appenders = Array(config[:appenders]).
                             map {|nm| ::Logging::Appenders[nm]}
@@ -105,7 +105,7 @@ module Logging::Config
 
       clazz = ::Logging::Appenders.const_get type
       clazz.new(name, config)
-    rescue NameError => err
+    rescue NameError
       raise Error, "unknown appender class Logging::Appenders::#{type}"
     end
 
@@ -125,7 +125,7 @@ module Logging::Config
 
       clazz = ::Logging::Layouts.const_get type
       clazz.new config
-    rescue NameError => err
+    rescue NameError
       raise Error, "unknown layout class Logging::Layouts::#{type}"
     end
 
@@ -185,4 +185,3 @@ module Logging::Config
   end  # class Configurator
 end  # module Logging::Config
 
-# EOF

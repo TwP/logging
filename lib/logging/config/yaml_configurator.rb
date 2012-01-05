@@ -188,4 +188,3 @@ module Logging::Config
   end  # class YamlConfigurator
 end  # module Logging::Config
 
-# EOF

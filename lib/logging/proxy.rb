@@ -30,7 +30,7 @@ module Logging
 
     # Create a new proxy for the given _object_. If an optional _block_ is
     # given it will be called before the proxied method. This _block_ will
-    # replace the +method_missing+ implementation 
+    # replace the +method_missing+ implementation
     #
     def initialize( object, &block )
       @object = object

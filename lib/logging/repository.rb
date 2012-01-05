@@ -229,4 +229,3 @@ module Logging
   end  # class Repository
 end  # module Logging
 
-# EOF

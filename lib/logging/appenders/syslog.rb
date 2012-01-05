@@ -207,4 +207,3 @@ module Logging::Appenders
 end  # module Logging::Appenders
 end  # HAVE_SYSLOG
 
-# EOF

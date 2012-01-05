@@ -257,4 +257,3 @@ private
 end  # class Appender
 end  # module Logging
 
-# EOF

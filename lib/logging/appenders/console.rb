@@ -22,7 +22,7 @@ module Logging::Appenders
     #
     def initialize( *args )
       opts = Hash === args.last ? args.pop : {}
-      name = args.empty? ? 'stdout' : args.shift 
+      name = args.empty? ? 'stdout' : args.shift
 
       super(name, STDOUT, opts)
     end
@@ -49,7 +49,7 @@ module Logging::Appenders
     #
     def initialize( *args )
       opts = Hash === args.last ? args.pop : {}
-      name = args.empty? ? 'stderr' : args.shift 
+      name = args.empty? ? 'stderr' : args.shift
 
       super(name, STDERR, opts)
     end
@@ -57,4 +57,3 @@ module Logging::Appenders
 
 end  # module Logging::Appenders
 
-# EOF

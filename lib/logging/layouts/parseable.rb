@@ -58,10 +58,10 @@ module Logging::Layouts
   #
   # The output order of the fields is not guaranteed to be the same as the
   # order specified in the _items_ list. This is because Ruby hashes are not
-  # ordered by default (unless your running this in Ruby 1.9).
+  # ordered by default (unless you're running this in Ruby 1.9).
   #
   # When configured to output log events in JSON format, each log message
-  # will be formatted as an object (in the JSON sense of the work) on it's
+  # will be formatted as an object (in the JSON sense of the word) on it's
   # own line in the log output. Therefore, to parse the output you must read
   # it line by line and parse the individual objects. Taking the same
   # example above the JSON output would be:
