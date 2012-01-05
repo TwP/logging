@@ -11,7 +11,7 @@ module TestLayouts
       super
       @layout = Logging.layouts.yaml({})
       @levels = Logging::LEVELS
-      @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
+      @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6,9} (Z|[+-]\d{2}:\d{2})'
       Thread.current[:name] = nil
     end
 
@@ -108,7 +108,7 @@ module TestLayouts
     def assert_yaml_match( expected, actual )
       actual = YAML.load(actual)
 
-      assert_match %r/#@date_fmt/o, actual['timestamp']
+      assert_instance_of Time, actual['timestamp']
       assert_equal expected['level'], actual['level']
       assert_equal expected['logger'], actual['logger']
       assert_equal expected['message'], actual['message']

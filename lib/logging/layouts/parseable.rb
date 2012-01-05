@@ -78,7 +78,7 @@ module Logging::Layouts
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
       'logger'    => 'event.logger',
-      'timestamp' => 'event.time.strftime(Pattern::ISO8601)',
+      'timestamp' => 'event.time',
       'level'     => '::Logging::LNAMES[event.level]',
       'message'   => 'format_obj(event.data)',
       'file'      => 'event.file',
@@ -191,7 +191,8 @@ module Logging::Layouts
       case value
       when String, Integer, Float; value.inspect
       when nil; 'null'
-      else value.to_s.inspect end
+      when Time; %Q{"#{iso8601_format(value)}"}
+      else %Q{"#{value.inspect}"} end
     end
 
     # Call the appropriate class level create format method based on the
@@ -202,6 +203,19 @@ module Logging::Layouts
       when :json; Parseable.create_json_format_method(self)
       when :yaml; Parseable.create_yaml_format_method(self)
       else raise ArgumentError, "unknown format style '#@style'" end
+    end
+
+    # Convert the given time _value_ into an ISO8601 formatted time string.
+    #
+    def iso8601_format( value )
+      str = value.strftime('%Y-%m-%dT%H:%M:%S')
+      str << ('.%06d' % value.usec)
+
+      offset = value.gmt_offset.abs
+      return str << 'Z' if offset == 0
+
+      offset = sprintf('%02d:%02d', offset / 3600, offset % 3600 / 60)
+      return str << (value.gmt_offset < 0 ? '-' : '+') << offset
     end
 
   end  # Parseable
