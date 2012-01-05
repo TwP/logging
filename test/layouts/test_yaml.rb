@@ -55,7 +55,7 @@ module TestLayouts
 
       @layout.items = %w[timestamp]
       assert_equal %w[timestamp], @layout.items
-      assert_match %r/--- \ntimestamp: #@date_fmt\n/, @layout.format(event)
+      assert_match %r/\A--- ?\ntimestamp: '?#@date_fmt'?\n/, @layout.format(event)
 
       # 'foo' is not a recognized item
       assert_raise(ArgumentError) {
@@ -71,36 +71,36 @@ module TestLayouts
       event.method = 'method_name'
 
       @layout.items = %w[logger]
-      assert_equal %Q[--- \nlogger: TestLogger\n], @layout.format(event)
+      assert_match %r/\A--- ?\nlogger: TestLogger\n/, @layout.format(event)
 
       @layout.items = %w[file]
-      assert_equal %Q[--- \nfile: test_file.rb\n], @layout.format(event)
+      assert_match %r/\A--- ?\nfile: test_file.rb\n/, @layout.format(event)
 
       @layout.items = %w[level]
-      assert_equal %Q[--- \nlevel: INFO\n], @layout.format(event)
+      assert_match %r/\A--- ?\nlevel: INFO\n/, @layout.format(event)
 
       @layout.items = %w[line]
-      assert_equal %Q[--- \nline: 123\n], @layout.format(event)
+      assert_match %r/\A--- ?\nline: 123\n/, @layout.format(event)
 
       @layout.items = %w[message]
-      assert_equal %Q[--- \nmessage: log message\n], @layout.format(event)
+      assert_match %r/\A--- ?\nmessage: log message\n/, @layout.format(event)
 
       @layout.items = %w[method]
-      assert_equal %Q[--- \nmethod: method_name\n], @layout.format(event)
+      assert_match %r/\A--- ?\nmethod: method_name\n/, @layout.format(event)
 
       @layout.items = %w[pid]
-      assert_match %r/\A--- \npid: \d+\n\z/, @layout.format(event)
+      assert_match %r/\A--- ?\npid: \d+\n\z/, @layout.format(event)
 
       @layout.items = %w[millis]
-      assert_match %r/\A--- \nmillis: \d+\n\z/, @layout.format(event)
+      assert_match %r/\A--- ?\nmillis: \d+\n\z/, @layout.format(event)
 
       @layout.items = %w[thread_id]
-      assert_match %r/\A--- \nthread_id: -?\d+\n\z/, @layout.format(event)
+      assert_match %r/\A--- ?\nthread_id: -?\d+\n\z/, @layout.format(event)
 
       @layout.items = %w[thread]
-      assert_equal %Q[--- \nthread: \n], @layout.format(event)
+      assert_match %r/\A--- ?\nthread: \n/, @layout.format(event)
       Thread.current[:name] = "Main"
-      assert_equal %Q[--- \nthread: Main\n], @layout.format(event)
+      assert_match %r/\A--- ?\nthread: Main\n/, @layout.format(event)
     end
 
     private
