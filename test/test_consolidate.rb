@@ -43,4 +43,3 @@ module TestLogging
   end  # class TestConsolidate
 end  # module TestLogging
 
-# EOF

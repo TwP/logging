@@ -125,4 +125,3 @@ module TestAppenders
 end  # module TestAppenders
 end  # module TestLogging
 
-# EOF

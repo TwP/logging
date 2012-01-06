@@ -109,4 +109,3 @@ module TestLayouts
 end  # module TestLayouts
 end  # module TestLogging
 
-# EOF

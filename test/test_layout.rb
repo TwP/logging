@@ -111,4 +111,3 @@ module TestLogging
   end  # class TestLayout
 end  # module TestLogging
 
-# EOF

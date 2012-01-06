@@ -155,4 +155,3 @@ module TestLogging
   end  # class TestRepository
 end  # module TestLogging
 
-# EOF

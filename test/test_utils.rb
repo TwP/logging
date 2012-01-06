@@ -104,7 +104,7 @@ module TestLogging
       c = Class.new(::Logging::Logger)
 #     assert_equal '', c.name
       assert_equal 'Logging::Logger', c.logger_name
-      
+
       meta = class << ::Logging::Logger; self; end
 #     assert_equal '', meta.name
       assert_equal 'Logging::Logger', meta.logger_name
@@ -113,4 +113,3 @@ module TestLogging
   end  # class TestUtils
 end  # module TestLogging
 
-# EOF

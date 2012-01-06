@@ -37,4 +37,3 @@ module TestConfig
 end  # module TestConfig
 end  # module TestLogging
 
-# EOF

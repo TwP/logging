@@ -696,4 +696,3 @@ module TestLogging
   end  # class TestLogger
 end  # module TestLogging
 
-# EOF

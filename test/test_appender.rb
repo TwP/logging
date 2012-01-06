@@ -149,4 +149,3 @@ module TestLogging
   end  # class TestAppender
 end  # module TestLogging
 
-# EOF

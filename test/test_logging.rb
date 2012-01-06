@@ -216,7 +216,7 @@ module TestLogging
       assert_raises(ArgumentError) {::Logging.format_as 'bob'}
       assert_raises(ArgumentError) {::Logging.format_as String}
       assert_raises(ArgumentError) {::Logging.format_as :what?}
-      
+
       remove_const = lambda do |const|
         ::Logging.class_eval {remove_const const if const_defined? const}
       end
@@ -264,4 +264,3 @@ module TestLogging
   end  # class TestLogging
 end  # module TestLogging
 
-# EOF

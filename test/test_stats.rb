@@ -271,4 +271,3 @@ module TestStats
 end  # module TestStats
 end  # module TestLogging
 
-# EOF

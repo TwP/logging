@@ -78,4 +78,3 @@ module TestLogging
   end  # class TestRootLogger
 end  # module TestLogging
 
-# EOF

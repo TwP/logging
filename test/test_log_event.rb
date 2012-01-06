@@ -77,4 +77,3 @@ module TestLogging
 
 end  # module TestLogging
 
-# EOF

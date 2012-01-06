@@ -87,4 +87,3 @@ if __FILE__ == $0
   bm.run
 end
 
-# EOF

@@ -195,4 +195,3 @@ end  # module TestLogging
 
 end  # HAVE_SYSLOG
 
-# EOF
