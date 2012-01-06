@@ -48,7 +48,7 @@ module TestAppenders
       @appender.append info
       @appender.append info
       @appender.append warn
-      sleep 1.4  # give the coalescing thread time to run
+      ensure_queue_is_empty
     end
 
     def test_append_without_coalescing
@@ -70,7 +70,7 @@ module TestAppenders
       @appender << 'first message'
       @appender << 'second message'
       @appender << 'third message'
-      sleep 1.4  # give the coalescing thread time to run
+      ensure_queue_is_empty
     end
 
     def test_concat_without_coalescing
@@ -118,6 +118,16 @@ module TestAppenders
       assert_equal 5, @appender.level
       @appender.append event
       @appender.append event
+    end
+
+  private
+
+    def ensure_queue_is_empty
+      queue = @appender.instance_variable_get :@c_queue
+      sleep 0.1 until queue.empty?
+
+      thread = @appender.instance_variable_get :@c_thread
+      sleep 0.1 until thread.status == 'sleep'
     end
 
   end  # class TestGrowl
