@@ -124,9 +124,11 @@ module TestAppenders
 
     def ensure_queue_is_empty
       queue = @appender.instance_variable_get :@c_queue
+STDOUT.puts "\nqueue size => #{queue.size.inspect}"
       sleep 0.1 until queue.empty?
 
       thread = @appender.instance_variable_get :@c_thread
+STDOUT.puts "thread status => #{thread.status.inspect}\n"
       sleep 0.1 until thread.status == 'sleep'
     end
 
