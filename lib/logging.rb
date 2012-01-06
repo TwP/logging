@@ -497,6 +497,10 @@ module Logging
       log_internal {'shutdown called - closing all appenders'}
       ::Logging::Appenders.each {|appender| appender.close}
     end
+    
+    def finalize(id)
+      shutdown
+    end
 
     # Reset the logging framework to it's uninitialized state
     def reset
@@ -538,7 +542,7 @@ Logging.libpath {
 # This is needed for closing IO streams and connections to the syslog server
 # or e-mail servers, etc.
 #
-at_exit { Logging.shutdown }
-
 end  # unless defined?
+
+ObjectSpace.define_finalizer(self, ::Logging::method(:finalize))
 
