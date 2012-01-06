@@ -44,8 +44,9 @@ module TestAppenders
 
     def test_periodic_flusher_running
       flusher = @appender.instance_variable_get(:@periodic_flusher)
-
       assert_instance_of Logging::Appenders::Buffering::PeriodicFlusher, flusher
+
+      sleep 0.250  # give the flusher thread another moment to start
       assert flusher.waiting?, 'the periodic flusher should be waiting for a signal'
     end
 
