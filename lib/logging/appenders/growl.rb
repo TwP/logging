@@ -67,7 +67,7 @@ module Logging::Appenders
     end
 
 
-    private
+  private
 
     # call-seq:
     #    write( event )
@@ -150,8 +150,6 @@ module Logging::Appenders
           end
         end
       end
-
-      Thread.pass
     end
 
     # call-seq:
@@ -167,13 +165,12 @@ module Logging::Appenders
       @c_queue = []
 
       @c_thread = Thread.new do
-        Thread.stop
         loop do
-          sleep 0.5
+          Thread.stop if @c_queue.empty?
+          sleep 1
           @c_mutex.synchronize {
             call_growl(*@c_queue.shift) until @c_queue.empty?
           }
-          Thread.stop if @c_queue.empty?
         end  # loop
       end  # Thread.new
     end
