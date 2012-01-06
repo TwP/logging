@@ -123,17 +123,16 @@ module TestAppenders
   private
 
     def ensure_queue_is_empty
+      start = Time.now
+
       queue = @appender.instance_variable_get :@c_queue
-STDOUT.puts "\nqueue size => #{queue.size.inspect}"
-      sleep 0.1 until queue.empty?
+      sleep 0.2 until queue.empty? or (Time.now - start > 10)
 
       thread = @appender.instance_variable_get :@c_thread
-STDOUT.puts "thread status => #{thread.status.inspect}\n"
-      sleep 0.1 until thread.status == 'sleep'
+      sleep 0.2 until thread.status == 'sleep' or (Time.now - start > 10)
     end
 
   end  # class TestGrowl
 end  # module TestLogging
 end  # module TestAppenders
 
-# EOF
