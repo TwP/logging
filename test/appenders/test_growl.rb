@@ -48,7 +48,7 @@ module TestAppenders
       @appender.append info
       @appender.append info
       @appender.append warn
-      sleep 0.7  # give the coalescing thread time to run
+      sleep 1  # give the coalescing thread time to run
     end
 
     def test_append_without_coalescing
@@ -70,7 +70,7 @@ module TestAppenders
       @appender << 'first message'
       @appender << 'second message'
       @appender << 'third message'
-      sleep 0.7  # give the coalescing thread time to run
+      sleep 1  # give the coalescing thread time to run
     end
 
     def test_concat_without_coalescing
