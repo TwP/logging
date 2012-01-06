@@ -493,13 +493,9 @@ module Logging
     end
 
     # Close all appenders
-    def shutdown
+    def shutdown( *args )
       log_internal {'shutdown called - closing all appenders'}
       ::Logging::Appenders.each {|appender| appender.close}
-    end
-    
-    def finalize(id)
-      shutdown
     end
 
     # Reset the logging framework to it's uninitialized state
@@ -538,11 +534,14 @@ Logging.libpath {
 }
 
 
-# This exit handler will close all the appenders that exist in the system.
+# This finalizer will close all the appenders that exist in the system.
 # This is needed for closing IO streams and connections to the syslog server
 # or e-mail servers, etc.
 #
-end  # unless defined?
+# You can prevent the finalizer from running by calling `exit!` from your
+# application. This is required when daemonizing.
+#
+ObjectSpace.define_finalizer self, Logging.method(:shutdown)
 
-ObjectSpace.define_finalizer(self, ::Logging::method(:finalize))
+end  # unless defined?
 
