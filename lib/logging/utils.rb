@@ -1,5 +1,6 @@
 
 require 'thread'
+require 'rbconfig'
 
 # --------------------------------------------------------------------------
 class Hash
@@ -165,7 +166,9 @@ class File
   end
 
   # :stopdoc:
-  if %r/mswin|mingw/ =~ RUBY_PLATFORM
+  include Config
+  if CONFIG['host_os'] =~ /mswin|windows|cygwin/i # JRuby will always set RUBY_PLATFORM=java
+    # don't lock files on windows
     undef :flock?, :flock_sh
     def flock?() yield; end
     def flock_sh() yield; end
