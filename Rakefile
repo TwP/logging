@@ -17,7 +17,7 @@ Bones {
 
   rdoc.exclude << '^data'
   rdoc.include << '^examples/.*\.rb'
-  rcov.opts    << '-x' << '~/.rvm/'
+  #rcov.opts    << '-x' << '~/.rvm/'
 
   use_gmail
 
@@ -25,6 +25,6 @@ Bones {
 
   depend_on 'flexmock',     :development => true
   depend_on 'bones-git',    :development => true
-  depend_on 'bones-rcov',   :development => true
+  #depend_on 'bones-rcov',   :development => true
 }
 
