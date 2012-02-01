@@ -166,8 +166,7 @@ class File
   end
 
   # :stopdoc:
-  include Config
-  if CONFIG['host_os'] =~ /mswin|windows|cygwin/i # JRuby will always set RUBY_PLATFORM=java
+  if Config::CONFIG['host_os'] =~ /mswin|windows|cygwin/i
     # don't lock files on windows
     undef :flock?, :flock_sh
     def flock?() yield; end
