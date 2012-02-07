@@ -62,6 +62,12 @@ module TestLogging
       assert_equal "Array#concat(#{[4,5,6].inspect}) => #{[1,2,3,4,5,6].inspect}\n", @appender.readline
     end
 
+    def test_error_when_proxying_nil
+      assert_raises(ArgumentError, 'Cannot proxy nil') {
+        Logging::Proxy.new nil
+      }
+    end
+
   end  # TestProxy
 end  # TestLogging
 

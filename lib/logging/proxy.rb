@@ -33,6 +33,8 @@ module Logging
     # replace the +method_missing+ implementation
     #
     def initialize( object, &block )
+      Kernel.raise ArgumentError, "Cannot proxy nil" if nil.equal? object
+
       @object = object
       @leader = @object.is_a?(Class) ? "#{@object.name}." : "#{@object.class.name}#"
       @logger = Logging.logger[object]
