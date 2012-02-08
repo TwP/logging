@@ -12,7 +12,7 @@ module Logging::Appenders
 class Email < ::Logging::Appender
   include Buffering
 
-  attr_reader :server, :port, :domain, :acct, :authtype, :subject
+  attr_reader :server, :port, :domain, :acct, :authtype, :tls, :subject
 
   # TODO: make the from/to fields modifiable
   #       possibly the subject, too
@@ -38,6 +38,7 @@ class Email < ::Logging::Appender
     @acct     = opts.getopt :acct
     @passwd   = opts.getopt :passwd
     @authtype = opts.getopt :authtype, :cram_md5, :as => Symbol
+    @tls      = opts.getopt :tls, false
     @subject  = opts.getopt :subject, "Message of #{$0}"
     @params   = [@server, @port, @domain, @acct, @passwd, @authtype]
   end
@@ -58,7 +59,9 @@ private
     rfc822msg << str
 
     ### send email
-    Net::SMTP.start(*@params) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
+    smtp = Net::SMTP.new(@server, @port)
+    smtp.enable_starttls_auto if @tls
+    smtp.start(@domain, @acct, @passwd, @authtype) {|smtp| smtp.sendmail(rfc822msg, @from, @to)}
     self
   rescue StandardError, TimeoutError => err
     self.level = :off
