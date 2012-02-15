@@ -57,7 +57,7 @@ module TestAppenders
           :buffsize => '1000', :immediate_at => 'error, fatal',
           :server => 'smtp.google.com', :port => '443',
           :domain => 'google.com', :acct => 'lbrinn',
-          :passwd => '1234', :authtype => 'tls',
+          :passwd => '1234', :authtype => 'plain', :tls => true,
           :subject => "I'm rich and you're not"
       )
 
@@ -71,7 +71,8 @@ module TestAppenders
       assert_equal(443, appender.port)
       assert_equal('google.com', appender.domain)
       assert_equal('lbrinn', appender.acct)
-      assert_equal(:tls, appender.authtype)
+      assert_equal(:plain, appender.authtype)
+      assert(appender.tls)
       assert_equal("I'm rich and you're not", appender.subject)
 
       appender = Logging.appenders.email('email',
