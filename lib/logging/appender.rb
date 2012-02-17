@@ -42,13 +42,16 @@ class Appender
     self.level = opts.getopt(:level)
 
     @mutex = ReentrantMutex.new
-    header = @layout.header
 
-    unless header.nil? || header.empty?
-      begin
-        write(header)
-      rescue StandardError => err
-        ::Logging.log_internal(-2) {err}
+    if opts.getopt(:header, true)
+      header = @layout.header
+
+      unless header.nil? || header.empty?
+        begin
+          write(header)
+        rescue StandardError => err
+          ::Logging.log_internal(-2) {err}
+        end
       end
     end
 
