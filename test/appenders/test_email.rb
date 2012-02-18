@@ -14,14 +14,14 @@ module TestAppenders
 
       flexmock(Net::SMTP).new_instances do |m|
         m.should_receive(:start).at_least.once.with(
-            'test.logging', 'test', 'test', :cram_md5, Proc).and_yield(m)
+            'test.logging', 'test', 'test', :plain, Proc).and_yield(m)
         m.should_receive(:sendmail).at_least.once.with(String, 'me', ['you'])
       end
 
       @appender = Logging.appenders.email('email',
           'from' => 'me', 'to' => 'you',
           :buffer_size => '3', :immediate_at => 'error, fatal',
-          :domain => 'test.logging', :acct => 'test', :passwd => 'test'
+          :domain => 'test.logging', :user_name => 'test', :password => 'test'
       )
       @levels = Logging::LEVELS
     end
@@ -43,36 +43,36 @@ module TestAppenders
 
       assert_equal(100, appender.auto_flushing)
       assert_equal([], appender.instance_variable_get(:@immediate))
-      assert_equal('localhost', appender.server)
+      assert_equal('localhost', appender.address)
       assert_equal(25, appender.port)
 
       domain = ENV['HOSTNAME'] || 'localhost.localdomain'
       assert_equal(domain, appender.domain)
-      assert_equal(nil, appender.acct)
-      assert_equal(:cram_md5, appender.authtype)
-      assert_equal("Message of #{$0}", appender.subject)
+      assert_equal(nil, appender.user_name)
+      assert_equal(:plain, appender.authentication)
+      assert_equal("Message from #{$0}", appender.subject)
 
       appender = Logging.appenders.email('email',
           'from' => 'lbrinn@gmail.com', 'to' => 'everyone',
           :buffsize => '1000', :immediate_at => 'error, fatal',
-          :server => 'smtp.google.com', :port => '443',
-          :domain => 'google.com', :acct => 'lbrinn',
-          :passwd => '1234', :authtype => 'plain', :tls => true,
+          :address => 'smtp.google.com', :port => '443',
+          :domain => 'google.com', :user_name => 'lbrinn',
+          :password => '1234', :authentication => 'plain', :enable_starttls_auto => true,
           :subject => "I'm rich and you're not"
       )
 
       assert_equal('lbrinn@gmail.com', appender.instance_variable_get(:@from))
       assert_equal(['everyone'], appender.instance_variable_get(:@to))
       assert_equal(1000, appender.auto_flushing)
-      assert_equal('1234', appender.instance_variable_get(:@passwd))
+      assert_equal('1234', appender.password)
       assert_equal([nil, nil, nil, true, true],
                    appender.instance_variable_get(:@immediate))
-      assert_equal('smtp.google.com', appender.server)
+      assert_equal('smtp.google.com', appender.address)
       assert_equal(443, appender.port)
       assert_equal('google.com', appender.domain)
-      assert_equal('lbrinn', appender.acct)
-      assert_equal(:plain, appender.authtype)
-      assert(appender.tls)
+      assert_equal('lbrinn', appender.user_name)
+      assert_equal(:plain, appender.authentication)
+      assert(appender.enable_starttls_auto)
       assert_equal("I'm rich and you're not", appender.subject)
 
       appender = Logging.appenders.email('email',
