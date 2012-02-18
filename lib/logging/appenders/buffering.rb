@@ -390,6 +390,6 @@ module Logging::Appenders
     end  # class PeriodicFlusher
     # :startdoc:
 
-  end  # module Buffering
-end  # module Logging::Appenders
+  end  # Buffering
+end  # Logging::Appenders
 

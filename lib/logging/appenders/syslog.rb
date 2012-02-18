@@ -6,6 +6,13 @@ if HAVE_SYSLOG
 
 module Logging::Appenders
 
+  # Accessor / Factory for the Syslog appender.
+  #
+  def self.syslog( *args )
+    return ::Logging::Appenders::Syslog if args.empty?
+    ::Logging::Appenders::Syslog.new(*args)
+  end
+
   # This class provides an Appender that can write to the UNIX syslog
   # daemon.
   #
@@ -202,8 +209,7 @@ module Logging::Appenders
       end
     end
 
-  end  # class Syslog
-
-end  # module Logging::Appenders
+  end  # Syslog
+end  # Logging::Appenders
 end  # HAVE_SYSLOG
 

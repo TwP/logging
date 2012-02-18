@@ -4,6 +4,13 @@ require 'time' # get rfc822 time format
 
 module Logging::Appenders
 
+  # Accessor / Factory for the Email appender.
+  #
+  def self.email( *args )
+    return ::Logging::Appenders::Email if args.empty?
+    ::Logging::Appenders::Email.new(*args)
+  end
+
   # Provides an appender that can send log messages via email to a list of
   # recipients.
   #
@@ -164,6 +171,6 @@ module Logging::Appenders
       ::Logging.log_internal(-2) {err}
     end
 
-  end   # class Email
-end   # module Logging::Appenders
+  end   # Email
+end   # Logging::Appenders
 

@@ -511,27 +511,24 @@ module Logging
     end
     # :startdoc:
   end
+
+  require libpath('logging/appender')
+  require libpath('logging/layout')
+  require libpath('logging/log_event')
+  require libpath('logging/logger')
+  require libpath('logging/repository')
+  require libpath('logging/root_logger')
+  require libpath('logging/stats')
+  require libpath('logging/color_scheme')
+  require libpath('logging/appenders')
+  require libpath('logging/layouts')
+  require libpath('logging/proxy')
+
+  require libpath('logging/config/configurator')
+  require libpath('logging/config/yaml_configurator')
+
+  require libpath('logging/rails_compat')
 end  # module Logging
-
-
-Logging.libpath {
-  require 'logging/appender'
-  require 'logging/layout'
-  require 'logging/log_event'
-  require 'logging/logger'
-  require 'logging/repository'
-  require 'logging/root_logger'
-  require 'logging/stats'
-  require 'logging/color_scheme'
-  require 'logging/appenders'
-  require 'logging/layouts'
-  require 'logging/proxy'
-
-  require 'logging/config/configurator'
-  require 'logging/config/yaml_configurator'
-
-  require 'logging/rails_compat'
-}
 
 
 # This finalizer will close all the appenders that exist in the system.

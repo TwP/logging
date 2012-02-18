@@ -1,6 +1,13 @@
 
 module Logging::Appenders
 
+  # Accessor / Factory for the StringIo appender.
+  #
+  def self.string_io( *args )
+    return ::Logging::Appenders::StringIo if args.empty?
+    ::Logging::Appenders::StringIo.new(*args)
+  end
+
   # This class provides an Appender that can write to a StringIO instance.
   # This is very useful for testing log message output.
   #
@@ -80,6 +87,6 @@ module Logging::Appenders
     end
     # :startdoc:
 
-  end  # class StringIo
-end  # module Logging::Appenders
+  end  # StringIo
+end  # Logging::Appenders
 

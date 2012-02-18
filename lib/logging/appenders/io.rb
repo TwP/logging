@@ -1,6 +1,13 @@
 
 module Logging::Appenders
 
+  # Accessor / Factory for the IO appender.
+  #
+  def self.io( *args )
+    return ::Logging::Appenders::IO if args.empty?
+    ::Logging::Appenders::IO.new(*args)
+  end
+
   # This class provides an Appender that can write to any IO stream
   # configured for writing.
   #
@@ -70,6 +77,6 @@ module Logging::Appenders
       ::Logging.log_internal(-2) {err}
     end
 
-  end  # class IO
-end  # module Logging::Appenders
+  end  # IO
+end  # Logging::Appenders
 

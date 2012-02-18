@@ -1,6 +1,13 @@
 
 module Logging::Layouts
 
+  # Accessor / Factory for the Basic layout.
+  #
+  def self.basic( *args )
+    return ::Logging::Layouts::Basic if args.empty?
+    ::Logging::Layouts::Basic.new(*args)
+  end
+
   # The +Basic+ layout class provides methods for simple formatting of log
   # events. The resulting string follows the format below.
   #

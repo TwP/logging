@@ -1,6 +1,13 @@
 
 module Logging::Layouts
 
+  # Accessor / Factory for the Pattern layout.
+  #
+  def self.pattern( *args )
+    return ::Logging::Layouts::Pattern if args.empty?
+    ::Logging::Layouts::Pattern.new(*args)
+  end
+
   # A flexible layout configurable with pattern string.
   #
   # The goal of this class is to format a LogEvent and return the results as

@@ -1,6 +1,15 @@
 
 module Logging::Appenders
 
+  # Accessor / Factory for the Stdout appender.
+  #
+  def self.stdout( *args )
+    if args.empty?
+      return self['stdout'] || ::Logging::Appenders::Stdout.new
+    end
+    ::Logging::Appenders::Stdout.new(*args)
+  end
+
   # This class provides an Appender that can write to STDOUT.
   #
   class Stdout < ::Logging::Appenders::IO
@@ -26,7 +35,17 @@ module Logging::Appenders
 
       super(name, STDOUT, opts)
     end
-  end  # class Stdout
+  end  # Stdout
+
+
+  # Accessor / Factory for the Stderr appender.
+  #
+  def self.stderr( *args )
+    if args.empty?
+      return self['stderr'] || ::Logging::Appenders::Stderr.new
+    end
+    ::Logging::Appenders::Stderr.new(*args)
+  end
 
   # This class provides an Appender that can write to STDERR.
   #
@@ -53,7 +72,6 @@ module Logging::Appenders
 
       super(name, STDERR, opts)
     end
-  end  # class Stderr
-
-end  # module Logging::Appenders
+  end  # Stderr
+end  # Logging::Appenders
 

@@ -1,6 +1,13 @@
 
 module Logging::Appenders
 
+  # Accessor / Factory for the Growl appender.
+  #
+  def self.growl( *args )
+    return ::Logging::Appenders::Growl if args.empty?
+    ::Logging::Appenders::Growl.new(*args)
+  end
+
   # This class provides an Appender that can send notifications to the Growl
   # notification system on Mac OS X.
   #
@@ -188,6 +195,6 @@ module Logging::Appenders
       end
     end
 
-  end  # class Growl
-end  # module Logging::Appenders
+  end  # Growl
+end  # Logging::Appenders
 

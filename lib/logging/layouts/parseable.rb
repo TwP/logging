@@ -1,6 +1,24 @@
 
 module Logging::Layouts
 
+  # Accessor for the Parseable layout.
+  #
+  def self.parseable
+    ::Logging::Layouts::Parseable
+  end
+
+  # Factory for the Parseable layout using JSON formatting.
+  #
+  def self.json( *args )
+    ::Logging::Layouts::Parseable.json(*args)
+  end
+
+  # Factory for the Parseable layout using YAML formatting.
+  #
+  def self.yaml( *args )
+    ::Logging::Layouts::Parseable.yaml(*args)
+  end
+
   # This layout will produce parseable log output in either JSON or YAML
   # format. This makes it much easier for machines to parse log files and
   # perform analysis on those logs.
