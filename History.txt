@@ -1,3 +1,13 @@
+== 1.7.0 / 2012-02-18
+
+Enhancements
+- Move appender factories [issue #28]
+- ActionMail compatible options in the email appender [issue #27]
+- Add TLS support to the email appender [issue #25]
+- Refactoring appender shutdown [issue #20]
+Bug Fixes
+- File locking fails on windows using JRuby [issue #22]
+
 == 1.6.2 / 2012-01-05
 
 Bug Fixes
