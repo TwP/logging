@@ -1,3 +1,4 @@
+
 require 'thread'
 require 'rbconfig'
 
@@ -165,8 +166,8 @@ class File
   end
 
   # :stopdoc:
-  CONF = Object.const_get(defined?(RbConfig) ? :RbConfig : :Config)::CONFIG
-  if CONF['host_os'] =~ /mswin|windows|cygwin/i
+  conf = defined?(RbConfig) ? RbConfig::CONFIG : Config::CONFIG
+  if conf['host_os'] =~ /mswin|windows|cygwin/i
     # don't lock files on windows
     undef :flock?, :flock_sh
     def flock?() yield; end
