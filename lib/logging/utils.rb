@@ -167,7 +167,7 @@ class File
 
   # :stopdoc:
   conf = defined?(RbConfig) ? RbConfig::CONFIG : Config::CONFIG
-  if conf['host_os'] =~ /mswin|windows|cygwin/i
+  if conf['host_os'] =~ /mswin|windows|cygwin|mingw/i
     # don't lock files on windows
     undef :flock?, :flock_sh
     def flock?() yield; end
