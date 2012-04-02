@@ -33,7 +33,8 @@ module Logging::Appenders
       end
 
       @io = io
-      @io.sync = true if io.respond_to? :sync=    # syswrite complains if the IO stream is buffered
+      @io.sync = true if io.respond_to? :sync= # syswrite complains if the IO stream is buffered
+      @io.flush if io.respond_to? :flush       # syswrite also complains if in unbuffered mode and buffer isn't empty
       @close_method = :close
 
       super(name, opts)
