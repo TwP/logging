@@ -1,3 +1,6 @@
+Bug Fixes
+- Fixed syswrite warning when IO contains unflushed data in buffer [issue #31]
+
 == 1.7.1 / 2012-03-05
 
 Bug Fixes
