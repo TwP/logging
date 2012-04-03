@@ -181,6 +181,7 @@ module Logging
     def reopen
       log_internal {'re-opening all appenders'}
       ::Logging::Appenders.each {|appender| appender.reopen}
+      self
     end
 
     # call-seq:
@@ -208,6 +209,7 @@ module Logging
     #
     def consolidate( *args )
       ::Logging::Repository.instance.add_master(*args)
+      self
     end
 
     # call-seq:
@@ -258,7 +260,7 @@ module Logging
     # level to this value will disable all log messages except this highest
     # level.
     #
-    # This method should only be invoked once to configure the logging
+    # This method should be invoked only once to configure the logging
     # levels. It is automatically invoked with the default logging levels
     # when the first logger is created.
     #
@@ -329,6 +331,7 @@ module Logging
       end
 
       module_eval "OBJ_FORMAT = :#{f}", __FILE__, __LINE__
+      self
     end
 
     # call-seq:
@@ -466,7 +469,7 @@ module Logging
         ::Logging.show_configuration(io, child, indent)
       end
 
-      nil
+      self
     end
 
     # :stopdoc:
@@ -494,11 +497,13 @@ module Logging
 
     # Close all appenders
     def shutdown( *args )
+      return unless initialized?
       log_internal {'shutdown called - closing all appenders'}
       ::Logging::Appenders.each {|appender| appender.close}
+      nil
     end
 
-    # Reset the logging framework to it's uninitialized state
+    # Reset the Logging framework to it's uninitialized state
     def reset
       ::Logging::Repository.reset
       ::Logging::Appenders.reset
@@ -508,6 +513,12 @@ module Logging
       remove_instance_variable :@backtrace if defined? @backtrace
       remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
       remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
+      self
+    end
+
+    # Return +true+ if the Logging framework is initialized.
+    def initialized?
+      const_defined? :MAX_LEVEL_LENGTH
     end
     # :startdoc:
   end

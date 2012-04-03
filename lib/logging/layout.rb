@@ -28,7 +28,7 @@ class Layout
   # then <tt>:string</tt> is used.
   #
   def initialize( opts = {} )
-    ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
+    ::Logging.init unless ::Logging.initialized?
 
     default = ::Logging.const_defined?('OBJ_FORMAT') ?
               ::Logging::OBJ_FORMAT : nil

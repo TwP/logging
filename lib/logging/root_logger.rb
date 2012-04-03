@@ -21,7 +21,7 @@ module Logging
     # once when the +Repository+ singleton instance is created.
     #
     def initialize( )
-      ::Logging.init unless ::Logging.const_defined? 'MAX_LEVEL_LENGTH'
+      ::Logging.init unless ::Logging.initialized?
 
       @name = 'root'
       @appenders = []

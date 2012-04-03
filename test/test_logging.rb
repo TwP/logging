@@ -141,7 +141,7 @@ module TestLogging
     def test_init_default
       assert_equal({}, @levels)
       assert_equal([], @lnames)
-      assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
+      assert_same false, ::Logging.initialized?
 
       ::Logging::Repository.instance
 
@@ -165,7 +165,7 @@ module TestLogging
     def test_init_special
       assert_equal({}, @levels)
       assert_equal([], @lnames)
-      assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
+      assert_same false, ::Logging.initialized?
 
       assert_raise(ArgumentError) {::Logging.init(1, 2, 3, 4)}
 
@@ -191,7 +191,7 @@ module TestLogging
     def test_init_all_off
       assert_equal({}, @levels)
       assert_equal([], @lnames)
-      assert_same false, ::Logging.const_defined?(:MAX_LEVEL_LENGTH)
+      assert_same false, ::Logging.initialized?
 
       ::Logging.init %w(a b all c off d)
 

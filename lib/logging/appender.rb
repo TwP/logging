@@ -33,7 +33,7 @@ class Appender
   #    :level    => the level at which to log
   #
   def initialize( name, opts = {} )
-    ::Logging.init unless ::Logging.const_defined? :MAX_LEVEL_LENGTH
+    ::Logging.init unless ::Logging.initialized?
 
     @name = name.to_s
     @closed = false
