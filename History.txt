@@ -1,5 +1,9 @@
+== 1.7.2 / 2012-04-03
+
 Bug Fixes
+- Fixed segmentation fault on exit [issue #30]
 - Fixed syswrite warning when IO contains unflushed data in buffer [issue #31]
+- Added "mingw" to the list of Windows host versions
 
 == 1.7.1 / 2012-03-05
 
