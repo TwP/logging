@@ -52,12 +52,9 @@ module TestAppenders
       Process.waitpid(pid)
 
       if defined?(::Syslog::LOG_PERROR)
-        assert_equal("syslog_test:  INFO  TestLogger : <Array> #{[1,2,3,4]}\n",
-                     stderr[0].gets)
-        assert_equal("syslog_test: DEBUG  TestLogger : the big log message\n",
-                     stderr[0].gets)
-        assert_equal("syslog_test:  WARN  TestLogger : this is your last warning\n",
-                     stderr[0].gets)
+        assert_match(%r/INFO  TestLogger : <Array> #{Regexp.escape [1,2,3,4].to_s}/, stderr[0].gets)
+        assert_match(%r/DEBUG  TestLogger : the big log message/, stderr[0].gets)
+        assert_match(%r/WARN  TestLogger : this is your last warning/, stderr[0].gets)
       end
     end
 
@@ -101,9 +98,9 @@ module TestAppenders
       Process.waitpid(pid)
 
       if defined?(::Syslog::LOG_PERROR)
-        assert_equal("syslog_test: this is a test message\n", stderr[0].gets)
-        assert_equal("syslog_test: this is another message\n", stderr[0].gets)
-        assert_equal("syslog_test: some other line\n", stderr[0].gets)
+        assert_match(%r/this is a test message/, stderr[0].gets)
+        assert_match(%r/this is another message/, stderr[0].gets)
+        assert_match(%r/some other line/, stderr[0].gets)
       end
     end
 
