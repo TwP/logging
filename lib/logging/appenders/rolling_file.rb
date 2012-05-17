@@ -193,7 +193,7 @@ module Logging::Appenders
     def canonical_write( str )
       return self if @io.nil?
 
-      @io.flock_sh { @io.syswrite(str) }
+      @io.flock_ex { @io.syswrite(str) }
 
       if roll_required?
         @io.flock? {

@@ -165,6 +165,17 @@ class File
     flock LOCK_UN
   end
 
+  # Execute the <tt>block</tt> in the context of an exclusive lock on this file. A
+  # shared lock will be obtained on the file, the block executed, and the lock
+  # released.
+  #
+  def flock_ex( &block )
+    flock LOCK_EX
+    block.call
+  ensure
+    flock LOCK_UN
+  end
+
   # :stopdoc:
   conf = defined?(RbConfig) ? RbConfig::CONFIG : Config::CONFIG
   if conf['host_os'] =~ /mswin|windows|cygwin|mingw/i
