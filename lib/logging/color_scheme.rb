@@ -203,9 +203,8 @@ module Logging
     # Return a normalized representation of a color setting.
     #
     def to_constant( v )
-      ColorScheme.const_get(v.to_s.upcase)
-    rescue NameError
-      return  nil
+      v = v.to_s.upcase
+      ColorScheme.const_get(v) if ColorScheme.const_defined?(v)
     end
 
     # Embed in a String to clear all previous ANSI sequences.  This *MUST* be
