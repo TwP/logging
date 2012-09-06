@@ -10,3 +10,4 @@ doc/
 pkg/
 tmp/
 .rbx
+.rvmrc
