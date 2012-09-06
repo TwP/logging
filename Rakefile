@@ -23,8 +23,8 @@ Bones {
 
   depend_on 'little-plugger'
 
-  depend_on 'flexmock',     :development => true
-  depend_on 'bones-git',    :development => true
+  depend_on 'flexmock', '< 1.0.0',  :development => true
+  depend_on 'bones-git',            :development => true
   #depend_on 'bones-rcov',   :development => true
 }
 
