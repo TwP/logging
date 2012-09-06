@@ -204,7 +204,7 @@ module Logging
     #
     def to_constant( v )
       v = v.to_s.upcase
-      ColorScheme.const_get(v) if ColorScheme.const_defined?(v)
+      ColorScheme.const_get(v) if (ColorScheme.const_defined?(v, false) rescue ColorScheme.const_defined?(v))
     end
 
     # Embed in a String to clear all previous ANSI sequences.  This *MUST* be
