@@ -60,7 +60,7 @@ module Logging::Appenders
     alias :reset :clear
 
     %w[read readline readlines].each do|m|
-      class_eval <<-CODE
+      class_eval <<-CODE, __FILE__, __LINE__+1
         def #{m}( *args )
           sync {
             begin

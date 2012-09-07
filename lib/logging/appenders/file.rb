@@ -54,6 +54,9 @@ module Logging::Appenders
       self.class.assert_valid_logfile(@fn)
       @mode = opts.getopt(:truncate) ? 'w' : 'a'
 
+      self.encoding = opts.fetch(:encoding, self.encoding)
+      @mode = "#{@mode}:#{self.encoding}" if self.encoding
+
       super(name, ::File.new(@fn, @mode), opts)
     end
 

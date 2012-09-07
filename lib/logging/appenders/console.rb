@@ -33,6 +33,8 @@ module Logging::Appenders
       opts = Hash === args.last ? args.pop : {}
       name = args.empty? ? 'stdout' : args.shift
 
+      opts[:encoding] = STDOUT.external_encoding if STDOUT.respond_to? :external_encoding
+
       super(name, STDOUT, opts)
     end
   end  # Stdout
@@ -69,6 +71,8 @@ module Logging::Appenders
     def initialize( *args )
       opts = Hash === args.last ? args.pop : {}
       name = args.empty? ? 'stderr' : args.shift
+
+      opts[:encoding] = STDERR.external_encoding if STDERR.respond_to? :external_encoding
 
       super(name, STDERR, opts)
     end

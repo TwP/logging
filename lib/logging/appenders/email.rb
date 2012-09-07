@@ -158,6 +158,8 @@ module Logging::Appenders
       rfc822msg << "Subject: #{@subject}\n"
       rfc822msg << "Date: #{Time.new.rfc822}\n"
       rfc822msg << "Message-Id: <#{"%.8f" % Time.now.to_f}@#{@domain}>\n\n"
+
+      rfc822msg = rfc822msg.force_encoding(encoding) if encoding and rfc822msg.encoding != encoding
       rfc822msg << str
 
       ### send email

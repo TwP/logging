@@ -31,6 +31,7 @@ class Appender
   #
   #    :layout   => the layout to use when formatting log events
   #    :level    => the level at which to log
+  #    :encoding => encoding to use when writing messages (defaults to UTF-8)
   #
   def initialize( name, opts = {} )
     ::Logging.init unless ::Logging.initialized?
@@ -40,6 +41,7 @@ class Appender
 
     self.layout = opts.getopt(:layout, ::Logging::Layouts::Basic.new)
     self.level = opts.getopt(:level)
+    self.encoding = opts.fetch(:encoding, self.encoding)
 
     @mutex = ReentrantMutex.new
 
@@ -229,6 +231,32 @@ class Appender
         self.object_id,
         self.name
     ]
+  end
+
+  # Returns the current Encoding for the appender or nil if an encoding has
+  # not been set.
+  #
+  def encoding
+    return @encoding if defined? @encoding
+    @encoding = Object.const_defined?(:Encoding) ? Encoding.default_external : nil
+  end
+
+  # Set the appender encoding to the given value. The value can either be an
+  # Encoding instance or a String or Symbol referring to a valid encoding.
+  #
+  # This method only applies to Ruby 1.9 or later. The encoding will always be
+  # nil for older Rubies.
+  #
+  # value - The encoding as a String, Symbol, or Encoding instance.
+  #
+  # Raises ArgumentError if the value is not a valid encoding.
+  #
+  def encoding=( value )
+    if value.nil?
+      @encoding = nil
+    else
+      @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value) : nil
+    end
   end
 
 

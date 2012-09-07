@@ -70,6 +70,7 @@ module Logging::Appenders
     #
     def canonical_write( str )
       return self if @io.nil?
+      str = str.force_encoding(encoding) if encoding and str.encoding != encoding
       @io.syswrite str
       self
     rescue StandardError => err

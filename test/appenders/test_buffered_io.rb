@@ -1,3 +1,4 @@
+# encoding: UTF-8
 
 require File.expand_path('../setup', File.dirname(__FILE__))
 
@@ -159,6 +160,26 @@ module TestAppenders
       assert_equal " WARN  TestLogger : <Array> #{[1, 2, 3, 4]}\n", readline
       assert_equal "ERROR  TestLogger : an error message\n", readline
       assert_nil(readline)
+    end
+
+    if Object.const_defined?(:Encoding)
+      def test_force_encoding
+        a = 'ümlaut'
+        b = 'hello ümlaut'.force_encoding('BINARY')
+
+        event_a = Logging::LogEvent.new('TestLogger', @levels['info'], a, false)
+        event_b = Logging::LogEvent.new('TestLogger', @levels['info'], b, false)
+
+        @appender.append event_a
+        @appender.append event_b
+        assert_nil(readline)
+
+        @appender.append event_a
+        assert_equal " INFO  TestLogger : #{a}\n", readline
+        assert_equal " INFO  TestLogger : #{b.force_encoding('UTF-8')}\n", readline
+        assert_equal " INFO  TestLogger : #{a}\n", readline
+        assert_nil(readline)
+      end
     end
 
   private

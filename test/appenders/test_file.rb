@@ -1,3 +1,4 @@
+# encoding: UTF-8
 
 require File.expand_path('../setup', File.dirname(__FILE__))
 
@@ -92,6 +93,25 @@ module TestAppenders
         assert_nothing_raised { appender.reopen }
       ensure
         Dir.chdir pwd
+      end
+    end
+
+    if Object.const_defined? :Encoding
+
+      def test_encoding
+        log = File.join(TMP, 'file-encoding.log')
+        #appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ISO-8859-16')
+        appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ASCII')
+
+        appender << "A normal line of text\n"
+        appender << "ümlaut\n"
+        appender.close
+
+        lines = File.readlines(log)
+        assert_equal "A normal line of text\n", lines[0]
+        assert_equal "ümlaut\n", lines[1]
+
+        cleanup
       end
     end
 

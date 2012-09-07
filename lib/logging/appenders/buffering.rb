@@ -240,7 +240,10 @@ module Logging::Appenders
       if @auto_flushing == 1
         canonical_write(str)
       else
-        sync { @buffer << str }
+        sync {
+          str = str.force_encoding(encoding) if encoding and str.encoding != encoding
+          @buffer << str
+        }
         @periodic_flusher.signal if @periodic_flusher
         flush if @buffer.length >= @auto_flushing || immediate?(event)
       end
