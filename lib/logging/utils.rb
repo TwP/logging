@@ -3,19 +3,18 @@ require 'thread'
 require 'rbconfig'
 
 # --------------------------------------------------------------------------
-unless String.method_defined? :reduce
 class String
 
   # call-seq:
-  #    reduce( width, ellipses = '...' )    #=> string
+  #    shrink( width, ellipses = '...' )    #=> string
   #
-  # Reduce the size of the current string to the given _width_ by removing
+  # Shrink the size of the current string to the given _width_ by removing
   # characters from the middle of the string and replacing them with
   # _ellipses_. If the _width_ is greater than the length of the string, the
   # string is returned unchanged. If the _width_ is less than the length of
   # the _ellipses_, then the _ellipses_ are returned.
   #
-  def reduce( width, ellipses = '...')
+  def shrink( width, ellipses = '...')
     raise ArgumentError, "width cannot be negative: #{width}" if width < 0
 
     return self if length <= width
@@ -31,7 +30,6 @@ class String
 
     left << ellipses << right
   end
-end
 end
 
 # --------------------------------------------------------------------------
