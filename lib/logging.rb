@@ -186,34 +186,6 @@ module Logging
     end
 
     # call-seq:
-    #    Logging.consolidate( 'First::Name', 'Second::Name', ... )
-    #
-    # Consolidate all loggers under the given namespace. All child loggers
-    # in the namespace will use the "consolidated" namespace logger instead
-    # of creating a new logger for each class or module.
-    #
-    # If the "root" logger name is passed to this method then all loggers
-    # will consolidate to the root logger. In other words, only the root
-    # logger will be created, and it will be used by all classes and modules
-    # in the application.
-    #
-    # ==== Example
-    #
-    #    Logging.consolidate( 'Foo' )
-    #
-    #    foo = Logging.logger['Foo']
-    #    bar = Logging.logger['Foo::Bar']
-    #    baz = Logging.logger['Baz']
-    #
-    #    foo.object_id == bar.object_id    #=> true
-    #    foo.object_id == baz.object_id    #=> false
-    #
-    def consolidate( *args )
-      ::Logging::Repository.instance.add_master(*args)
-      self
-    end
-
-    # call-seq:
     #    include Logging.globally
     #    include Logging.globally( :logger )
     #

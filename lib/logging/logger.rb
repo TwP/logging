@@ -51,22 +51,9 @@ module Logging
         @mutex.synchronize do
           logger = repo[name]
           if logger.nil?
-
-            master = repo.master_for(name)
-            if master
-              if repo.has_logger?(master)
-                logger = repo[master]
-              else
-                logger = super(master)
-                repo[master] = logger
-                repo.children(master).each {|c| c.__send__(:parent=, logger)}
-              end
-              repo[name] = logger
-            else
-              logger = super(name)
-              repo[name] = logger
-              repo.children(name).each {|c| c.__send__(:parent=, logger)}
-            end
+            logger = super(name)
+            repo[name] = logger
+            repo.children(name).each {|c| c.__send__(:parent=, logger)}
           end
           logger
         end

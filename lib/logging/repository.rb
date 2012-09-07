@@ -18,7 +18,6 @@ module Logging
     # +Repository+ instance.
     #
     def initialize
-      @masters = []
       @h = {:root => ::Logging::RootLogger.new}
 
       # configures the internal logger which is disabled by default
@@ -165,43 +164,6 @@ module Logging
         if @h.has_key? k then p = k; break end
       end
       p
-    end
-
-    # call-seq:
-    #    add_master( 'First::Name', 'Second::Name', ... )
-    #
-    # Add the given logger names to the list of consolidation masters. All
-    # classes in the given namespace(s) will use these loggers instead of
-    # creating their own individual loggers.
-    #
-    def add_master( *args )
-      args.map do |key|
-        key = to_key(key)
-        @masters << key unless @masters.include? key
-        key
-      end
-    end
-
-    # call-seq:
-    #    master_for( key )
-    #
-    # Returns the consolidation master name for the given _key_. If there is
-    # no consolidation master, then +nil+ is returned.
-    #
-    def master_for( key )
-      return if @masters.empty?
-      key = to_key(key)
-
-      loop do
-        break key if @masters.include? key
-        break nil if :root == key
-
-        if index = key.rindex(PATH_DELIMITER)
-          key = key.slice(0, index)
-        else
-          key = :root
-        end
-      end
     end
 
     # :stopdoc:
