@@ -255,7 +255,7 @@ class Appender
     if value.nil?
       @encoding = nil
     else
-      @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value) : nil
+      @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value.to_s) : nil
     end
   end
 
