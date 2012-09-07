@@ -451,7 +451,7 @@ module Logging
       indent_str = indent == 0 ? '' : ' ' * indent
 
       str << indent_str
-      str << self.name.reduce(base - indent)
+      str << self.name.shrink(base - indent)
       if (str.length + spacer.length) < base
         str << spacer
         str << '.' * (base - str.length)

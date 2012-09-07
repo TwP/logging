@@ -5,46 +5,46 @@ module TestLogging
 
   class TestUtils < Test::Unit::TestCase
 
-    def test_string_reduce
+    def test_string_shrink
       str = 'this is the foobar string'
       len = str.length
 
-      r = str.reduce(len + 1)
+      r = str.shrink(len + 1)
       assert_same str, r
 
-      r = str.reduce(len)
+      r = str.shrink(len)
       assert_same str, r
 
-      r = str.reduce(len - 1)
+      r = str.shrink(len - 1)
       assert_equal 'this is the...bar string', r
 
-      r = str.reduce(len - 10)
+      r = str.shrink(len - 10)
       assert_equal 'this i...string', r
 
-      r = str.reduce(4)
+      r = str.shrink(4)
       assert_equal 't...', r
 
-      r = str.reduce(3)
+      r = str.shrink(3)
       assert_equal '...', r
 
-      r = str.reduce(0)
+      r = str.shrink(0)
       assert_equal '...', r
 
-      assert_raises(ArgumentError) { str.reduce(-1) }
+      assert_raises(ArgumentError) { str.shrink(-1) }
 
-      r = str.reduce(len - 1, '##')
+      r = str.shrink(len - 1, '##')
       assert_equal 'this is the##obar string', r
 
-      r = str.reduce(len - 10, '##')
+      r = str.shrink(len - 10, '##')
       assert_equal 'this is##string', r
 
-      r = str.reduce(4, '##')
+      r = str.shrink(4, '##')
       assert_equal 't##g', r
 
-      r = str.reduce(3, '##')
+      r = str.shrink(3, '##')
       assert_equal 't##', r
 
-      r = str.reduce(0, '##')
+      r = str.shrink(0, '##')
       assert_equal '##', r
     end
 
