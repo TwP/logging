@@ -7,9 +7,9 @@ module RSpec
     # supports a readline method to access the log messages.
     #
     def capture_log_messages( opts = {} )
-      from = opts.getopt(:from, 'root')
-      to = opts.getopt(:to, '__rspec__')
-      exclusive = opts.getopt(:exclusive, true)
+      from = opts.fetch(:from, 'root')
+      to = opts.fetch(:to, '__rspec__')
+      exclusive = opts.fetch(:exclusive, true)
 
       appender = Logging::Appenders[to] || Logging::Appenders::StringIo.new(to)
       logger = Logging::Logger[from]

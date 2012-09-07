@@ -19,7 +19,7 @@ module TestAppenders
       end
 
       @appender = Logging.appenders.email('email',
-          'from' => 'me', 'to' => 'you',
+          :from => 'me', :to => 'you',
           :buffer_size => '3', :immediate_at => 'error, fatal',
           :domain => 'test.logging', :user_name => 'test', :password => 'test'
       )
@@ -37,9 +37,7 @@ module TestAppenders
         Logging.appenders.email('email', :from => 'me', :to => 'you')
       }
 
-      appender = Logging.appenders.email('email',
-          'from' => 'me', 'to' => 'you'
-      )
+      appender = Logging.appenders.email('email', :from => 'me', :to => 'you')
 
       assert_equal(100, appender.auto_flushing)
       assert_equal([], appender.instance_variable_get(:@immediate))
@@ -53,7 +51,7 @@ module TestAppenders
       assert_equal("Message from #{$0}", appender.subject)
 
       appender = Logging.appenders.email('email',
-          'from' => 'lbrinn@gmail.com', 'to' => 'everyone',
+          :from => 'lbrinn@gmail.com', :to => 'everyone',
           :buffsize => '1000', :immediate_at => 'error, fatal',
           :address => 'smtp.google.com', :port => '443',
           :domain => 'google.com', :user_name => 'lbrinn',
@@ -76,7 +74,7 @@ module TestAppenders
       assert_equal("I'm rich and you're not", appender.subject)
 
       appender = Logging.appenders.email('email',
-          'from' => 'me', 'to' => 'you', :auto_flushing => 42
+          :from => 'me', :to => 'you', :auto_flushing => 42
       )
       assert_equal(42, appender.auto_flushing)
     end

@@ -47,12 +47,12 @@ module Logging::Appenders
     # appended to the file.
     #
     def initialize( name, opts = {} )
-      @fn = opts.getopt(:filename, name)
+      @fn = opts.fetch(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
 
       @fn = ::File.expand_path(@fn)
       self.class.assert_valid_logfile(@fn)
-      @mode = opts.getopt(:truncate) ? 'w' : 'a'
+      @mode = opts.fetch(:truncate, false) ? 'w' : 'a'
 
       self.encoding = opts.fetch(:encoding, self.encoding)
       @mode = "#{@mode}:#{self.encoding}" if self.encoding

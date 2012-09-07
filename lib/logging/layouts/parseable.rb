@@ -180,8 +180,8 @@ module Logging::Layouts
     def initialize( opts = {} )
       super
       @created_at = Time.now
-      @style = opts.getopt(:style, 'json').to_s.intern
-      self.items = opts.getopt(:items, %w[timestamp level logger message])
+      @style = opts.fetch(:style, 'json').to_s.intern
+      self.items = opts.fetch(:items, %w[timestamp level logger message])
     end
 
     attr_reader :items

@@ -75,7 +75,7 @@ module Logging::Appenders
     #
     def initialize( name, opts = {} )
       # raise an error if a filename was not given
-      @fn = opts.getopt(:filename, name)
+      @fn = opts.fetch(:filename, name)
       raise ArgumentError, 'no filename was given' if @fn.nil?
 
       @fn = ::File.expand_path(@fn)
@@ -83,13 +83,14 @@ module Logging::Appenders
       ::Logging::Appenders::File.assert_valid_logfile(@fn)
 
       # grab our options
-      @size = opts.getopt(:size, :as => Integer)
+      @size = opts.fetch(:size, nil)
+      @size = Integer(@size) unless @size.nil?
 
       code = 'def sufficiently_aged?() false end'
       @age_fn = @fn + '.age'
       @age_fn_mtime = nil
 
-      case @age = opts.getopt(:age)
+      case @age = opts.fetch(:age, nil)
       when 'daily'
         code = <<-CODE
         def sufficiently_aged?
@@ -147,7 +148,7 @@ module Logging::Appenders
 
       # setup the file roller
       @roller =
-          case opts.getopt(:roll_by)
+          case opts.fetch(:roll_by, nil)
           when 'number'; NumberedRoller.new(@fn, opts)
           when 'date'; DateRoller.new(@fn, opts)
           else
@@ -157,7 +158,7 @@ module Logging::Appenders
           end
 
       # if the truncate flag was set to true, then roll
-      roll_now = opts.getopt(:truncate, false)
+      roll_now = opts.fetch(:truncate, false)
       if roll_now
         copy_truncate
         @roller.roll_files
@@ -256,7 +257,8 @@ module Logging::Appenders
         @glob = "#{bn}.*#{ext}"
         @logname_fmt = "#{bn}.%d#{ext}"
         @fn_copy = fn + '._copy_'
-        @keep = opts.getopt(:keep, :as => Integer)
+        @keep = opts.fetch(:keep, nil)
+        @keep = Integer(@keep) unless @keep.nil?
         @roll = false
       end
 
@@ -296,7 +298,8 @@ module Logging::Appenders
       def initialize( fn, opts )
         @fn_copy = fn + '._copy_'
         @roll = false
-        @keep = opts.getopt(:keep, :as => Integer)
+        @keep = opts.fetch(:keep, nil)
+        @keep = Integer(@keep) unless @keep.nil?
 
         ext = ::File.extname(fn)
         bn = ::File.join(::File.dirname(fn), ::File.basename(fn, ext))
@@ -306,7 +309,7 @@ module Logging::Appenders
           @glob = "#{bn}.*#{ext}"
         end
 
-        if %w[daily weekly monthly].include?(opts.getopt(:age)) and !opts.getopt(:size)
+        if %w[daily weekly monthly].include?(opts.fetch(:age, nil)) and !opts.fetch(:size, nil)
           @logname_fmt = "#{bn}.%Y%m%d#{ext}"
         else
           @logname_fmt = "#{bn}.%Y%m%d-%H%M%S#{ext}"

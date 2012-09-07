@@ -87,26 +87,25 @@ module Logging::Appenders
       opts[:header] = false
       super(name, opts)
 
-      af = opts.getopt(:buffsize) ||
-           opts.getopt(:buffer_size) ||
-           100
+      af = opts.fetch(:buffsize, opts.fetch(:buffer_size, 100))
+
       configure_buffering({:auto_flushing => af}.merge(opts))
 
       # get the SMTP parameters
-      self.from = opts.getopt :from
+      self.from = opts.fetch(:from, nil)
       raise ArgumentError, 'Must specify from address' if @from.nil?
 
-      self.to = opts.getopt :to
+      self.to = opts.fetch(:to, nil)
       raise ArgumentError, 'Must specify recipients' if @to.empty?
 
-      self.subject   = opts.getopt :subject, "Message from #{$0}"
-      self.address   = opts.getopt(:server) || opts.getopt(:address) || 'localhost'
-      self.port      = opts.getopt(:port, 25)
-      self.domain    = opts.getopt(:domain, ENV['HOSTNAME']) || 'localhost.localdomain'
-      self.user_name = opts.getopt(:acct) || opts.getopt(:user_name)
-      self.password  = opts.getopt(:passwd) || opts.getopt(:password)
-      self.enable_starttls_auto = opts.getopt(:enable_starttls_auto, false)
-      self.authentication = opts.getopt(:authtype) || opts.getopt(:authentication) || :plain
+      self.subject   = opts.fetch(:subject, "Message from #{$0}")
+      self.address   = opts.fetch(:server, opts.fetch(:address, 'localhost'))
+      self.port      = opts.fetch(:port, 25)
+      self.domain    = opts.fetch(:domain, (ENV['HOSTNAME'] || 'localhost.localdomain'))
+      self.user_name = opts.fetch(:acct,   opts.fetch(:user_name, nil))
+      self.password  = opts.fetch(:passwd, opts.fetch(:password,  nil))
+      self.enable_starttls_auto = opts.fetch(:enable_starttls_auto, false)
+      self.authentication = opts.fetch(:authtype, opts.fetch(:authentication, :plain))
     end
 
     # Close the email appender. If the layout contains a foot, it will not be

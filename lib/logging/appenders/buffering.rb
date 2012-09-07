@@ -205,9 +205,9 @@ module Logging::Appenders
     def configure_buffering( opts )
       ::Logging.init unless ::Logging.initialized?
 
-      self.immediate_at = opts.getopt(:immediate_at, '')
-      self.auto_flushing = opts.getopt(:auto_flushing, true)
-      self.flush_period = opts.getopt(:flush_period, nil)
+      self.immediate_at  = opts.fetch(:immediate_at, '')
+      self.auto_flushing = opts.fetch(:auto_flushing, true)
+      self.flush_period  = opts.fetch(:flush_period, nil)
     end
 
     # Returns true if the _event_ level matches one of the configured

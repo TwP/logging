@@ -39,13 +39,13 @@ class Appender
     @name = name.to_s
     @closed = false
 
-    self.layout = opts.getopt(:layout, ::Logging::Layouts::Basic.new)
-    self.level = opts.getopt(:level)
+    self.layout = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
+    self.level = opts.fetch(:level, nil)
     self.encoding = opts.fetch(:encoding, self.encoding)
 
     @mutex = ReentrantMutex.new
 
-    if opts.getopt(:header, true)
+    if opts.fetch(:header, true)
       header = @layout.header
 
       unless header.nil? || header.empty?
