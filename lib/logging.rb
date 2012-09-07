@@ -11,7 +11,12 @@ require 'fileutils'
 require 'little-plugger'
 require 'multi_json'
 
-HAVE_SYSLOG = require? 'syslog'
+begin
+  require 'syslog'
+  HAVE_SYSLOG = true
+rescue LoadError
+  HAVE_SYSLOG = false
+end
 
 #
 #

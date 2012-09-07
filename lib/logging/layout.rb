@@ -34,14 +34,14 @@ class Layout
     default = ::Logging.const_defined?('OBJ_FORMAT') ?
               ::Logging::OBJ_FORMAT : nil
 
-    f = opts.getopt(:format_as, default)
+    f = opts.fetch(:format_as, default)
     f = f.intern if f.instance_of? String
 
     @obj_format = case f
                   when :inspect, :yaml, :json; f
                   else :string end
 
-    b = opts.getopt(:backtrace, ::Logging.backtrace)
+    b = opts.fetch(:backtrace, ::Logging.backtrace)
     @backtrace = case b
         when :on, 'on', true;    true
         when :off, 'off', false; false

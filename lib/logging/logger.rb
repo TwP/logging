@@ -430,11 +430,11 @@ module Logging
     #
     def _setup( name, opts = {} )
       @name      = name
-      @parent    = opts.getopt(:parent)
-      @appenders = opts.getopt(:appenders, [])
-      @additive  = opts.getopt(:additive, true)
-      @trace     = opts.getopt(:trace, false)
-      @level     = opts.getopt(:level)
+      @parent    = opts.fetch(:parent, nil)
+      @appenders = opts.fetch(:appenders, [])
+      @additive  = opts.fetch(:additive, true)
+      @trace     = opts.fetch(:trace, false)
+      @level     = opts.fetch(:level, nil)
       ::Logging::Logger.define_log_methods(self)
     end
 

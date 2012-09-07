@@ -93,16 +93,16 @@ module Logging::Appenders
     #                  through LOG_LOCAL7.
     #
     def initialize( name, opts = {} )
-      @ident = opts.getopt(:ident, name)
-      @logopt = opts.getopt(:logopt, (LOG_PID | LOG_CONS), :as => Integer)
-      @facility = opts.getopt(:facility, LOG_USER, :as => Integer)
+      @ident = opts.fetch(:ident, name)
+      @logopt = Integer(opts.fetch(:logopt, (LOG_PID | LOG_CONS)))
+      @facility = Integer(opts.fetch(:facility, LOG_USER))
       @syslog = ::Syslog.open(@ident, @logopt, @facility)
 
       # provides a mapping from the default Logging levels
       # to the syslog levels
       @map = [LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT]
 
-      map = opts.getopt(:map)
+      map = opts.fetch(:map, nil)
       self.map = map unless map.nil?
 
       super

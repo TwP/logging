@@ -42,7 +42,7 @@ module TestAppenders
 
     def test_initialize
       log = File.join(TMP, 'file.log')
-      appender = Logging.appenders.file(NAME, 'filename' => log)
+      appender = Logging.appenders.file(NAME, :filename => log)
       assert_equal 'logfile', appender.name
       assert_equal ::File.expand_path(log), appender.filename
       appender << "This will be the first line\n"
@@ -82,7 +82,7 @@ module TestAppenders
 
     def test_changing_directories
       log = File.join(TMP, 'file.log')
-      appender = Logging.appenders.file(NAME, 'filename' => log)
+      appender = Logging.appenders.file(NAME, :filename => log)
 
       assert_equal 'logfile', appender.name
       assert_equal ::File.expand_path(log), appender.filename

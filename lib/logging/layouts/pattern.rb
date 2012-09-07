@@ -353,14 +353,14 @@ module Logging::Layouts
       super
       @created_at = Time.now
 
-      @date_pattern = opts.getopt(:date_pattern)
-      @date_method = opts.getopt(:date_method)
+      @date_pattern = opts.fetch(:date_pattern, nil)
+      @date_method = opts.fetch(:date_method, nil)
       @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
 
-      @pattern = opts.getopt(:pattern,
+      @pattern = opts.fetch(:pattern,
           "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n")
 
-      cs_name = opts.getopt(:color_scheme)
+      cs_name = opts.fetch(:color_scheme, nil)
       @color_scheme =
           case cs_name
           when false, nil; nil

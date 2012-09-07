@@ -111,7 +111,7 @@ module TestAppenders
       Dir.glob(d_glob).each {|fn| ::File.delete fn}
       cleanup
 
-      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, 'age' => 'daily')
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'daily')
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 

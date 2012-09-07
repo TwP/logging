@@ -20,16 +20,16 @@ module TestLogging
 
       assert_equal :string, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new 'format_as' => 'blah'
+      @layout = ::Logging::Layout.new :format_as => 'blah'
       assert_equal :string, obj_format[@layout]
 
       @layout = ::Logging::Layout.new :format_as => :inspect
       assert_equal :inspect, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new 'format_as' => :json
+      @layout = ::Logging::Layout.new :format_as => :json
       assert_equal :json, obj_format[@layout]
 
-      @layout = ::Logging::Layout.new 'format_as' => :yaml
+      @layout = ::Logging::Layout.new :format_as => :yaml
       assert_equal :yaml, obj_format[@layout]
 
       @layout = ::Logging::Layout.new
