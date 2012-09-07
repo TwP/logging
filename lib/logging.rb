@@ -29,25 +29,12 @@ module Logging
   class << self
 
     # call-seq:
-    #    Logging.configure( filename )
     #    Logging.configure { block }
     #
-    # Configures the Logging framework using the configuration information
-    # found in the given file. The file extension should be either '.yaml'
-    # or '.yml' (XML configuration is not yet supported).
+    # Configures the Logging framework using the configuration block.
     #
-    def configure( *args, &block )
-      if block
-        return ::Logging::Config::Configurator.process(&block)
-      end
-
-      filename = args.shift
-      raise ArgumentError, 'a filename was not given' if filename.nil?
-
-      case File.extname(filename)
-      when '.yaml', '.yml'
-        ::Logging::Config::YamlConfigurator.load(filename, *args)
-      else raise ArgumentError, 'unknown configuration file format' end
+    def configure( &block )
+      ::Logging::Config::Configurator.process(&block)
     end
 
     # call-seq:
@@ -512,7 +499,6 @@ module Logging
   require libpath('logging/diagnostic_context')
 
   require libpath('logging/config/configurator')
-  require libpath('logging/config/yaml_configurator')
 
   require libpath('logging/rails_compat')
 end  # module Logging
