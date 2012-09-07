@@ -496,7 +496,6 @@ module Logging
   require libpath('logging/logger')
   require libpath('logging/repository')
   require libpath('logging/root_logger')
-  require libpath('logging/stats')
   require libpath('logging/color_scheme')
   require libpath('logging/appenders')
   require libpath('logging/layouts')
