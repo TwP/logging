@@ -534,6 +534,7 @@ module Logging
   require libpath('logging/appenders')
   require libpath('logging/layouts')
   require libpath('logging/proxy')
+  require libpath('logging/diagnostic_context')
 
   require libpath('logging/config/configurator')
   require libpath('logging/config/yaml_configurator')
