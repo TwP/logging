@@ -9,6 +9,7 @@ require 'yaml'
 require 'stringio'
 require 'fileutils'
 require 'little-plugger'
+require 'multi_json'
 
 HAVE_SYSLOG = require? 'syslog'
 
@@ -508,6 +509,7 @@ module Logging
       ::Logging::Repository.reset
       ::Logging::Appenders.reset
       ::Logging::ColorScheme.reset
+      ::Logging.clear_diagnostic_contexts(true)
       LEVELS.clear
       LNAMES.clear
       remove_instance_variable :@backtrace if defined? @backtrace
