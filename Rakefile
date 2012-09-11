@@ -22,6 +22,7 @@ Bones {
   use_gmail
 
   depend_on 'little-plugger'
+  depend_on 'multi_json'
 
   depend_on 'flexmock', '< 1.0.0',  :development => true
   depend_on 'bones-git',            :development => true
