@@ -22,29 +22,37 @@ module TestLayouts
     end
 
     def test_format
-      fmt = %Q[\\{"timestamp":"#@date_fmt","level":"%s","logger":"%s","message":"%s"\\}\\n]
-
       event = Logging::LogEvent.new('ArrayLogger', @levels['info'],
                                     'log message', false)
-      rgxp  = Regexp.new(sprintf(fmt, 'INFO', 'ArrayLogger', 'log message'))
-      assert_match rgxp, @layout.format(event)
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"INFO"/, format
+      assert_match %r/"logger":"ArrayLogger"/, format
+      assert_match %r/"message":"log message"/, format
 
       event.data = [1, 2, 3, 4]
-      rgxp  = Regexp.new(sprintf(fmt, 'INFO', 'ArrayLogger',
-                                 Regexp.escape("<Array> #{[1,2,3,4]}")))
-      assert_match rgxp, @layout.format(event)
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"INFO"/, format
+      assert_match %r/"logger":"ArrayLogger"/, format
+      assert_match %r/"message":"<Array> #{Regexp.escape [1,2,3,4].to_s}"/, format
 
       event.level = @levels['debug']
       event.data = 'and another message'
-      rgxp  = Regexp.new(sprintf(fmt, 'DEBUG', 'ArrayLogger',
-                         'and another message'))
-      assert_match rgxp, @layout.format(event)
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"DEBUG"/, format
+      assert_match %r/"logger":"ArrayLogger"/, format
+      assert_match %r/"message":"and another message"/, format
 
       event.logger = 'Test'
       event.level = @levels['fatal']
       event.data = Exception.new
-      rgxp  = Regexp.new(sprintf(fmt, 'FATAL', 'Test', '<Exception> Exception'))
-      assert_match rgxp, @layout.format(event)
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"FATAL"/, format
+      assert_match %r/"logger":"Test"/, format
+      assert_match %r/"message":"<Exception> Exception"/, format
     end
 
     def test_items
@@ -103,6 +111,56 @@ module TestLayouts
       assert_equal %Q[{"thread":null}\n], @layout.format(event)
       Thread.current[:name] = "Main"
       assert_equal %Q[{"thread":"Main"}\n], @layout.format(event)
+
+      @layout.items = %w[mdc]
+      assert_match %r/\A\{"mdc":\{\}}\n\z/, @layout.format(event)
+
+      @layout.items = %w[ndc]
+      assert_match %r/\A\{"ndc":\[\]}\n\z/, @layout.format(event)
+    end
+
+    def test_mdc_output
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    'log message', false)
+      Logging.mdc['X-Session'] = '123abc'
+      Logging.mdc['Cookie'] = 'monster'
+
+      @layout.items = %w[timestamp level logger message mdc]
+
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"INFO"/, format
+      assert_match %r/"logger":"TestLogger"/, format
+      assert_match %r/"message":"log message"/, format
+      assert_match %r/"mdc":\{(?:(?:"X-Session":"123abc"|"Cookie":"monster"),?){2}\}/, format
+
+      Logging.mdc.delete 'Cookie'
+      format = @layout.format(event)
+      assert_match %r/"mdc":\{"X-Session":"123abc"\}/, format
+    end
+
+    def test_ndc_output
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    'log message', false)
+      Logging.ndc << 'context a'
+      Logging.ndc << 'context b'
+
+      @layout.items = %w[timestamp level logger message ndc]
+
+      format = @layout.format(event)
+      assert_match %r/"timestamp":"#@date_fmt"/, format
+      assert_match %r/"level":"INFO"/, format
+      assert_match %r/"logger":"TestLogger"/, format
+      assert_match %r/"message":"log message"/, format
+      assert_match %r/"ndc":\["context a","context b"\]/, format
+
+      Logging.ndc.pop
+      format = @layout.format(event)
+      assert_match %r/"ndc":\["context a"\]/, format
+
+      Logging.ndc.pop
+      format = @layout.format(event)
+      assert_match %r/"ndc":\[\]/, format
     end
 
   end  # class TestJson

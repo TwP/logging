@@ -11,7 +11,7 @@ module TestLayouts
       super
       @layout = Logging.layouts.yaml({})
       @levels = Logging::LEVELS
-      @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6,9} (Z|[+-]\d{2}:\d{2})'
+      @date_fmt = '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}(Z|[+-]\d{2}:\d{2})'
       Thread.current[:name] = nil
     end
 
@@ -55,7 +55,7 @@ module TestLayouts
 
       @layout.items = %w[timestamp]
       assert_equal %w[timestamp], @layout.items
-      assert_match %r/\A--- ?\ntimestamp: '?#@date_fmt'?\n/, @layout.format(event)
+      assert_match %r/\A--- ?\ntimestamp: ["']#@date_fmt["']\n/, @layout.format(event)
 
       # 'foo' is not a recognized item
       assert_raise(ArgumentError) {
@@ -101,14 +101,57 @@ module TestLayouts
       assert_match %r/\A--- ?\nthread: \n/, @layout.format(event)
       Thread.current[:name] = "Main"
       assert_match %r/\A--- ?\nthread: Main\n/, @layout.format(event)
+
+      @layout.items = %w[mdc]
+      assert_match %r/\A--- ?\nmdc: \{\}\n/, @layout.format(event)
+
+      @layout.items = %w[ndc]
+      assert_match %r/\A--- ?\nndc: \[\]\n/, @layout.format(event)
     end
 
-    private
+    def test_mdc_output
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    'log message', false)
+      Logging.mdc['X-Session'] = '123abc'
+      Logging.mdc['Cookie'] = 'monster'
+
+      @layout.items = %w[timestamp level logger message mdc]
+
+      format = @layout.format(event)
+      assert_match %r/\nmdc: ?(?:\n  (?:X-Session: 123abc|Cookie: monster)\n?){2}/, format
+
+      Logging.mdc.delete 'Cookie'
+      format = @layout.format(event)
+      assert_match %r/\nmdc: ?\n  X-Session: 123abc\n/, format
+    end
+
+    def test_ndc_output
+      event = Logging::LogEvent.new('TestLogger', @levels['info'],
+                                    'log message', false)
+      Logging.ndc << 'context a'
+      Logging.ndc << 'context b'
+
+      @layout.items = %w[timestamp level logger message ndc]
+
+      format = @layout.format(event)
+      assert_match %r/\nndc: ?\n- context a\n- context b\n/, format
+
+      Logging.ndc.pop
+      format = @layout.format(event)
+      assert_match %r/\nndc: ?\n- context a\n/, format
+
+      Logging.ndc.pop
+      format = @layout.format(event)
+      assert_match %r/\nndc: \[\]\n/, format
+    end
+
+  private
 
     def assert_yaml_match( expected, actual )
       actual = YAML.load(actual)
 
-      assert_instance_of Time, actual['timestamp']
+      assert_instance_of String, actual['timestamp']
+      assert_instance_of Time, Time.parse(actual['timestamp'])
       assert_equal expected['level'], actual['level']
       assert_equal expected['logger'], actual['logger']
       assert_equal expected['message'], actual['message']

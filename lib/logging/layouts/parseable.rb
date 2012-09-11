@@ -64,12 +64,12 @@ module Logging::Layouts
   # follows:
   #
   #   ---
-  #   timestamp: 2009-04-17 16:15:42
+  #   timestamp: 2009-04-17T16:15:42
   #   level: INFO
   #   logger: Foo::Bar
   #   message: this is a log message
   #   ---
-  #   timestamp: 2009-04-17 16:15:43
+  #   timestamp: 2009-04-17T16:15:43
   #   level: ERROR
   #   logger: Foo
   #   message: <RuntimeError> Oooops!!
@@ -84,8 +84,8 @@ module Logging::Layouts
   # it line by line and parse the individual objects. Taking the same
   # example above the JSON output would be:
   #
-  #   {"timestamp":"2009-04-17 16:15:42","level":"INFO","logger":"Foo::Bar","message":"this is a log message"}
-  #   {"timestamp":"2009-04-17 16:15:43","level":"ERROR","logger":"Foo","message":"<RuntimeError> Oooops!!"}
+  #   {"timestamp":"2009-04-17T16:15:42","level":"INFO","logger":"Foo::Bar","message":"this is a log message"}
+  #   {"timestamp":"2009-04-17T16:15:43","level":"ERROR","logger":"Foo","message":"<RuntimeError> Oooops!!"}
   #
   # The output order of the fields is guaranteed to be the same as the order
   # specified in the _items_ list.
@@ -96,7 +96,7 @@ module Logging::Layouts
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
       'logger'    => 'event.logger',
-      'timestamp' => 'event.time',
+      'timestamp' => 'iso8601_format(event.time)',
       'level'     => '::Logging::LNAMES[event.level]',
       'message'   => 'format_obj(event.data)',
       'file'      => 'event.file',
@@ -105,7 +105,9 @@ module Logging::Layouts
       'pid'       => 'Process.pid',
       'millis'    => 'Integer((event.time-@created_at)*1000)',
       'thread_id' => 'Thread.current.object_id',
-      'thread'    => 'Thread.current[:name]'
+      'thread'    => 'Thread.current[:name]',
+      'mdc'       => 'Logging::MappedDiagnosticContext.context',
+      'ndc'       => 'Logging::NestedDiagnosticContext.context'
     }
 
     # call-seq:
@@ -134,14 +136,12 @@ module Logging::Layouts
     #
     def self.create_json_format_method( layout )
       code = "undef :format if method_defined? :format\n"
-      code << "def format( event )\n\"{"
+      code << "def format( event )\nh = {\n"
 
-      args = []
       code << layout.items.map {|name|
-        args << "format_as_json(#{Parseable::DIRECTIVE_TABLE[name]})"
-        "\\\"#{name}\\\":%s"
-      }.join(',')
-      code << "}\\n\" % [#{args.join(', ')}]\nend"
+        "'#{name}' => #{Parseable::DIRECTIVE_TABLE[name]}"
+      }.join(",\n")
+      code << "\n}\nMultiJson.encode(h) << \"\\n\"\nend\n"
 
       (class << layout; self end).class_eval(code, __FILE__, __LINE__)
     end
@@ -202,16 +202,6 @@ module Logging::Layouts
     end
 
   private
-
-    # Take the given _value_ and format it into a JSON compatible string.
-    #
-    def format_as_json( value )
-      case value
-      when String, Integer, Float; value.inspect
-      when nil; 'null'
-      when Time; %Q{"#{iso8601_format(value)}"}
-      else %Q{"#{value.inspect}"} end
-    end
 
     # Call the appropriate class level create format method based on the
     # style of this parseable layout.
