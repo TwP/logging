@@ -13,9 +13,10 @@ module Logging
   # The MDC provides a hash of contextual messages that are identified by
   # unique keys. Each message is 
   #
+  # FIXME
   #
   #
-  # pushed and popped by
+  #
   #
   #
   #

@@ -191,6 +191,41 @@ module TestLayouts
       assert_equal 'message{42}', @layout.format(event)
     end
 
+    def test_pattern_mdc
+      @layout.pattern = 'S:%X{X-Session} C:%X{Cookie}'
+      event = Logging::LogEvent.new('TestLogger', @levels['info'], 'log message', false)
+
+      Logging.mdc['X-Session'] = '123abc'
+      Logging.mdc['Cookie'] = 'monster'
+      assert_equal 'S:123abc C:monster', @layout.format(event)
+
+      Logging.mdc.delete 'Cookie'
+      assert_equal 'S:123abc C:', @layout.format(event)
+
+      Logging.mdc.delete 'X-Session'
+      assert_equal 'S: C:', @layout.format(event)
+    end
+
+    def test_pattern_mdc_requires_key_name
+      assert_raise(ArgumentError) { @layout.pattern = '%X' }
+      assert_raise(ArgumentError) { @layout.pattern = '%X{}' }
+    end
+
+    def test_pattern_ndc
+      @layout.pattern = '%x'
+      event = Logging::LogEvent.new('TestLogger', @levels['info'], 'log message', false)
+
+      Logging.ndc << 'context a'
+      Logging.ndc << 'context b'
+      assert_equal 'context a context b', @layout.format(event)
+
+      @layout.pattern = '%x{, }'
+      assert_equal 'context a, context b', @layout.format(event)
+
+      Logging.ndc.pop
+      assert_equal 'context a', @layout.format(event)
+    end
+
   end  # TestBasic
 end  # TestLayouts
 end  # TestLogging

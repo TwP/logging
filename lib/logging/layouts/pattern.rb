@@ -66,6 +66,11 @@ module Logging::Layouts
   #       Name can be specified using Thread.current[:name] notation. Output
   #       empty string if name not specified. This option helps to create
   #       more human readable output for multithread application logs.
+  #  [X]  Used to output values from the Mapped Diagnostic Context. Requires
+  #       a key name to lookup the value from the context. More details are
+  #       listed below.
+  #  [x]  Used to output values from the Nested Diagnostic Context. Supports
+  #       an optional context separator string. More details are listed below.
   #  [%]  The sequence '%%' outputs a single percent sign.
   #
   # The logger name directive 'c' accepts an optional precision that will
@@ -76,6 +81,8 @@ module Logging::Layouts
   # The directives F, L, and M will only work if the Logger generating the
   # events is configured to generate tracing information. If this is not
   # the case these fields will always be empty.
+  #
+  # FIXME: add some instructions here for %x and %X
   #
   # By default the relevant information is output as is. However, with the
   # aid of format modifiers it is possible to change the minimum field width,
@@ -141,6 +148,8 @@ module Logging::Layouts
       'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
       't' => 'Thread.current.object_id.to_s'.freeze,
       'T' => 'Thread.current[:name]'.freeze,
+      'X' => :placeholder,
+      'x' => :placeholder,
       '%' => :placeholder
     }.freeze
 
@@ -151,7 +160,7 @@ module Logging::Layouts
     # * $3 is the directive letter
     # * $4 is the precision specifier for the logger name
     # * $5 is the stuff after the directive or "" if not applicable
-    DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{(\d+)\})?)?(.*)/m
+    DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{([^\}]+)\})?)?(.*)/m
 
     # default date format
     ISO8601 = "%Y-%m-%d %H:%M:%S".freeze
@@ -167,7 +176,9 @@ module Logging::Layouts
       't' => :thread_id,
       'F' => :file,
       'L' => :line,
-      'M' => :method
+      'M' => :method,
+      'X' => :mdc,
+      'x' => :ndc
     }.freeze
 
     # call-seq:
@@ -226,10 +237,15 @@ module Logging::Layouts
           format_string << fmt
           args << DIRECTIVE_TABLE[m[3]].dup
           if m[4]
-            raise ArgumentError, "logger name precision must be an integer greater than zero: #{m[4]}" unless Integer(m[4]) > 0
-            args.last <<
-                ".split(::Logging::Repository::PATH_DELIMITER)" \
-                ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
+            precision = Integer(m[4]) rescue nil
+            if precision
+              raise ArgumentError, "logger name precision must be an integer greater than zero: #{precision}" unless precision > 0
+              args.last <<
+                  ".split(::Logging::Repository::PATH_DELIMITER)" \
+                  ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
+            else
+              format_string << "{#{m[4]}}"
+            end
           end
         when 'l'
           if color_scheme and color_scheme.levels?
@@ -247,6 +263,23 @@ module Logging::Layouts
             args << DIRECTIVE_TABLE[m[3]]
           end
 
+        when 'X'
+          raise ArgumentError, "MDC must have a key reference" unless m[4]
+          fmt = m[2] + 's'
+          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+          format_string << fmt
+          args << "::Logging.mdc['#{m[4]}']"
+
+        when 'x'
+          fmt = m[2] + 's'
+          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+          format_string << fmt
+          separator = m[4].to_s
+          separator = ' ' if separator.empty?
+          args << "::Logging.ndc.context.join('#{separator}')"
+
         when *DIRECTIVE_TABLE.keys
           fmt = m[2] + 's'
           fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
@@ -254,6 +287,7 @@ module Logging::Layouts
           format_string << fmt
           format_string << "{#{m[4]}}" if m[4]
           args << DIRECTIVE_TABLE[m[3]]
+
         when nil; break
         else
           raise ArgumentError, "illegal format character - '#{m[3]}'"
