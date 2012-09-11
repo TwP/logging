@@ -134,11 +134,11 @@ module TestLayouts
       @layout.items = %w[timestamp level logger message ndc]
 
       format = @layout.format(event)
-      assert_match %r/\nndc: ?\n- context a\n- context b\n/, format
+      assert_match %r/\nndc: ?\n\s*- context a\n\s*- context b\n/, format
 
       Logging.ndc.pop
       format = @layout.format(event)
-      assert_match %r/\nndc: ?\n- context a\n/, format
+      assert_match %r/\nndc: ?\n\s*- context a\n/, format
 
       Logging.ndc.pop
       format = @layout.format(event)
