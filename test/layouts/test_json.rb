@@ -113,10 +113,10 @@ module TestLayouts
       assert_equal %Q[{"thread":"Main"}\n], @layout.format(event)
 
       @layout.items = %w[mdc]
-      assert_match %r/\A\{"mdc":\{\}}\n\z/, @layout.format(event)
+      assert_match %r/\A\{"mdc":\{\}\}\n\z/, @layout.format(event)
 
       @layout.items = %w[ndc]
-      assert_match %r/\A\{"ndc":\[\]}\n\z/, @layout.format(event)
+      assert_match %r/\A\{"ndc":\[\]\}\n\z/, @layout.format(event)
     end
 
     def test_mdc_output

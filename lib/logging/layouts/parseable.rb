@@ -95,19 +95,19 @@ module Logging::Layouts
     # :stopdoc:
     # Arguments to sprintf keyed to directive letters
     DIRECTIVE_TABLE = {
-      'logger'    => 'event.logger',
-      'timestamp' => 'iso8601_format(event.time)',
-      'level'     => '::Logging::LNAMES[event.level]',
-      'message'   => 'format_obj(event.data)',
-      'file'      => 'event.file',
-      'line'      => 'event.line',
-      'method'    => 'event.method',
-      'pid'       => 'Process.pid',
-      'millis'    => 'Integer((event.time-@created_at)*1000)',
-      'thread_id' => 'Thread.current.object_id',
-      'thread'    => 'Thread.current[:name]',
-      'mdc'       => 'Logging::MappedDiagnosticContext.context',
-      'ndc'       => 'Logging::NestedDiagnosticContext.context'
+      'logger'    => 'event.logger'.freeze,
+      'timestamp' => 'iso8601_format(event.time)'.freeze,
+      'level'     => '::Logging::LNAMES[event.level]'.freeze,
+      'message'   => 'format_obj(event.data)'.freeze,
+      'file'      => 'event.file'.freeze,
+      'line'      => 'event.line'.freeze,
+      'method'    => 'event.method'.freeze,
+      'pid'       => 'Process.pid'.freeze,
+      'millis'    => 'Integer((event.time-@created_at)*1000)'.freeze,
+      'thread_id' => 'Thread.current.object_id'.freeze,
+      'thread'    => 'Thread.current[:name]'.freeze,
+      'mdc'       => 'Logging::MappedDiagnosticContext.context'.freeze,
+      'ndc'       => 'Logging::NestedDiagnosticContext.context'.freeze
     }
 
     # call-seq:
