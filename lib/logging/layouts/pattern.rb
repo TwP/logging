@@ -65,7 +65,7 @@ module Logging::Layouts
   #  [T]  Used to output the name of the thread that generated the log event.
   #       Name can be specified using Thread.current[:name] notation. Output
   #       empty string if name not specified. This option helps to create
-  #       more human readable output for multithread application logs.
+  #       more human readable output for multi-threaded application logs.
   #  [X]  Used to output values from the Mapped Diagnostic Context. Requires
   #       a key name to lookup the value from the context. More details are
   #       listed below.
@@ -82,7 +82,22 @@ module Logging::Layouts
   # events is configured to generate tracing information. If this is not
   # the case these fields will always be empty.
   #
-  # FIXME: add some instructions here for %x and %X
+  # The directives for include diagnostic context information in the log
+  # messages are X and x. For the Mapped Diagnostic Context the directive must
+  # be accompanied by the key identifying the value to insert into the log
+  # message. The X directive can appear multiple times to include multiple
+  # values from the mapped context.
+  #
+  #   %X{Cookie}      Insert the current session cookie
+  #   %X{X-Session}   Insert a session identifier
+  #
+  # For the Nested Diagnostic Context you need only include the directive
+  # once. All contexts currently in the stack will be added to the log message
+  # separated by spaces. If spaces are not your style, a separator string can
+  # be given, too.
+  #
+  #   %x      Insert all contexts separated by spaces
+  #   %x{, }  Insert all contexts separate by a comma and a space
   #
   # By default the relevant information is output as is. However, with the
   # aid of format modifiers it is possible to change the minimum field width,
@@ -110,15 +125,15 @@ module Logging::Layouts
   # Below are various format modifier examples for the category conversion
   # specifier.
   #
-  #  [%20c]      Left pad with spaces if the logger name is less than 20
+  #   %20c       Left pad with spaces if the logger name is less than 20
   #              characters long
-  #  [%-20c]     Right pad with spaces if the logger name is less than 20
+  #   %-20c      Right pad with spaces if the logger name is less than 20
   #              characters long
-  #  [%.30c]     Truncates the logger name if it is longer than 30 characters
-  #  [%20.30c]   Left pad with spaces if the logger name is shorter than
+  #   %.30c      Truncates the logger name if it is longer than 30 characters
+  #   %20.30c    Left pad with spaces if the logger name is shorter than
   #              20 characters. However, if the logger name is longer than
   #              30 characters, then truncate the name.
-  #  [%-20.30c]  Right pad with spaces if the logger name is shorter than
+  #   %-20.30c   Right pad with spaces if the logger name is shorter than
   #              20 characters. However, if the logger name is longer than
   #              30 characters, then truncate the name.
   #

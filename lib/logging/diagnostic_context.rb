@@ -11,16 +11,13 @@ module Logging
   # play.
   #
   # The MDC provides a hash of contextual messages that are identified by
-  # unique keys. Each message is 
+  # unique keys. These unique keys are set by the application and appended
+  # to log messages to identify groups of log events. One use of the Mapped
+  # Diagnostic Context is to store HTTP request headers associated with a Rack
+  # request. These headers can be included with all log messages emitted while
+  # generating the HTTP response.
   #
-  # FIXME
-  #
-  #
-  #
-  #
-  #
-  #
-  # When configured to do so, PatternLayout instance will automatically
+  # When configured to do so, PatternLayout instances will automatically
   # retrieve the mapped diagnostic context for the current thread with out any
   # user intervention. This context information can be used to track user
   # sessions in a Rails application, for example.
