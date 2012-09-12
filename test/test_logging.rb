@@ -1,5 +1,5 @@
 
-require File.expand_path('setup', File.dirname(__FILE__))
+require File.expand_path('../setup', __FILE__)
 
 module TestLogging
 

@@ -45,7 +45,7 @@ module Logging
     # Returns the value.
     #
     def []=( key, value )
-      context.store(key.to_s, value.to_s)
+      context.store(key.to_s, value)
     end
 
     # Public: Get the context value identified with the key parameter.
@@ -162,7 +162,7 @@ module Logging
     # Returns the current NestedDiagnosticContext.
     #
     def push( message )
-      context.push(message.to_s)
+      context.push(message)
       self
     end
     alias :<< :push
