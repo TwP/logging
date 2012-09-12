@@ -74,7 +74,7 @@ module TestLogging
       }
 
       Thread.pass until t.status == 'sleep'
-      Logging.ndc << 'thrid'
+      Logging.ndc << 'third'
 
       t.run
       t.join
