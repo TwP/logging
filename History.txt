@@ -1,7 +1,12 @@
-== 1.8.0 / 2012-09-
+== 1.8.0 / 2012-09-13
 
 Enhancements
 - Appenders handle string encodings [issue #46]
+- Support for diagnostic contexts [issues #23, #32, #42]
+- Enable JSON formatting of log message [issue #34]
+
+Bug Fixes
+- Fix clash with ActiveSupport autoloader (chewie) [issue #39]
 
 == 1.7.2 / 2012-04-03
 
