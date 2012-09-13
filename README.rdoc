@@ -2,7 +2,7 @@
 by Tim Pease {<img src="https://secure.travis-ci.org/TwP/logging.png">}[http://travis-ci.org/TwP/logging]
 
 * {Homepage}[http://rubygems.org/gems/logging]
-* {Github Project}[http://github.com/TwP/logging]
+* {Github Project}[https://github.com/TwP/logging]
 * email tim dot pease at gmail dot com
 
 == DESCRIPTION
@@ -78,17 +78,18 @@ the recommended way of accomplishing this.
 There are many more examples in the "examples" folder of the logging
 package. The recommended reading order is the following:
 
-* {simple.rb}[http://github.com/TwP/logging/blob/master/examples/simple.rb]
-* {loggers.rb}[http://github.com/TwP/logging/blob/master/examples/loggers.rb]
-* {classes.rb}[http://github.com/TwP/logging/blob/master/examples/classes.rb]
-* {hierarchies.rb}[http://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
-* {names.rb}[http://github.com/TwP/logging/blob/master/examples/names.rb]
-* {appenders.rb}[http://github.com/TwP/logging/blob/master/examples/appenders.rb]
-* {layouts.rb}[http://github.com/TwP/logging/blob/master/examples/layouts.rb]
-* {formatting.rb}[http://github.com/TwP/logging/blob/master/examples/formatting.rb]
-* {colorization.rb}[http://github.com/TwP/logging/blob/master/examples/colorization.rb]
-* {consolidation.rb}[http://github.com/TwP/logging/blob/master/examples/consolidation.rb]
-* {fork.rb}[http://github.com/TwP/logging/blob/master/examples/fork.rb]
+* {simple.rb}[https://github.com/TwP/logging/blob/master/examples/simple.rb]
+* {loggers.rb}[https://github.com/TwP/logging/blob/master/examples/loggers.rb]
+* {classes.rb}[https://github.com/TwP/logging/blob/master/examples/classes.rb]
+* {hierarchies.rb}[https://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
+* {names.rb}[https://github.com/TwP/logging/blob/master/examples/names.rb]
+* {appenders.rb}[https://github.com/TwP/logging/blob/master/examples/appenders.rb]
+* {layouts.rb}[https://github.com/TwP/logging/blob/master/examples/layouts.rb]
+* {formatting.rb}[https://github.com/TwP/logging/blob/master/examples/formatting.rb]
+* {colorization.rb}[https://github.com/TwP/logging/blob/master/examples/colorization.rb]
+* {consolidation.rb}[https://github.com/TwP/logging/blob/master/examples/consolidation.rb]
+* {fork.rb}[https://github.com/TwP/logging/blob/master/examples/fork.rb]
+* {mdc.rb}[https://github.com/TwP/logging/blob/master/examples/mdc.rb]
 
 == NOTES
 

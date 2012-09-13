@@ -295,10 +295,16 @@ class Thread
 
     # In order for the diagnostic contexts to behave properly we need to
     # inherit state from the parent thread. The only way I have found to do
-    # this in Ruby is to override `new` and capture the parent Thread at the
-    # time the child Thread is created. The code below does just this. If
-    # there is a more idiomatic way of accomplishing this in Ruby, please let
-    # me know!
+    # this in Ruby is to override `new` and capture the contexts from the
+    # parent Thread at the time the child Thread is created. The code below does
+    # just this. If there is a more idiomatic way of accomplishing this in Ruby,
+    # please let me know!
+    #
+    # Also, great care is taken in this code to ensure that a reference to the
+    # parent thread does not exist in the binding associated with the block
+    # being executed in the child thread. The same is true for the parent
+    # thread's mdc and ndc. If any of those references end up in the binding,
+    # then they cannot be garbage collected until the child thread exits.
     #
     def create_with_logging_context( m, *a, &b )
       p_mdc, p_ndc = nil
