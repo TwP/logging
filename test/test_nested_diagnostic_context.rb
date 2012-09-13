@@ -66,7 +66,7 @@ module TestLogging
     def test_thread_inheritance
       Logging.ndc << 'first' << 'second'
 
-      t = Thread.new(Logging.mdc.context) { |ary|
+      t = Thread.new(Logging.ndc.context) { |ary|
         sleep
 
         assert_not_equal ary.object_id, Logging.ndc.context.object_id

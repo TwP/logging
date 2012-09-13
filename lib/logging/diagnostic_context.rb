@@ -89,13 +89,16 @@ module Logging
     #
     # Returns the MappedDiagnosticContext.
     #
-    def inherit( thread )
-      raise ArgumentError, "Expecting a Thread to inherit context from" unless Thread === thread
-      return if Thread.current == thread
-
-      Thread.exclusive {
-        Thread.current[NAME] = thread[NAME].dup if thread[NAME]
-      }
+    def inherit( obj )
+      case obj
+      when Hash
+        Thread.current[NAME] = obj.dup
+      when Thread
+        return if Thread.current == obj
+        Thread.exclusive {
+          Thread.current[NAME] = obj[NAME].dup if obj[NAME]
+        }
+      end
 
       self
     end
@@ -208,13 +211,16 @@ module Logging
     #
     # Returns the NestedDiagnosticContext.
     #
-    def inherit( thread )
-      raise ArgumentError, "Expecting a Thread to inherit context from" unless Thread === thread
-      return if Thread.current == thread
-
-      Thread.exclusive {
-        Thread.current[NAME] = thread[NAME].dup if thread[NAME]
-      }
+    def inherit( obj )
+      case obj
+      when Array
+        Thread.current[NAME] = obj.dup
+      when Thread
+        return if Thread.current == obj
+        Thread.exclusive {
+          Thread.current[NAME] = obj[NAME].dup if obj[NAME]
+        }
+      end
 
       self
     end
@@ -274,7 +280,18 @@ end  # module Logging
 # :stopdoc:
 class Thread
   class << self
-    alias :_orig_new :new
+
+    %w[new start fork].each do |m|
+      class_eval <<-__, __FILE__, __LINE__
+        alias :_orig_#{m} :#{m}
+        private :_orig_#{m}
+        def #{m}( *a, &b )
+          create_with_logging_context(:_orig_#{m}, *a ,&b)
+        end
+      __
+    end
+
+  private
 
     # In order for the diagnostic contexts to behave properly we need to
     # inherit state from the parent thread. The only way I have found to do
@@ -283,13 +300,24 @@ class Thread
     # there is a more idiomatic way of accomplishing this in Ruby, please let
     # me know!
     #
-    def new( *a, &b )
-      _orig_new( Thread.current, *a ) { |parent, *args|
-        Logging::MappedDiagnosticContext.inherit(parent)
-        Logging::NestedDiagnosticContext.inherit(parent)
+    def create_with_logging_context( m, *a, &b )
+      p_mdc, p_ndc = nil
+
+      if Thread.current[Logging::MappedDiagnosticContext::NAME]
+        p_mdc = Thread.current[Logging::MappedDiagnosticContext::NAME].dup
+      end
+
+      if Thread.current[Logging::NestedDiagnosticContext::NAME]
+        p_ndc = Thread.current[Logging::NestedDiagnosticContext::NAME].dup
+      end
+
+      self.send(m, p_mdc, p_ndc, *a) { |mdc, ndc, *args|
+        Logging::MappedDiagnosticContext.inherit(mdc)
+        Logging::NestedDiagnosticContext.inherit(ndc)
         b.call(*args)
       }
     end
+
   end
 end  # Thread
 # :startdoc:
