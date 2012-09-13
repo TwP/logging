@@ -5,14 +5,14 @@
 # "format_as" option and a global "backtrace" option.
 #
 # The format_as option allows objects to be converted to a string using the
-# standard "to_s" method, the "inspect" method, or the "to_yaml" method
-# (this is independent of the YAML layout). The format_as option can be
-# overridden by each layout as desired.
+# standard "to_s" method, the "inspect" method, the "to_json" method, or the
+# "to_yaml" method (this is independent of the YAML layout). The format_as
+# option can be overridden by each layout as desired.
 #
-#   Logging.format_as :string   # or :inspect or :yaml
+#   Logging.format_as :string   # or :inspect or :json or :yaml
 #
 # Exceptions are treated differently by the logging framework. The Exception
-# class is printed along with the message. Optionally, exception backtraces
+# class is printed along with the message. Optionally, the exception backtrace
 # can be included in the logging output; this option is enabled by default.
 #
 #   Logging.backtrace false

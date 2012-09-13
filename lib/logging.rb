@@ -320,6 +320,7 @@ module Logging
     # * :string  => to_s
     # * :inspect => inspect
     # * :yaml    => to_yaml
+    # * :json    => MultiJson.encode(obj)
     #
     # An +ArgumentError+ is raised if anything other than +:string+,
     # +:inspect+, +:yaml+ is passed to this method.
@@ -327,7 +328,7 @@ module Logging
     def format_as( f )
       f = f.intern if f.instance_of? String
 
-      unless [:string, :inspect, :yaml].include? f
+      unless [:string, :inspect, :yaml, :json].include? f
         raise ArgumentError, "unknown object format '#{f}'"
       end
 

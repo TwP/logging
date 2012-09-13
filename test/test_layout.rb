@@ -26,6 +26,9 @@ module TestLogging
       @layout = ::Logging::Layout.new :format_as => :inspect
       assert_equal :inspect, obj_format[@layout]
 
+      @layout = ::Logging::Layout.new 'format_as' => :json
+      assert_equal :json, obj_format[@layout]
+
       @layout = ::Logging::Layout.new 'format_as' => :yaml
       assert_equal :yaml, obj_format[@layout]
 
@@ -72,6 +75,10 @@ module TestLogging
       @layout = ::Logging::Layout.new :format_as => :inspect
       r = @layout.format_obj obj
       assert_equal '<Array> ["one", "two", "three", "four"]', r
+
+      @layout = ::Logging::Layout.new :format_as => :json
+      r = @layout.format_obj obj
+      assert_equal '<Array> ["one","two","three","four"]', r
 
       @layout = ::Logging::Layout.new :format_as => :yaml
       r = @layout.format_obj obj

@@ -231,6 +231,11 @@ module TestLogging
       assert_equal :inspect, ::Logging::OBJ_FORMAT
       remove_const[:OBJ_FORMAT]
 
+      ::Logging.format_as :json
+      assert ::Logging.const_defined?('OBJ_FORMAT')
+      assert_equal :json, ::Logging::OBJ_FORMAT
+      remove_const[:OBJ_FORMAT]
+
       ::Logging.format_as :yaml
       assert ::Logging.const_defined?('OBJ_FORMAT')
       assert_equal :yaml, ::Logging::OBJ_FORMAT

@@ -22,6 +22,7 @@ class Layout
   # * :string  => to_s
   # * :inspect => inspect
   # * :yaml    => to_yaml
+  # * :json    => MultiJson.encode(obj)
   #
   # If the format is not specified then the global object format is used
   # (see Logging#format_as). If the global object format is not specified
@@ -37,7 +38,7 @@ class Layout
     f = f.intern if f.instance_of? String
 
     @obj_format = case f
-                  when :inspect, :yaml; f
+                  when :inspect, :yaml, :json; f
                   else :string end
 
     b = opts.getopt(:backtrace, ::Logging.backtrace)
@@ -94,21 +95,37 @@ class Layout
       str << case @obj_format
              when :inspect; obj.inspect
              when :yaml; try_yaml(obj)
+             when :json; try_json(obj)
              else obj.to_s end
       str
     end
   end
 
-  # call-seq:
-  #    try_yaml( obj )
-  #
   # Attempt to format the _obj_ using yaml, but fall back to inspect style
   # formatting if yaml fails.
+  #
+  # obj - The Object to format.
+  #
+  # Returns a String representation of the object.
   #
   def try_yaml( obj )
     "\n#{obj.to_yaml}"
   rescue TypeError
     obj.inspect
+  end
+
+  # Attempt to format the given object as a JSON string, but fall back to
+  # inspect formatting if JSON encoding does not make sense. This method will
+  # only format Array and Hash objects.
+  #
+  # obj - The Object to format.
+  #
+  # Returns a String representation of the object.
+  #
+  def try_json( obj )
+    case obj
+    when Hash, Array; MultiJson.encode(obj)
+    else obj.inspect end
   end
 
 end  # class Layout
