@@ -35,7 +35,7 @@ module TestLayouts
       assert_match %r/"timestamp":"#@date_fmt"/, format
       assert_match %r/"level":"INFO"/, format
       assert_match %r/"logger":"ArrayLogger"/, format
-      assert_match %r/"message":"<Array> #{Regexp.escape [1,2,3,4].to_s}"/, format
+      assert_match %r/"message":\[1,2,3,4\]/, format
 
       event.level = @levels['debug']
       event.data = 'and another message'
@@ -52,7 +52,7 @@ module TestLayouts
       assert_match %r/"timestamp":"#@date_fmt"/, format
       assert_match %r/"level":"FATAL"/, format
       assert_match %r/"logger":"Test"/, format
-      assert_match %r/"message":"<Exception> Exception"/, format
+      assert_match %r/"message":\{(?:"(?:class|message)":"Exception",?){2}\}/, format
     end
 
     def test_items

@@ -201,6 +201,31 @@ module Logging::Layouts
       create_format_method
     end
 
+    # Public: Take a given object and convert it into a format suitable for
+    # inclusion as a log message. The conversion allows the object to be more
+    # easily expressed in YAML or JSON form.
+    #
+    # If the object is an Exception, then this method will return a Hash
+    # containing the exception class name, message, and backtrace (if any).
+    #
+    # obj - The Object to format
+    #
+    # Returns the formatted Object.
+    #
+    def format_obj( obj )
+      case obj
+      when Exception
+        h = { :class   => obj.class.name,
+              :message => obj.message }
+        h[:backtrace] = obj.backtrace if @backtrace && !obj.backtrace.nil?
+        h
+      when Time
+        iso8601_format(obj)
+      else
+        obj
+      end
+    end
+
   private
 
     # Call the appropriate class level create format method based on the

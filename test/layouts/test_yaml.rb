@@ -27,7 +27,7 @@ module TestLayouts
       assert_yaml_match h, @layout.format(event)
 
       event.data = [1, 2, 3, 4]
-      h['message'] = "<Array> #{[1,2,3,4]}"
+      h['message'] = [1,2,3,4]
       assert_yaml_match h, @layout.format(event)
 
       event.level = @levels['debug']
@@ -41,7 +41,7 @@ module TestLayouts
       event.data = Exception.new
       h['level'] = 'FATAL'
       h['logger'] = 'Test'
-      h['message'] = '<Exception> Exception'
+      h['message'] = {:class => 'Exception', :message => 'Exception'}
       assert_yaml_match h, @layout.format(event)
     end
 

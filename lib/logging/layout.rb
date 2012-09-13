@@ -115,17 +115,16 @@ class Layout
   end
 
   # Attempt to format the given object as a JSON string, but fall back to
-  # inspect formatting if JSON encoding does not make sense. This method will
-  # only format Array and Hash objects.
+  # inspect formatting if JSON encoding fails.
   #
   # obj - The Object to format.
   #
   # Returns a String representation of the object.
   #
   def try_json( obj )
-    case obj
-    when Hash, Array; MultiJson.encode(obj)
-    else obj.inspect end
+    MultiJson.encode(obj)
+  rescue StandardError
+    obj.inspect
   end
 
 end  # class Layout
