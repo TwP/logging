@@ -40,7 +40,6 @@ module TestLogging
 
       Logging.ndc.clear
       assert_nil Logging.ndc.peek
-      assert ary.empty?
     end
 
     def test_thread_uniqueness
