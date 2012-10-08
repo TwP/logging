@@ -22,15 +22,15 @@
   require 'logging'
 
   Logging.appenders.file('Debug File', :filename => 'debug.log')
-  Logging.appenders.growl('Growl Notifier', :level => :error)
+  Logging.appenders.stderr('Standard Error', :level => :error)
 
   # configure the root logger
   Logging.logger.root.appenders = 'Debug File'
   Logging.logger.root.level = :debug
 
-  # add the growl notifier to the Critical logger (it will use it's own
-  # appender and the root logger's appender, too)
-  Logging.logger['Critical'].appenders = 'Growl Notifier'
+  # add the Standard Error appender to the Critical logger (it will use it's
+  # own appender and the root logger's appender, too)
+  Logging.logger['Critical'].appenders = 'Standard Error'
 
   # if you'll notice above, assigning appenders using just the name is valid
   # the logger is smart enough to figure out it was given a string and then
