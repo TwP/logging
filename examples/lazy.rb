@@ -28,13 +28,13 @@
   log.info("Normal")
   log.debug(expensive_method)
 
-  # If we put the message into a block, then the block is only executed
-  # if the message is actually logged.
+  # If we put the message into a block, then the block is not executed, if
+  # the message is not needed with the current log level.
   log.info("Block unused")
   log.debug { expensive_method }
 
-  # If the log message is actually logged, then the block is of course
-  # executed and the log message appears as expected.
+  # If the log message is needed with the current log level, then the block is of
+  # course executed and the log message appears as expected.
   log.info("Block used")
   log.warn { expensive_method }
 
