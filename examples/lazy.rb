@@ -23,7 +23,8 @@
   log = Logging.logger['Lazy']
 
   # If you log this message the usual way, expensive_method gets called before
-  # debug, hence the Logging framework.
+  # debug, hence the Logging framework has no chance to stop it from being executed
+  # immediately.
   log.info("Normal")
   log.debug(expensive_method)
 
