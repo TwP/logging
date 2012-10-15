@@ -1,12 +1,16 @@
 # :stopdoc:
 #
 # It happens sometimes that it is very expensive to construct a logging
-# message, e.g. if a big object structure has to be traversed in an
-# object.to_s method. But if the message is logged with a level that
-# doesn't actually get displayed, it would be a waste of time to
-# construct it. The logging framework provides a way to
-# address this in an elegant way using lazy evaluation.
+# message; for example, if a large object structure has to be traversed
+# during executing of an `object.to_s` method. It would be convenient to
+# delay creation of the message until the log event actually takes place.
 #
+# For example, with a logger configured only to show WARN messages and higher,
+# creating the log message for an INFO message would be wasteful. The INFO log
+# event would never be generated in this case.
+#
+# Log message creation can be performed lazily by wrapping the expensive
+# message generation code in a block and passing that to the logging method.
 
   require 'logging'
 
