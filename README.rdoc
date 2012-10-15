@@ -83,6 +83,7 @@ package. The recommended reading order is the following:
 * {classes.rb}[https://github.com/TwP/logging/blob/master/examples/classes.rb]
 * {hierarchies.rb}[https://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
 * {names.rb}[https://github.com/TwP/logging/blob/master/examples/names.rb]
+* {lazy.rb}[https://github.com/TwP/logging/blob/master/examples/lazy.rb]
 * {appenders.rb}[https://github.com/TwP/logging/blob/master/examples/appenders.rb]
 * {layouts.rb}[https://github.com/TwP/logging/blob/master/examples/layouts.rb]
 * {formatting.rb}[https://github.com/TwP/logging/blob/master/examples/formatting.rb]
