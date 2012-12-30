@@ -79,6 +79,7 @@ There are many more examples in the "examples" folder of the logging
 package. The recommended reading order is the following:
 
 * {simple.rb}[https://github.com/TwP/logging/blob/master/examples/simple.rb]
+* {rspec_integration.rb}[https://github.com/TwP/logging/blob/master/examples/rspec_integration.rb]
 * {loggers.rb}[https://github.com/TwP/logging/blob/master/examples/loggers.rb]
 * {classes.rb}[https://github.com/TwP/logging/blob/master/examples/classes.rb]
 * {hierarchies.rb}[https://github.com/TwP/logging/blob/master/examples/hierarchies.rb]
