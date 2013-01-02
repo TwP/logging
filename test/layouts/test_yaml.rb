@@ -98,7 +98,7 @@ module TestLayouts
       assert_match %r/\A--- ?\nthread_id: -?\d+\n\z/, @layout.format(event)
 
       @layout.items = %w[thread]
-      assert_match %r/\A--- ?\nthread: \n/, @layout.format(event)
+      assert_match %r/\A--- ?\nthread: ?\n/, @layout.format(event)
       Thread.current[:name] = "Main"
       assert_match %r/\A--- ?\nthread: Main\n/, @layout.format(event)
 

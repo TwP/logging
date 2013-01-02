@@ -13,7 +13,7 @@ module Logging
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([-\.\/\(\)\w]+):(\d+)(?::in `(\w+)')?/o
     #CALLER_INDEX = 2
-    CALLER_INDEX = ((defined? JRUBY_VERSION and JRUBY_VERSION[%r/^1.6/]) or (defined? RUBY_ENGINE and RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
+    CALLER_INDEX = ((defined? JRUBY_VERSION and JRUBY_VERSION > '1.6') or (defined? RUBY_ENGINE and RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
     # :startdoc:
 
     # call-seq:
