@@ -422,17 +422,17 @@ class Thread
     # then they cannot be garbage collected until the child thread exits.
     #
     def create_with_logging_context( m, *a, &b )
-      p_mdc, p_ndc = nil
+      mdc, ndc = nil
 
       if Thread.current[Logging::MappedDiagnosticContext::STACK_NAME]
-        p_mdc = Logging::MappedDiagnosticContext.context.dup
+        mdc = Logging::MappedDiagnosticContext.context.dup
       end
 
       if Thread.current[Logging::NestedDiagnosticContext::NAME]
-        p_ndc = Logging::NestedDiagnosticContext.context.dup
+        ndc = Logging::NestedDiagnosticContext.context.dup
       end
 
-      self.send(m, p_mdc, p_ndc, *a) { |mdc, ndc, *args|
+      self.send(m, *a) { |*args|
         Logging::MappedDiagnosticContext.inherit(mdc)
         Logging::NestedDiagnosticContext.inherit(ndc)
         b.call(*args)
