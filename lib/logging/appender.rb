@@ -16,7 +16,7 @@ module Logging
 #
 class Appender
 
-  attr_reader :name, :layout, :level
+  attr_reader :name, :layout, :level, :filter
 
   # call-seq:
   #    Appender.new( name )
@@ -42,6 +42,7 @@ class Appender
     self.layout = opts.getopt(:layout, ::Logging::Layouts::Basic.new)
     self.level = opts.getopt(:level)
     self.encoding = opts.fetch(:encoding, self.encoding)
+    self.filter = opts.getopt(:filter)
 
     @mutex = ReentrantMutex.new
 
@@ -73,8 +74,8 @@ class Appender
     end
 
     # only append if the event level is less than or equal to the configured
-    # appender level
-    unless @level > event.level
+    # appender level and the filter does not disallow it
+    if @level <= event.level && (@filter.nil? || @filter.allow(event))
       begin
         write(event)
       rescue StandardError => err
@@ -160,6 +161,18 @@ class Appender
             "#{layout.inspect} is not a kind of 'Logging::Layout'"
     end
     @layout = layout
+  end
+
+  # call-seq
+  #    appender.filter = Logging::Filters::Level.new :warn, :error
+  #
+  # Sets the filter to be used by this appender
+  def filter=( filter )
+    unless (filter.nil? || filter.kind_of?(::Logging::Filter))
+      raise TypeError,
+            "#{filter.inspect} is not a kind of 'Logging::Filter'"
+    end
+    @filter = filter
   end
 
   # call-seq:
