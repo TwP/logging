@@ -49,16 +49,87 @@ module Logging
 
     extend self
     @appenders = Hash.new
+
+
+    # Accessor / Factory for the Email appender.
+    #
+    def self.email( *args )
+      return ::Logging::Appenders::Email if args.empty?
+      ::Logging::Appenders::Email.new(*args)
+    end
+
+    # Accessor / Factory for the File appender.
+    #
+    def self.file( *args )
+      return ::Logging::Appenders::File if args.empty?
+      ::Logging::Appenders::File.new(*args)
+    end
+
+    # Accessor / Factory for the Growl appender.
+    #
+    def self.growl( *args )
+      return ::Logging::Appenders::Growl if args.empty?
+      ::Logging::Appenders::Growl.new(*args)
+    end
+
+    # Accessor / Factory for the IO appender.
+    #
+    def self.io( *args )
+      return ::Logging::Appenders::Io if args.empty?
+      ::Logging::Appenders::IO.new(*args)
+    end
+
+    # Accessor / Factory for the Stdout appender.
+    #
+    def self.stdout( *args )
+      if args.empty?
+        return self['stdout'] || ::Logging::Appenders::Stdout.new
+      end
+      ::Logging::Appenders::Stdout.new(*args)
+    end
+
+    # Accessor / Factory for the Stderr appender.
+    #
+    def self.stderr( *args )
+      if args.empty?
+        return self['stderr'] || ::Logging::Appenders::Stderr.new
+      end
+      ::Logging::Appenders::Stderr.new(*args)
+    end
+
+    # Accessor / Factory for the RollingFile appender.
+    #
+    def self.rolling_file( *args )
+      return ::Logging::Appenders::RollingFile if args.empty?
+      ::Logging::Appenders::RollingFile.new(*args)
+    end
+
+    # Accessor / Factory for the StringIo appender.
+    #
+    def self.string_io( *args )
+      return ::Logging::Appenders::StringIo if args.empty?
+      ::Logging::Appenders::StringIo.new(*args)
+    end
+
+    # Accessor / Factory for the Syslog appender.
+    #
+    def self.syslog( *args )
+      return ::Logging::Appenders::Syslog if args.empty?
+      ::Logging::Appenders::Syslog.new(*args)
+    end
+
+    autoload :Buffering,   'logging/appenders/buffering'
+    autoload :IO,          'logging/appenders/io'
+    autoload :Stdout,      'logging/appenders/stdout'
+    autoload :Stderr,      'logging/appenders/stderr'
+    autoload :Email,       'logging/appenders/email'
+    autoload :File,        'logging/appenders/file'
+    autoload :Growl,       'logging/appenders/growl'
+    autoload :RollingFile, 'logging/appenders/rolling_file'
+    autoload :StringIo,    'logging/appenders/string_io'
+    autoload :Syslog,      'logging/appenders/syslog'
+
   end  # Appenders
 
-  require libpath('logging/appenders/buffering')
-  require libpath('logging/appenders/io')
-  require libpath('logging/appenders/console')
-  require libpath('logging/appenders/email')
-  require libpath('logging/appenders/file')
-  require libpath('logging/appenders/growl')
-  require libpath('logging/appenders/rolling_file')
-  require libpath('logging/appenders/string_io')
-  require libpath('logging/appenders/syslog')
 end  # Logging
 

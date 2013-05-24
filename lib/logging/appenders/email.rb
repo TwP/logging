@@ -1,15 +1,7 @@
-
 require 'net/smtp'
 require 'time' # get rfc822 time format
 
 module Logging::Appenders
-
-  # Accessor / Factory for the Email appender.
-  #
-  def self.email( *args )
-    return ::Logging::Appenders::Email if args.empty?
-    ::Logging::Appenders::Email.new(*args)
-  end
 
   # Provides an appender that can send log messages via email to a list of
   # recipients.

@@ -1,13 +1,6 @@
 
 module Logging::Appenders
 
-  # Accessor / Factory for the RollingFile appender.
-  #
-  def self.rolling_file( *args )
-    return ::Logging::Appenders::RollingFile if args.empty?
-    ::Logging::Appenders::RollingFile.new(*args)
-  end
-
   # An appender that writes to a file and ensures that the file size or age
   # never exceeds some user specified level.
   #
