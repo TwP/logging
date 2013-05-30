@@ -57,6 +57,7 @@ module Logging::Layouts
   #       the log event.
   #  [M]  Used to output the method name where the logging request was
   #       issued.
+  #  [h]  Used to output the hostname
   #  [p]  Used to output the process ID of the currently running program.
   #  [r]  Used to output the number of milliseconds elapsed from the
   #       construction of the Layout until creation of the log event.
@@ -159,6 +160,7 @@ module Logging::Layouts
       'L' => 'event.line'.freeze,
       'm' => 'format_obj(event.data)'.freeze,
       'M' => 'event.method'.freeze,
+      'h' => '`hostname`.chomp'.freeze,
       'p' => 'Process.pid'.freeze,
       'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
       't' => 'Thread.current.object_id.to_s'.freeze,
@@ -185,6 +187,7 @@ module Logging::Layouts
       'c' => :logger,
       'd' => :date,
       'm' => :message,
+      'h' => :hostname,
       'p' => :pid,
       'r' => :time,
       'T' => :thread,

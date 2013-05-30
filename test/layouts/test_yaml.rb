@@ -88,6 +88,9 @@ module TestLayouts
       @layout.items = %w[method]
       assert_match %r/\A--- ?\nmethod: method_name\n/, @layout.format(event)
 
+      @layout.items = %w[hostname]
+      assert_match %r/\A--- ?\nhostname: #{`hostname`.chomp}\n/, @layout.format(event)
+
       @layout.items = %w[pid]
       assert_match %r/\A--- ?\npid: \d+\n\z/, @layout.format(event)
 

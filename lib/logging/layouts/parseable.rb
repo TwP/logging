@@ -39,6 +39,7 @@ module Logging::Layouts
   #                was issued.
   #   'method'     Used to output the method name where the logging request
   #                was issued.
+  #   'hostname'   Used to output the hostname
   #   'pid'        Used to output the process ID of the currently running
   #                program.
   #   'millis'     Used to output the number of milliseconds elapsed from
@@ -102,6 +103,7 @@ module Logging::Layouts
       'file'      => 'event.file'.freeze,
       'line'      => 'event.line'.freeze,
       'method'    => 'event.method'.freeze,
+      'hostname'  => '`hostname`.chomp'.freeze,
       'pid'       => 'Process.pid'.freeze,
       'millis'    => 'Integer((event.time-@created_at)*1000)'.freeze,
       'thread_id' => 'Thread.current.object_id'.freeze,
