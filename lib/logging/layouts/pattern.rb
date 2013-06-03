@@ -160,7 +160,7 @@ module Logging::Layouts
       'L' => 'event.line'.freeze,
       'm' => 'format_obj(event.data)'.freeze,
       'M' => 'event.method'.freeze,
-      'h' => '`hostname`.chomp'.freeze,
+      'h' => 'Socket.gethostname'.freeze,
       'p' => 'Process.pid'.freeze,
       'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
       't' => 'Thread.current.object_id.to_s'.freeze,

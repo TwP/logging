@@ -143,7 +143,7 @@ module TestLayouts
       assert_equal "Main", @layout.format(event)
 
       @layout.pattern = '%h'
-      hostname = `hostname`.chomp
+      hostname = Socket.gethostname
       assert_equal hostname, @layout.format(event)
 
       @layout.pattern = '%%'

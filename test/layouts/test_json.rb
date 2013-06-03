@@ -99,7 +99,7 @@ module TestLayouts
       assert_equal %Q[{"method":"method_name"}\n], @layout.format(event)
 
       @layout.items = %w[hostname]
-      assert_equal %Q[{"hostname":"#{`hostname`.chomp}"}\n], @layout.format(event)
+      assert_equal %Q[{"hostname":"#{Socket.gethostname}"}\n], @layout.format(event)
 
       @layout.items = %w[pid]
       assert_match %r/\A\{"pid":\d+\}\n\z/, @layout.format(event)
