@@ -142,6 +142,10 @@ module TestLayouts
       Thread.current[:name] = "Main"
       assert_equal "Main", @layout.format(event)
 
+      @layout.pattern = '%h'
+      hostname = Socket.gethostname
+      assert_equal hostname, @layout.format(event)
+
       @layout.pattern = '%%'
       assert_equal '%', @layout.format(event)
 
