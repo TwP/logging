@@ -56,19 +56,28 @@ module TestLogging
       assert @repo.has_logger?('A::B')
     end
 
-    def test_remove
-      %w(A A::B).each do |name|
+    def test_delete
+      %w(A A::B A::C A::B::D).each do |name|
         ::Logging::Logger.new(name)
       end
 
       assert @repo.has_logger?('A')
       assert @repo.has_logger?('A::B')
+      assert @repo.has_logger?('A::C')
+      assert @repo.has_logger?('A::B::D')
+
+      assert_raise(RuntimeError) {@repo.delete :root}
+      assert_raise(KeyError) {@repo.delete 'Does::Not::Exist'}
 
       @repo.delete 'A'
-      @repo.delete 'A::B'
-
       assert !@repo.has_logger?('A')
+      assert_equal @repo[:root], @repo['A::B'].parent
+      assert_equal @repo[:root], @repo['A::C'].parent
+      assert_equal @repo['A::B'], @repo['A::B::D'].parent
+
+      @repo.delete 'A::B'
       assert !@repo.has_logger?('A::B')
+      assert_equal @repo[:root], @repo['A::B::D'].parent
     end
 
     def test_parent

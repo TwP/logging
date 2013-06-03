@@ -70,7 +70,7 @@ module Logging
     # call-seq:
     #    fetch( name )
     #
-    # Returns the +Logger+ named _name_. An +IndexError+ will be raised if
+    # Returns the +Logger+ named _name_. An +KeyError+ will be raised if
     # the logger does not exist.
     #
     # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
@@ -96,17 +96,25 @@ module Logging
     # call-seq:
     #    delete( name )
     #
-    # Deletes and returns a key-value pair from hsh whose key is equal to key.
-    # If the key is not found, returns the default value. If the optional code
-    # block is given and the key is not found, pass in the key and return the
-    # result of block.
+    # Deletes the named logger from the repository. All direct children of the
+    # logger will have their parent reassigned. So the parent of the logger
+    # being deleted becomes the new parent of the children.
     #
     # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
     # remove the logger. When _name_ is a +Class+ the class name will be
     # used to remove the logger. When _name_ is an object the name of the
     # object's class will be used to remove the logger.
     #
-    def delete( key ) @h.delete(to_key(key)) end
+    # Raises a RuntimeError if you try to delete the root logger.
+    # Raises an KeyError if the named logger is not found.
+    def delete( key )
+      key = to_key(key)
+      raise 'the :root logger cannot be deleted' if :root == key
+
+      parent = @h.fetch(key).parent
+      children(key).each {|c| c.__send__(:parent=, parent)}
+      @h.delete(key)
+    end
 
     # call-seq:
     #    parent( key )
