@@ -56,6 +56,21 @@ module TestLogging
       assert @repo.has_logger?('A::B')
     end
 
+    def test_remove
+      %w(A A::B).each do |name|
+        ::Logging::Logger.new(name)
+      end
+
+      assert @repo.has_logger?('A')
+      assert @repo.has_logger?('A::B')
+
+      @repo.delete 'A'
+      @repo.delete 'A::B'
+
+      assert !@repo.has_logger?('A')
+      assert !@repo.has_logger?('A::B')
+    end
+
     def test_parent
       %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
         ::Logging::Logger.new(name)

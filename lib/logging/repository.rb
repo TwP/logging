@@ -95,6 +95,21 @@ module Logging
     def has_logger?( key ) @h.has_key?(to_key(key)) end
 
     # call-seq:
+    #    delete( name )
+    #
+    # Deletes and returns a key-value pair from hsh whose key is equal to key.
+    # If the key is not found, returns the default value. If the optional code
+    # block is given and the key is not found, pass in the key and return the
+    # result of block.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # remove the logger. When _name_ is a +Class+ the class name will be
+    # used to remove the logger. When _name_ is an object the name of the
+    # object's class will be used to remove the logger.
+    #
+    def delete( key ) @h.delete(to_key(key)) end
+
+    # call-seq:
     #    parent( key )
     #
     # Returns the parent logger for the logger identified by _key_ where
