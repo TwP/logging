@@ -1,3 +1,9 @@
+== 1.8.1 / 2013-01-02
+
+Bug Fixes
+- Diagnostic context thread inheritance [issue #56]
+- Fixing trace reporting in JRuby 1.7
+
 == 1.8.0 / 2012-09-13
 
 Enhancements
