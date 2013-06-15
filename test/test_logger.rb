@@ -598,40 +598,40 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging::Logger[:root] <=> 'string'}
     end
 
-    def test_trace
+    def test_caller_tracing
       log = ::Logging::Logger[:root]
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
 
       log = ::Logging::Logger['A']
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
     end
 
-    def test_trace_eq
+    def test_caller_trace_eq
       log = ::Logging::Logger.new 'A'
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
 
-      log.trace = false
-      assert_equal false, log.trace
+      log.caller_tracing = false
+      assert_equal false, log.caller_tracing
 
-      log.trace = 'true'
-      assert_equal true, log.trace
+      log.caller_tracing = 'true'
+      assert_equal true, log.caller_tracing
 
-      log.trace = 'false'
-      assert_equal false, log.trace
+      log.caller_tracing = 'false'
+      assert_equal false, log.caller_tracing
 
-      log.trace = nil
-      assert_equal false, log.trace
+      log.caller_tracing = nil
+      assert_equal false, log.caller_tracing
 
-      assert_raise(ArgumentError) {log.trace = Object}
+      assert_raise(ArgumentError) {log.caller_tracing = Object}
     end
 
     def test_dump_configuration
@@ -660,7 +660,7 @@ module TestLogging
         "A-logger::D-logger  ..............................   debug  +A  -T\n", sio.to_s)
 
       log_b.level = :warn
-      log_b.trace = true
+      log_b.caller_tracing = true
       log_b._dump_configuration( sio )
       assert_equal(
         "A-logger::B-logger  ..............................   *warn  +A  +T\n", sio.to_s)

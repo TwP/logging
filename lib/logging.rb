@@ -398,11 +398,11 @@ module Logging
     #                    that the logger will *not* pass log events up to the
     #                    parent logger
     #
-    #    4) trace      - a "+T" shows that the logger will include trace
-    #                    information in generated log events (this includes
-    #                    filename and line number of the log message; "-T"
-    #                    shows that the logger does not include trace
-    #                    information in the log events)
+    #    4) tracing    - a "+T" shows that the logger will include caller
+    #                    tracing information in generated log events (this
+    #                    includes filename and line number of the log
+    #                    message); "-T" shows that the logger does not include
+    #                    caller tracing information in the log events
     #
     # If a logger has appenders then they are listed, one per line,
     # immediately below the logger. Appender lines are pre-pended with a

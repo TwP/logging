@@ -78,11 +78,11 @@ module Logging::Config
     def loggers( ary )
       ary.each do |name, config|
         l = Logging::Logger[name]
-        l.level     = config[:level] if config[:level]
-        l.additive  = config[:additive] if l.respond_to? :additive=
-        l.trace     = config[:trace]
-        l.appenders = Array(config[:appenders]).
-                            map {|nm| ::Logging::Appenders[nm]}
+        l.level          = config[:level] if config[:level]
+        l.additive       = config[:additive] if l.respond_to? :additive=
+        l.caller_tracing = config[:caller_tracing]
+        l.appenders =
+            Array(config[:appenders]).map {|nm| ::Logging::Appenders[nm]}
       end
     end
 

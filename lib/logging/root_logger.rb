@@ -26,7 +26,7 @@ module Logging
       @name = 'root'
       @appenders = []
       @additive = false
-      @trace = false
+      @caller_tracing = false
       @level = 0
       ::Logging::Logger.define_log_methods(self)
     end

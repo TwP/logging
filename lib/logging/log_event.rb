@@ -17,17 +17,17 @@ module Logging
     # :startdoc:
 
     # call-seq:
-    #    LogEvent.new( logger, level, [data], trace )
+    #    LogEvent.new( logger, level, [data], caller_tracing )
     #
     # Creates a new log event with the given _logger_ name, numeric _level_,
-    # array of _data_ from the user to be logged, and boolean _trace_ flag.
-    # If the _trace_ flag is set to +true+ then Kernel::caller will be
+    # array of _data_ from the user to be logged, and boolean _caller_tracing_ flag.
+    # If the _caller_tracing_ flag is set to +true+ then Kernel::caller will be
     # invoked to get the execution trace of the logging method.
     #
-    def initialize( logger, level, data, trace )
+    def initialize( logger, level, data, caller_tracing )
       f = l = m = ''
 
-      if trace
+      if caller_tracing
         stack = Kernel.caller[CALLER_INDEX]
         return if stack.nil?
 
