@@ -208,7 +208,7 @@ module Logging::Appenders
     rescue StandardError => err
       self.level = :off
       ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
-      ::Logging.log_internal(-2) {err}
+      ::Logging.handle_error(err)
     end
 
     # Returns +true+ if the log file needs to be rolled.
