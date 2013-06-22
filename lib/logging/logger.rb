@@ -103,7 +103,7 @@ module Logging
           if logger.level > num
             code << <<-CODE
               def #{name}?( ) false end
-              def #{name}( data = nil ) false end
+              def #{name}( data = nil ) true end
             CODE
           else
             code << <<-CODE
