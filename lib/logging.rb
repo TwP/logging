@@ -350,14 +350,6 @@ module Logging
           end
     end
 
-    def handle_error(err)
-      if raise_errors
-        raise err
-      else
-        log_internal(-2) {err}
-      end
-    end
-
     # Returns the version string for the library.
     #
     def version
@@ -492,6 +484,17 @@ module Logging
     # Internal logging method for use by the framework.
     def log_internal( level = 1, &block )
       ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
+    end
+
+    # call-seq:
+    #    Logging.handle_error( exception )
+    #
+    # Internal logging method for handling exceptions. The exception will be
+    # logged, and if the `raise_errors` flag is set then the exception will be
+    # raised again.
+    def handle_error(err)
+      log_internal(-2) {err}
+      raise err if raise_errors
     end
 
     # Close all appenders
