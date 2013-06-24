@@ -461,6 +461,14 @@ module Logging
       ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
     end
 
+    # Internal logging method for handling exceptions. If the
+    # `Thread#abort_on_exception` flag is set then the
+    # exception will be raised again.
+    def log_internal_error( err )
+      log_internal(-2) { err }
+      raise err if Thread.abort_on_exception
+    end
+
     # Close all appenders
     def shutdown( *args )
       return unless initialized?
