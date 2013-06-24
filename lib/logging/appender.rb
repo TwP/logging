@@ -52,7 +52,7 @@ class Appender
         begin
           write(header)
         rescue StandardError => err
-          ::Logging.handle_error(err)
+          ::Logging.log_internal_error(err)
         end
       end
     end
@@ -78,7 +78,7 @@ class Appender
       begin
         write(event)
       rescue StandardError => err
-        ::Logging.handle_error(err)
+        ::Logging.log_internal_error(err)
       end
     end
 
@@ -101,7 +101,7 @@ class Appender
       begin
         write(str)
       rescue StandardError => err
-        ::Logging.handle_error(err)
+        ::Logging.log_internal_error(err)
       end
     end
     self
@@ -183,7 +183,7 @@ class Appender
         begin
           write(footer)
         rescue StandardError => err
-          ::Logging.handle_error(err)
+          ::Logging.log_internal_error(err)
         end
       end
     end

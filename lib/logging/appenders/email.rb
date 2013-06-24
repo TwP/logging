@@ -169,7 +169,7 @@ module Logging::Appenders
     rescue StandardError, TimeoutError => err
       self.level = :off
       ::Logging.log_internal {'e-mail notifications have been disabled'}
-      ::Logging.handle_error(err)
+      ::Logging.log_internal_error(err)
     end
 
   end   # Email

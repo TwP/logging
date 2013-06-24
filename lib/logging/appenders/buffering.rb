@@ -333,7 +333,7 @@ module Logging::Appenders
             @appender.flush
           rescue => err
             ::Logging.log_internal {"PeriodicFlusher for appender #{@appender.inspect} encountered an error"}
-            ::Logging.handle_error(err)
+            ::Logging.log_internal_error(err)
           end
         }; @thread = nil }
 

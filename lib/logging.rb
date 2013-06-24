@@ -325,31 +325,6 @@ module Logging
           end
     end
 
-    # call-seq:
-    #    Logging.raise_errors             #=> true or false
-    #    Logging.raise_errors( value )    #=> true or false
-    #
-    # Without any arguments, returns the global raise errors
-    # value. When set to +true+ internal errors in Logging will be
-    # reraised; when set to +false+ internal errors will be
-    # swallowed.
-    #
-    # When an argument is given the global raise errors setting will
-    # be changed. Value values are <tt>"on"</tt>, <tt>:on<tt> and
-    # +true+ to turn on error raising and <tt>"off"</tt>,
-    # <tt>:off</tt> and +false+ to turn off error raising.
-    def raise_errors( b = nil )
-      @raise_errors = false unless defined? @raise_errors
-      return @raise_errors if b.nil?
-
-      @raise_errors = case b
-          when :on, 'on', true;    true
-          when :off, 'off', false; false
-          else
-            raise ArgumentError, "raise_errors must be true or false"
-          end
-    end
-
     # Returns the version string for the library.
     #
     def version
@@ -486,15 +461,12 @@ module Logging
       ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
     end
 
-    # call-seq:
-    #    Logging.handle_error( exception )
-    #
-    # Internal logging method for handling exceptions. The exception will be
-    # logged, and if the `raise_errors` flag is set then the exception will be
-    # raised again.
-    def handle_error(err)
-      log_internal(-2) {err}
-      raise err if raise_errors
+    # Internal logging method for handling exceptions. If the
+    # `Thread#abort_on_exception` flag is set then the
+    # exception will be raised again.
+    def log_internal_error( err )
+      log_internal(-2) { err }
+      raise err if Thread.abort_on_exception
     end
 
     # Close all appenders
@@ -514,7 +486,6 @@ module Logging
       LEVELS.clear
       LNAMES.clear
       remove_instance_variable :@backtrace if defined? @backtrace
-      remove_instance_variable :@raise_errors if defined? @raise_errors
       remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
       remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
       self
