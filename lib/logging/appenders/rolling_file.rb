@@ -22,10 +22,9 @@ module Logging::Appenders
   #    /var/log/ruby.log   =>   /var/log/ruby.1.log
   #
   # New log messages will continue to be appended to the same log file
-  # (<tt>/var/log/ruby.log</tt> in our example above). The age number for all
-  # older log files is incremented when the log file is rolled. The number of
-  # older log files to keep can be given, otherwise all the log files are
-  # kept.
+  # (`/var/log/ruby.log` in our example above). The age number for all older
+  # log files is incremented when the log file is rolled. The number of older
+  # log files to keep can be given, otherwise all the log files are kept.
   #
   # The actual process of rolling all the log file names can be expensive if
   # there are many, many older log files to process.
@@ -37,14 +36,13 @@ module Logging::Appenders
   #
   #    /var/log/ruby.log   =>   /var/log/ruby.20091225.log
   #
-  # Where the date is expressed as <tt>%Y%m%d</tt> in the Time#strftime format.
+  # Where the date is expressed as `%Y%m%d` in the Time#strftime format.
   #
   # NOTE: this class is not safe to use when log messages are written to files
   # on NFS mounts or other remote file system. It should only be used for log
   # files on the local file system. The exception to this is when a single
   # process is writing to the log file; remote file systems are safe to
   # use in this case but still not recommended.
-  #
   class RollingFile < ::Logging::Appenders::IO
 
     # call-seq:
@@ -57,7 +55,7 @@ module Logging::Appenders
     #  [:filename]  The base filename to use when constructing new log
     #               filenames.
     #
-    # The "rolling" portion of the filename can be configured some simple
+    # The "rolling" portion of the filename can be configured via some simple
     # pattern templates. For numbered rolling, you can use {{.%d}}
     #
     #   "logname{{.%d}}.log" => ["logname.log", "logname.1.log", "logname.2.log" ...]
