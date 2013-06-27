@@ -2,7 +2,6 @@
 module Logging::Appenders
 
   # Accessor / Factory for the RollingFile appender.
-  #
   def self.rolling_file( *args )
     return ::Logging::Appenders::RollingFile if args.empty?
     ::Logging::Appenders::RollingFile.new(*args)
@@ -57,6 +56,20 @@ module Logging::Appenders
     #
     #  [:filename]  The base filename to use when constructing new log
     #               filenames.
+    #
+    # The "rolling" portion of the filename can be configured some simple
+    # pattern templates. For numbered rolling, you can use {{.%d}}
+    #
+    #   "logname{{.%d}}.log" => ["logname.log", "logname.1.log", "logname.2.log" ...]
+    #   "logname.log{{-%d}}" => ["logname.log", "logname.log-1", "logname.log-2" ...]
+    #
+    # And for date rolling you can use `strftime` patterns:
+    #
+    #   "logname{{.%Y%m%d}}.log"            => ["logname.log, "logname.20130626.log" ...]
+    #   "logname{{.%Y-%m-%dT%H:%M:%S}}.log" => ["logname.log, "logname.2013-06-26T22:03:31.log" ...]
+    #
+    # If the defaults suit you fine, just pass in the :roll_by option and use
+    # your normal log filename without any pattern template.
     #
     # The following options are optional:
     #
@@ -149,7 +162,6 @@ module Logging::Appenders
     end
 
     # Returns the path to the logfile.
-    #
     def filename
       @roller.filename
     end
@@ -157,7 +169,6 @@ module Logging::Appenders
     # Reopen the connection to the underlying logging destination. If the
     # connection is currently closed then it will be opened. If the connection
     # is currently open then it will be closed and immediately opened.
-    #
     def reopen
       @mutex.synchronize {
         if defined? @io and @io
@@ -173,8 +184,9 @@ module Logging::Appenders
 
   private
 
-    #
-    #
+    # Returns the file name to use as the temporary copy location. We are
+    # using copy-and-truncate semantics for rolling files so that the IO
+    # file descriptor remains valid during rolling.
     def copy_file
       @roller.copy_file
     end
@@ -182,7 +194,6 @@ module Logging::Appenders
     # Write the given _event_ to the log file. The log file will be rolled
     # if the maximum file size is exceeded or if the file is older than the
     # maximum age.
-    #
     def canonical_write( str )
       return self if @io.nil?
 
@@ -204,7 +215,6 @@ module Logging::Appenders
     end
 
     # Returns +true+ if the log file needs to be rolled.
-    #
     def roll_required?
       return false if ::File.exist?(copy_file) and (Time.now - ::File.mtime(copy_file)) < 180
 
@@ -220,7 +230,6 @@ module Logging::Appenders
     # Copy the contents of the logfile to another file. Truncate the logfile
     # to zero length. This method will set the roll flag so that all the
     # current logfiles will be rolled along with the copied file.
-    #
     def copy_truncate
       return unless ::File.exist?(filename)
       FileUtils.concat filename, copy_file
@@ -236,17 +245,19 @@ module Logging::Appenders
     end
 
 
-    # :stopdoc:
+    # Not intended for general consumption, but the Roller class is used
+    # internally by the RollingFile appender to roll dem log files according
+    # to the user's desires.
     class Roller
 
+      # The magic regex for finding user-defined roller patterns.
       RGXP = %r/{{(([^%]+)?.*?)}}/
 
+      # Create a new roller. See the RollingFile#initialize documentation for
+      # the list of options.
       #
-      #
-      #   "basename{{.%d}}.ext"
-      #   "basename.ext{{.%d}}"
-      #   "basename{{.%Y%m%d-%H%M%S}}.ext"
-      #   "basename{{.%Y-%m-%d-%H:%M:%S}}.ext"
+      # name - The appender name as a String
+      # opts - The options Hash
       #
       def initialize( name, opts )
         # raise an error if a filename was not given
@@ -290,20 +301,24 @@ module Logging::Appenders
       attr_reader :keep, :roll_by
       attr_accessor :roll
 
+      # Returns the regular log file name without any roller text.
       def filename
         return @filename if defined? @filename
         @filename = (@fn =~ RGXP ?  @fn.sub(RGXP, '') : @fn.dup)
         @filename.freeze
       end
 
+      # Returns the file name to use as the temporary copy location. We are
+      # using copy-and-truncate semantics for rolling files so that the IO
+      # file descriptor remains valid during rolling.
       def copy_file
         return @copy_file if defined? @copy_file
         @copy_file = filename + '._copy_'
         @copy_file.freeze
       end
 
-      #
-      #
+      # Returns the glob pattern used to find rolled log files. We use this
+      # list for pruning older log files and doing the numbered rolling.
       def glob
         return @glob if defined? @glob
         m = RGXP.match @fn
@@ -311,8 +326,9 @@ module Logging::Appenders
         @glob.freeze
       end
 
-      #
-      #
+      # Returns the format String used to generate rolled file names.
+      # Depending upon the `roll_by` type (:date or :number), this String will
+      # be processed by `sprintf` or `Time#strftime`.
       def format
         return @format if defined? @format
         m = RGXP.match @fn
@@ -320,8 +336,11 @@ module Logging::Appenders
         @format.freeze
       end
 
+      # Roll the log files. This method will collect the list of rolled files
+      # and then pass that list to either `roll_by_number` or `roll_by_date`
+      # to perform the actual rolling.
       #
-      #
+      # Returns nil
       def roll_files
         return unless roll and ::File.exist?(copy_file)
 
@@ -335,8 +354,13 @@ module Logging::Appenders
         self.roll = false
       end
 
+      # Roll the list of log files optionally removing older files. The "older
+      # files" are determined by extracting the number from the log file name
+      # and order by the number.
       #
+      # files - The Array of filename Strings
       #
+      # Returns nil
       def roll_by_number( files )
         @number_rgxp ||= Regexp.new(@fn.sub(RGXP, '\2(\d+)'))
 
@@ -361,8 +385,13 @@ module Logging::Appenders
         ::File.rename(copy_file, sprintf(format, 1))
       end
 
+      # Roll the list of log files optionally removing older files. The "older
+      # files" are determined by the mtime of the log files. So touching log
+      # files or otherwise messing with them will screw this up.
       #
+      # files - The Array of filename Strings
       #
+      # Returns nil
       def roll_by_date( files )
         length = files.length
 
@@ -378,9 +407,7 @@ module Logging::Appenders
         # rename the copied log file
         ::File.rename(copy_file, Time.now.strftime(format))
       end
-    end
-    # :startdoc:
-
+    end  # Roller
   end  # RollingFile
 end  # Logging::Appenders
 
