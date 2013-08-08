@@ -553,7 +553,7 @@ end  # module Logging
 # You can prevent the finalizer from running by calling `exit!` from your
 # application. This is required when daemonizing.
 #
-ObjectSpace.define_finalizer self, Logging.method(:shutdown)
+#ObjectSpace.define_finalizer self, Logging.method(:shutdown)
 
 end  # unless defined?
 
