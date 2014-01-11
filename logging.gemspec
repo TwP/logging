@@ -1,25 +1,46 @@
 # -*- encoding: utf-8 -*-
-#$:.push File.expand_path("../lib", __FILE__)
-#require 'logging/version'
+# stub: logging 1.8.2 ruby lib
 
-# Removed dependency on rake because of error when running `bundle install --deployment`
-#   There was a LoadError while evaluating log4r.gemspec:
-#     no such file to load -- rake from
-#     vendor/bundle/ruby/1.8/bundler/gems/log4r/log4r.gemspec:3
+Gem::Specification.new do |s|
+  s.name = "logging"
+  s.version = "1.8.2"
 
-Gem::Specification.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "logging"
-  gem.version = '1.8.2'
-  gem.summary = %Q{logging, logging framework for ruby}
-  gem.description = %Q{See also: http://logging.rubyforge.org}
-  gem.email = "tim.pease@gmail.com"
-  gem.homepage = "http://logging.rubyforge.org"
-  gem.authors = ['time pease', 'tony kerz']
-  #gem.bindir = 'bin'
-  #gem.test_files = Dir.glob("tests/**/*")
-  gem.files = Dir['lib/**/*']
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
+  s.authors = ["Tim Pease"]
+  s.date = "2014-01-10"
+  s.description = "Logging is a flexible logging library for use in Ruby programs based on the\ndesign of Java's log4j library. It features a hierarchical logging system,\ncustom level names, multiple output destinations per log event, custom\nformatting, and more."
+  s.email = "tim.pease@gmail.com"
+  s.extra_rdoc_files = ["History.txt", "README.rdoc"]
+  s.files = [".gitignore", ".travis.yml", "History.txt", "README.rdoc", "Rakefile", "data/bad_logging_1.rb", "data/bad_logging_2.rb", "data/logging.rb", "data/logging.yaml", "data/simple_logging.rb", "examples/appenders.rb", "examples/classes.rb", "examples/colorization.rb", "examples/consolidation.rb", "examples/custom_log_levels.rb", "examples/fork.rb", "examples/formatting.rb", "examples/hierarchies.rb", "examples/layouts.rb", "examples/lazy.rb", "examples/loggers.rb", "examples/mdc.rb", "examples/names.rb", "examples/rspec_integration.rb", "examples/simple.rb", "lib/logging.rb", "lib/logging/appender.rb", "lib/logging/appenders.rb", "lib/logging/appenders/buffering.rb", "lib/logging/appenders/console.rb", "lib/logging/appenders/email.rb", "lib/logging/appenders/file.rb", "lib/logging/appenders/growl.rb", "lib/logging/appenders/io.rb", "lib/logging/appenders/rolling_file.rb", "lib/logging/appenders/string_io.rb", "lib/logging/appenders/syslog.rb", "lib/logging/color_scheme.rb", "lib/logging/config/configurator.rb", "lib/logging/config/yaml_configurator.rb", "lib/logging/diagnostic_context.rb", "lib/logging/layout.rb", "lib/logging/layouts.rb", "lib/logging/layouts/basic.rb", "lib/logging/layouts/parseable.rb", "lib/logging/layouts/pattern.rb", "lib/logging/log_event.rb", "lib/logging/logger.rb", "lib/logging/proxy.rb", "lib/logging/rails_compat.rb", "lib/logging/repository.rb", "lib/logging/root_logger.rb", "lib/logging/stats.rb", "lib/logging/utils.rb", "lib/rspec/logging_helper.rb", "lib/spec/logging_helper.rb", "script/bootstrap", "test/appenders/test_buffered_io.rb", "test/appenders/test_console.rb", "test/appenders/test_email.rb", "test/appenders/test_file.rb", "test/appenders/test_growl.rb", "test/appenders/test_io.rb", "test/appenders/test_periodic_flushing.rb", "test/appenders/test_rolling_file.rb", "test/appenders/test_string_io.rb", "test/appenders/test_syslog.rb", "test/benchmark.rb", "test/config/test_configurator.rb", "test/config/test_yaml_configurator.rb", "test/layouts/test_basic.rb", "test/layouts/test_color_pattern.rb", "test/layouts/test_json.rb", "test/layouts/test_pattern.rb", "test/layouts/test_yaml.rb", "test/setup.rb", "test/test_appender.rb", "test/test_color_scheme.rb", "test/test_consolidate.rb", "test/test_layout.rb", "test/test_log_event.rb", "test/test_logger.rb", "test/test_logging.rb", "test/test_mapped_diagnostic_context.rb", "test/test_nested_diagnostic_context.rb", "test/test_proxy.rb", "test/test_repository.rb", "test/test_root_logger.rb", "test/test_stats.rb", "test/test_utils.rb", "version.txt"]
+  s.homepage = "http://rubygems.org/gems/logging"
+  s.rdoc_options = ["--main", "README.rdoc"]
+  s.rubyforge_project = "logging"
+  s.rubygems_version = "2.2.0"
+  s.summary = "A flexible and extendable logging library for Ruby"
+  s.test_files = ["test/appenders/test_buffered_io.rb", "test/appenders/test_console.rb", "test/appenders/test_email.rb", "test/appenders/test_file.rb", "test/appenders/test_growl.rb", "test/appenders/test_io.rb", "test/appenders/test_periodic_flushing.rb", "test/appenders/test_rolling_file.rb", "test/appenders/test_string_io.rb", "test/appenders/test_syslog.rb", "test/config/test_configurator.rb", "test/config/test_yaml_configurator.rb", "test/layouts/test_basic.rb", "test/layouts/test_color_pattern.rb", "test/layouts/test_json.rb", "test/layouts/test_pattern.rb", "test/layouts/test_yaml.rb", "test/test_appender.rb", "test/test_color_scheme.rb", "test/test_consolidate.rb", "test/test_layout.rb", "test/test_log_event.rb", "test/test_logger.rb", "test/test_logging.rb", "test/test_mapped_diagnostic_context.rb", "test/test_nested_diagnostic_context.rb", "test/test_proxy.rb", "test/test_repository.rb", "test/test_root_logger.rb", "test/test_stats.rb", "test/test_utils.rb"]
 
-  gem.add_development_dependency "bundler", [">= 1.0.0"]
-  gem.add_development_dependency 'rake', ["~> 0.8.7"]
+  if s.respond_to? :specification_version then
+    s.specification_version = 4
+
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<little-plugger>, [">= 1.1.3"])
+      s.add_runtime_dependency(%q<multi_json>, [">= 1.8.4"])
+      s.add_development_dependency(%q<flexmock>, ["~> 1.0"])
+      s.add_development_dependency(%q<bones-git>, [">= 1.3.0"])
+      s.add_development_dependency(%q<bones>, [">= 3.8.1"])
+    else
+      s.add_dependency(%q<little-plugger>, [">= 1.1.3"])
+      s.add_dependency(%q<multi_json>, [">= 1.8.4"])
+      s.add_dependency(%q<flexmock>, ["~> 1.0"])
+      s.add_dependency(%q<bones-git>, [">= 1.3.0"])
+      s.add_dependency(%q<bones>, [">= 3.8.1"])
+    end
+  else
+    s.add_dependency(%q<little-plugger>, [">= 1.1.3"])
+    s.add_dependency(%q<multi_json>, [">= 1.8.4"])
+    s.add_dependency(%q<flexmock>, ["~> 1.0"])
+    s.add_dependency(%q<bones-git>, [">= 1.3.0"])
+    s.add_dependency(%q<bones>, [">= 3.8.1"])
+  end
 end
