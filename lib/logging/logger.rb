@@ -126,6 +126,12 @@ module Logging
 
     attr_reader :name, :parent, :additive, :trace
 
+    # <tk>
+    def formatter
+      # just to get past rails 4 expectations...
+    end
+    # </tk>
+
     # call-seq:
     #    Logger.new( name )
     #    Logger[name]
