@@ -84,61 +84,46 @@ module Logging::Appenders
 
       # grab our options
       @size = opts.getopt(:size, :as => Integer)
-
-      code = 'def sufficiently_aged?() false end'
+      @age = opts.getopt(:age)
       @age_fn = @fn + '.age'
       @age_fn_mtime = nil
 
-      case @age = opts.getopt(:age)
-      when 'daily'
-        code = <<-CODE
-        def sufficiently_aged?
-          @age_fn_mtime ||= ::File.mtime(@age_fn)
+      do_age_predicate_setup = lambda do
+
+        daily_predicate = lambda do
           now = Time.now
-          if (now.day != @age_fn_mtime.day) or (now - @age_fn_mtime) > 86400
-            return true
-          end
-          false
-        end
-        CODE
-      when 'weekly'
-        code = <<-CODE
-        def sufficiently_aged?
           @age_fn_mtime ||= ::File.mtime(@age_fn)
-          if (Time.now - @age_fn_mtime) > 604800
-            return true
-          end
-          false
+          (now.day != @age_fn_mtime.day) or (now - @age_fn_mtime) > 86400
         end
-        CODE
-      when 'monthly'
-        code = <<-CODE
-        def sufficiently_aged?
+
+        weekly_predicate = lambda do
           @age_fn_mtime ||= ::File.mtime(@age_fn)
+          (Time.now - @age_fn_mtime) > 604800
+        end
+
+        monthly_predicate = lambda do
           now = Time.now
-          if (now.month != @age_fn_mtime.month) or (now - @age_fn_mtime) > 2678400
-            return true
-          end
-          false
-        end
-        CODE
-      when Integer, String
-        @age = Integer(@age)
-        code = <<-CODE
-        def sufficiently_aged?
           @age_fn_mtime ||= ::File.mtime(@age_fn)
-          if (Time.now - @age_fn_mtime) > @age
-            return true
-          end
-          false
+          (now.month != @age_fn_mtime.month) or (now - @age_fn_mtime) > 2678400
         end
-        CODE
+
+        seconds_predicate = lambda do
+          @age_fn_mtime ||= ::File.mtime(@age_fn)
+          (Time.now - @age_fn_mtime) > @age
+        end
+
+        @age_predicate = case @age
+           when 'daily';         daily_predicate
+           when 'weekly';        weekly_predicate
+           when 'monthly';       monthly_predicate
+           when Integer, String; @age = Integer(@age); seconds_predicate
+           else lambda { false }
+        end
       end
 
-      FileUtils.touch(@age_fn) if @age and !test(?f, @age_fn)
+      do_age_predicate_setup.call
 
-      meta = class << self; self end
-      meta.class_eval code, __FILE__, __LINE__
+      FileUtils.touch(@age_fn) if @age and !test(?f, @age_fn)
 
       # we are opening the file in read/write mode so that a shared lock can
       # be used on the file descriptor => http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
@@ -163,6 +148,12 @@ module Logging::Appenders
         @roller.roll_files
       end
     end
+
+
+    def sufficiently_aged?
+      @age_predicate.call
+    end
+
 
     # Returns the path to the logfile.
     #
