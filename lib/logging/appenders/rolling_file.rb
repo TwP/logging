@@ -115,12 +115,12 @@ module Logging::Appenders
         end
 
         @age_predicate = case @age
-                           when 'daily';         daily_predicate
-                           when 'weekly';        weekly_predicate
-                           when 'monthly';       monthly_predicate
-                           when Integer, String; @age = Integer(@age); seconds_predicate
-                           else lambda { false }
-                         end
+           when 'daily';         daily_predicate
+           when 'weekly';        weekly_predicate
+           when 'monthly';       monthly_predicate
+           when Integer, String; @age = Integer(@age); seconds_predicate
+           else lambda { false }
+        end
       end
 
       do_age_predicate_setup.call
@@ -135,12 +135,12 @@ module Logging::Appenders
       # setup the file roller
       @roller =
           case opts.getopt(:roll_by)
-            when 'number'; NumberedRoller.new(@fn, opts)
-            when 'date'; DateRoller.new(@fn, opts)
-            else
-              (@age and !@size) ?
-                  DateRoller.new(@fn, opts) :
-                  NumberedRoller.new(@fn, opts)
+          when 'number'; NumberedRoller.new(@fn, opts)
+          when 'date'; DateRoller.new(@fn, opts)
+          else
+            (@age and !@size) ?
+                DateRoller.new(@fn, opts) :
+                NumberedRoller.new(@fn, opts)
           end
 
       # if the truncate flag was set to true, then roll
@@ -178,7 +178,7 @@ module Logging::Appenders
     end
 
 
-    private
+  private
 
     # Write the given _event_ to the log file. The log file will be rolled
     # if the maximum file size is exceeded or if the file is older than the
@@ -260,10 +260,10 @@ module Logging::Appenders
         unless files.empty?
           # sort the files in reverse order based on their count number
           files = files.sort do |a,b|
-            a = Integer(@rgxp.match(a)[1])
-            b = Integer(@rgxp.match(b)[1])
-            b <=> a
-          end
+                    a = Integer(@rgxp.match(a)[1])
+                    b = Integer(@rgxp.match(b)[1])
+                    b <=> a
+                  end
 
           # for each file, roll its count number one higher
           files.each do |fn|
