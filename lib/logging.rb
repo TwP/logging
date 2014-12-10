@@ -1,8 +1,3 @@
-
-# Equivalent to a header guard in C/C++
-# Used to prevent the class/module from being loaded more than once
-unless defined? Logging
-
 require File.expand_path('../logging/utils', __FILE__)
 
 require 'yaml'
@@ -555,5 +550,4 @@ end  # module Logging
 #
 ObjectSpace.define_finalizer self, Logging.method(:shutdown)
 
-end  # unless defined?
 
