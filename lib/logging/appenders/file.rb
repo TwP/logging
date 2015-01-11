@@ -1,13 +1,6 @@
 
 module Logging::Appenders
 
-  # Accessor / Factory for the File appender.
-  #
-  def self.file( *args )
-    return ::Logging::Appenders::File if args.empty?
-    ::Logging::Appenders::File.new(*args)
-  end
-
   # This class provides an Appender that can write to a File.
   #
   class File < ::Logging::Appenders::IO

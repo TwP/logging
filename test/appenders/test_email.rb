@@ -1,5 +1,5 @@
-
 require File.expand_path('../setup', File.dirname(__FILE__))
+require 'net/smtp'
 require 'flexmock'
 
 module TestLogging
