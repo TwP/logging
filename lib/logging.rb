@@ -1,8 +1,3 @@
-
-# Equivalent to a header guard in C/C++
-# Used to prevent the class/module from being loaded more than once
-unless defined? ::Logging::RailsCompat
-
 require File.expand_path('../logging/utils', __FILE__)
 
 require 'yaml'
@@ -524,6 +519,3 @@ end  # module Logging
 # application. This is required when daemonizing.
 #
 ObjectSpace.define_finalizer self, Logging.method(:shutdown)
-
-end  # unless defined?
-
