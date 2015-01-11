@@ -180,7 +180,7 @@ module Logging::Layouts
     DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{([^\}]+)\})?)?(.*)/m
 
     # default date format
-    ISO8601 = "%Y-%m-%d %H:%M:%S".freeze
+    ISO8601 = "%Y-%m-%dT%H:%M:%S".freeze
 
     # Human name aliases for directives - used for colorization of tokens
     COLOR_ALIAS_TABLE = {

@@ -77,7 +77,7 @@ module TestLayouts
       event = Logging::LogEvent.new('ArrayLogger', @levels['info'], 'log message', false)
 
       rgxp = Regexp.new(
-        '^\['+Regexp.escape(CS::BLUE)+'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'+Regexp.escape(CS::RESET)+
+        '^\['+Regexp.escape(CS::BLUE)+'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'+Regexp.escape(CS::RESET)+
         '\] INFO  -- '+Regexp.escape(CS::GREEN)+'ArrayLogger'+Regexp.escape(CS::RESET)+
         ' : '+Regexp.escape(CS::MAGENTA)+'log message'+Regexp.escape(CS::RESET)
       )
