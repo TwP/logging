@@ -1,4 +1,3 @@
-
 # color_scheme.rb
 #
 # Created by Jeremy Hinegardner on 2007-01-24
@@ -71,7 +70,7 @@ module Logging
     # end of this file. Multiple color codes can be aliased by grouping them
     # in an array as shown in the example above.
     #
-    # Since color schemes are primary intended to be used with the Pattern
+    # Since color schemes are primarily intended to be used with the Pattern
     # layout, there are a few special options of note. First the log levels
     # are enumerated in their own hash:
     #
