@@ -370,8 +370,8 @@ module Logging::Layouts
           when true; ::Logging::ColorScheme[:default]
           else ::Logging::ColorScheme[cs_name] end
 
-      Pattern.create_date_format_methods(self)
-      Pattern.create_format_method(self)
+      self.class.create_date_format_methods(self)
+      self.class.create_format_method(self)
     end
 
     attr_reader :pattern, :date_pattern, :date_method, :color_scheme
