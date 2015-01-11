@@ -1,3 +1,8 @@
+== 1.8.2 / 2014-01-29
+
+Bug Fixes
+- Adding a `formatter` method for Rails 4 compatibility
+
 == 1.8.1 / 2013-01-02
 
 Bug Fixes

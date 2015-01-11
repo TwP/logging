@@ -15,7 +15,7 @@
 #
 # Colorization should only be applied to TTY logging destinations like STDOUT
 # and STDERR. Inserting color codes into a log file is generally considered
-# bad from; these color codes cause issues for some command lien programs like
+# bad form; these color codes cause issues for some command line programs like
 # "less" and "more".
 #
 # A 'default" color scheme is provided with the Logging framework. In the
