@@ -320,12 +320,6 @@ module Logging
           end
     end
 
-    # Returns the version string for the library.
-    #
-    def version
-      @version ||= File.read(path('version.txt')).strip
-    end
-
     # Returns the library path for the module. If any arguments are given,
     # they will be joined to the end of the library path using
     # <tt>File.join</tt>.
@@ -493,6 +487,7 @@ module Logging
     # :startdoc:
   end
 
+  require libpath('logging/version')
   require libpath('logging/appender')
   require libpath('logging/layout')
   require libpath('logging/log_event')
