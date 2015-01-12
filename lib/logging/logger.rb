@@ -447,7 +447,7 @@ module Logging
     # level, additivity, and caller_tracing settings. The configured appenders
     # are also printed to the _io_ stream.
     #
-    def _dump_configuration( io = STDOUT, indent = 0 )
+    def _dump_configuration( indent = 0 )
       str, spacer, base = '', '  ', 50
       indent_str = indent == 0 ? '' : ' ' * indent
 
@@ -457,8 +457,8 @@ module Logging
         str << spacer
         str << '.' * (base - str.length)
       end
-      io.write(str.ljust(base))
-      io.write(spacer)
+      str = str.ljust(base)
+      str << spacer
 
       level_str  = @level.nil? ? '' : '*'
       level_str << if level < ::Logging::LEVELS.length
@@ -468,27 +468,27 @@ module Logging
       end
       level_len = ::Logging::MAX_LEVEL_LENGTH + 1
 
-      io.write("%#{level_len}s" % level_str)
-      io.write(spacer)
+      str << sprintf("%#{level_len}s" % level_str)
+      str << spacer
 
       if self.respond_to?(:additive)
-        io.write(additive ? '+A' : '-A')
+        str << (additive ? '+A' : '-A')
       else
-        io.write('  ')
+        str << '  '
       end
 
-      io.write(spacer)
-      io.write(caller_tracing ? '+T' : '-T')
-      io.write("\n")
+      str << spacer
+      str << (caller_tracing ? '+T' : '-T')
+      str << "\n"
 
       @appenders.each do |appender|
-        io.write(indent_str)
-        io.write('- ')
-        io.write(appender.inspect)
-        io.write("\n")
+        str << indent_str
+        str << '- '
+        str << appender.inspect
+        str << "\n"
       end
 
-      return io
+      return str
     end
     # :startdoc:
 

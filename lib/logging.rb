@@ -422,7 +422,7 @@ module Logging
     def show_configuration( io = STDOUT, logger = 'root', indent = 0 )
       logger = ::Logging::Logger[logger] unless ::Logging::Logger === logger
 
-      logger._dump_configuration(io, indent)
+      io << logger._dump_configuration(indent)
 
       indent += 2
       children = ::Logging::Repository.instance.children(logger.name)
@@ -430,7 +430,7 @@ module Logging
         ::Logging.show_configuration(io, child, indent)
       end
 
-      self
+      io
     end
 
     # :stopdoc:
