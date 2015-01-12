@@ -3,7 +3,9 @@
 # Created by Jeremy Hinegardner on 2007-01-24
 # Copyright 2007.  All rights reserved
 #
-# This is Free Software.  See LICENSE and COPYING for details
+# This file is licensed under the terms of the MIT License.
+# See the README for licensing details.
+#
 
 module Logging
 
