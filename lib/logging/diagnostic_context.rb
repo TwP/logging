@@ -166,6 +166,13 @@ module Logging
     #
     def push( message )
       context.push(message)
+      if block_given?
+        begin
+          yield
+        ensure
+          context.pop
+        end
+      end
       self
     end
     alias :<< :push

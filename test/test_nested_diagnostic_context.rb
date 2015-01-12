@@ -30,6 +30,24 @@ module TestLogging
       assert ary.empty?
     end
 
+    def test_push_block
+      ary = Logging.ndc.context
+
+      Logging.ndc.push 'first context' do
+        assert assert_equal 'first context', Logging.ndc.peek
+      end
+      assert ary.empty?
+
+      Logging.ndc.push 'first context' do
+        assert_raise(ZeroDivisionError) { Logging.ndc.push 'first context' do
+          1/0
+        end
+        }
+      end
+      assert ary.empty?
+
+
+    end
     def test_clear
       ary = Logging.ndc.context
       assert ary.empty?
