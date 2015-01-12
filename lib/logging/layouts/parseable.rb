@@ -39,6 +39,7 @@ module Logging::Layouts
   #                was issued.
   #   'method'     Used to output the method name where the logging request
   #                was issued.
+  #   'hostname'   Used to output the hostname
   #   'pid'        Used to output the process ID of the currently running
   #                program.
   #   'millis'     Used to output the number of milliseconds elapsed from
@@ -102,6 +103,7 @@ module Logging::Layouts
       'file'      => 'event.file'.freeze,
       'line'      => 'event.line'.freeze,
       'method'    => 'event.method'.freeze,
+      'hostname'  => "'#{Socket.gethostname}'".freeze,
       'pid'       => 'Process.pid'.freeze,
       'millis'    => 'Integer((event.time-@created_at)*1000)'.freeze,
       'thread_id' => 'Thread.current.object_id'.freeze,
@@ -180,8 +182,8 @@ module Logging::Layouts
     def initialize( opts = {} )
       super
       @created_at = Time.now
-      @style = opts.getopt(:style, 'json').to_s.intern
-      self.items = opts.getopt(:items, %w[timestamp level logger message])
+      @style = opts.fetch(:style, 'json').to_s.intern
+      self.items = opts.fetch(:items, %w[timestamp level logger message])
     end
 
     attr_reader :items

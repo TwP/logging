@@ -29,7 +29,7 @@ module TestLogging
     def test_file
       assert_equal '', @event.file
 
-      @logger.trace = true
+      @logger.caller_tracing = true
       @logger.warn 'warning message'
       assert_match %r/test_log_event.rb\z/, @appender.event.file
     end
@@ -46,7 +46,7 @@ module TestLogging
     def test_line
       assert_equal '', @event.file
 
-      @logger.trace = true
+      @logger.caller_tracing = true
       @logger.error 'error message'
       assert_equal __LINE__-1, @appender.event.line
     end
@@ -63,7 +63,7 @@ module TestLogging
     def test_method
       assert_equal '', @event.file
 
-      @logger.trace = true
+      @logger.caller_tracing = true
       @logger.debug 'debug message'
       assert_equal 'test_method', @appender.event.method
     end

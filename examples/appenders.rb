@@ -10,7 +10,6 @@
 #
 #   Email         generates e-mail messages
 #   File          writes to a regular file
-#   Growl         outputs growl notifications (Mac OS X only)
 #   IO            generic IO appender
 #   RollingFile   writes to a file and rolls based on size or age
 #   Stdout        appends to STDOUT
@@ -22,7 +21,6 @@
 #
 #   Logging.appenders.email
 #   Logging.appenders.file
-#   Logging.appenders.growl
 #   Logging.appenders.io
 #   Logging.appenders.rolling_file
 #   Logging.appenders.stdout

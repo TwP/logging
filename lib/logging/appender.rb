@@ -39,20 +39,20 @@ class Appender
     @name = name.to_s
     @closed = false
 
-    self.layout = opts.getopt(:layout, ::Logging::Layouts::Basic.new)
-    self.level = opts.getopt(:level)
+    self.layout = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
+    self.level = opts.fetch(:level, nil)
     self.encoding = opts.fetch(:encoding, self.encoding)
 
     @mutex = ReentrantMutex.new
 
-    if opts.getopt(:header, true)
+    if opts.fetch(:header, true)
       header = @layout.header
 
       unless header.nil? || header.empty?
         begin
           write(header)
         rescue StandardError => err
-          ::Logging.log_internal(-2) {err}
+          ::Logging.log_internal_error(err)
         end
       end
     end
@@ -78,7 +78,7 @@ class Appender
       begin
         write(event)
       rescue StandardError => err
-        ::Logging.log_internal(-2) {err}
+        ::Logging.log_internal_error(err)
       end
     end
 
@@ -101,7 +101,7 @@ class Appender
       begin
         write(str)
       rescue StandardError => err
-        ::Logging.log_internal(-2) {err}
+        ::Logging.log_internal_error(err)
       end
     end
     self
@@ -183,7 +183,7 @@ class Appender
         begin
           write(footer)
         rescue StandardError => err
-          ::Logging.log_internal(-2) {err}
+          ::Logging.log_internal_error(err)
         end
       end
     end

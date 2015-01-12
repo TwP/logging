@@ -56,7 +56,6 @@ module Logging
   require libpath('logging/appenders/console')
   require libpath('logging/appenders/email')
   require libpath('logging/appenders/file')
-  require libpath('logging/appenders/growl')
   require libpath('logging/appenders/rolling_file')
   require libpath('logging/appenders/string_io')
   require libpath('logging/appenders/syslog')

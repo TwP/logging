@@ -1,8 +1,3 @@
-
-# Equivalent to a header guard in C/C++
-# Used to prevent the class/module from being loaded more than once
-unless defined? ::Logging::RailsCompat
-
 require File.expand_path('../logging/utils', __FILE__)
 
 require 'yaml'
@@ -11,7 +6,12 @@ require 'fileutils'
 require 'little-plugger'
 require 'multi_json'
 
-HAVE_SYSLOG = require? 'syslog'
+begin
+  require 'syslog'
+  HAVE_SYSLOG = true
+rescue LoadError
+  HAVE_SYSLOG = false
+end
 
 #
 #
@@ -29,25 +29,12 @@ module Logging
   class << self
 
     # call-seq:
-    #    Logging.configure( filename )
     #    Logging.configure { block }
     #
-    # Configures the Logging framework using the configuration information
-    # found in the given file. The file extension should be either '.yaml'
-    # or '.yml' (XML configuration is not yet supported).
+    # Configures the Logging framework using the configuration block.
     #
-    def configure( *args, &block )
-      if block
-        return ::Logging::Config::Configurator.process(&block)
-      end
-
-      filename = args.shift
-      raise ArgumentError, 'a filename was not given' if filename.nil?
-
-      case File.extname(filename)
-      when '.yaml', '.yml'
-        ::Logging::Config::YamlConfigurator.load(filename, *args)
-      else raise ArgumentError, 'unknown configuration file format' end
+    def configure( &block )
+      ::Logging::Config::Configurator.process(&block)
     end
 
     # call-seq:
@@ -182,34 +169,6 @@ module Logging
     def reopen
       log_internal {'re-opening all appenders'}
       ::Logging::Appenders.each {|appender| appender.reopen}
-      self
-    end
-
-    # call-seq:
-    #    Logging.consolidate( 'First::Name', 'Second::Name', ... )
-    #
-    # Consolidate all loggers under the given namespace. All child loggers
-    # in the namespace will use the "consolidated" namespace logger instead
-    # of creating a new logger for each class or module.
-    #
-    # If the "root" logger name is passed to this method then all loggers
-    # will consolidate to the root logger. In other words, only the root
-    # logger will be created, and it will be used by all classes and modules
-    # in the application.
-    #
-    # ==== Example
-    #
-    #    Logging.consolidate( 'Foo' )
-    #
-    #    foo = Logging.logger['Foo']
-    #    bar = Logging.logger['Foo::Bar']
-    #    baz = Logging.logger['Baz']
-    #
-    #    foo.object_id == bar.object_id    #=> true
-    #    foo.object_id == baz.object_id    #=> false
-    #
-    def consolidate( *args )
-      ::Logging::Repository.instance.add_master(*args)
       self
     end
 
@@ -361,12 +320,6 @@ module Logging
           end
     end
 
-    # Returns the version string for the library.
-    #
-    def version
-      @version ||= File.read(path('version.txt')).strip
-    end
-
     # Returns the library path for the module. If any arguments are given,
     # they will be joined to the end of the library path using
     # <tt>File.join</tt>.
@@ -434,11 +387,11 @@ module Logging
     #                    that the logger will *not* pass log events up to the
     #                    parent logger
     #
-    #    4) trace      - a "+T" shows that the logger will include trace
-    #                    information in generated log events (this includes
-    #                    filename and line number of the log message; "-T"
-    #                    shows that the logger does not include trace
-    #                    information in the log events)
+    #    4) tracing    - a "+T" shows that the logger will include caller
+    #                    tracing information in generated log events (this
+    #                    includes filename and line number of the log
+    #                    message); "-T" shows that the logger does not include
+    #                    caller tracing information in the log events
     #
     # If a logger has appenders then they are listed, one per line,
     # immediately below the logger. Appender lines are pre-pended with a
@@ -463,7 +416,7 @@ module Logging
     def show_configuration( io = STDOUT, logger = 'root', indent = 0 )
       logger = ::Logging::Logger[logger] unless ::Logging::Logger === logger
 
-      logger._dump_configuration(io, indent)
+      io << logger._dump_configuration(indent)
 
       indent += 2
       children = ::Logging::Repository.instance.children(logger.name)
@@ -471,7 +424,7 @@ module Logging
         ::Logging.show_configuration(io, child, indent)
       end
 
-      self
+      io
     end
 
     # :stopdoc:
@@ -495,6 +448,14 @@ module Logging
     # Internal logging method for use by the framework.
     def log_internal( level = 1, &block )
       ::Logging::Logger[::Logging].__send__(levelify(LNAMES[level]), &block)
+    end
+
+    # Internal logging method for handling exceptions. If the
+    # `Thread#abort_on_exception` flag is set then the
+    # exception will be raised again.
+    def log_internal_error( err )
+      log_internal(-2) { err }
+      raise err if Thread.abort_on_exception
     end
 
     # Close all appenders
@@ -526,13 +487,13 @@ module Logging
     # :startdoc:
   end
 
+  require libpath('logging/version')
   require libpath('logging/appender')
   require libpath('logging/layout')
   require libpath('logging/log_event')
   require libpath('logging/logger')
   require libpath('logging/repository')
   require libpath('logging/root_logger')
-  require libpath('logging/stats')
   require libpath('logging/color_scheme')
   require libpath('logging/appenders')
   require libpath('logging/layouts')
@@ -540,7 +501,6 @@ module Logging
   require libpath('logging/diagnostic_context')
 
   require libpath('logging/config/configurator')
-  require libpath('logging/config/yaml_configurator')
 
   require libpath('logging/rails_compat')
 end  # module Logging
@@ -554,6 +514,3 @@ end  # module Logging
 # application. This is required when daemonizing.
 #
 ObjectSpace.define_finalizer self, Logging.method(:shutdown)
-
-end  # unless defined?
-

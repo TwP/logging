@@ -18,7 +18,6 @@ module Logging
     # +Repository+ instance.
     #
     def initialize
-      @masters = []
       @h = {:root => ::Logging::RootLogger.new}
 
       # configures the internal logger which is disabled by default
@@ -71,7 +70,7 @@ module Logging
     # call-seq:
     #    fetch( name )
     #
-    # Returns the +Logger+ named _name_. An +IndexError+ will be raised if
+    # Returns the +Logger+ named _name_. An +KeyError+ will be raised if
     # the logger does not exist.
     #
     # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
@@ -93,6 +92,29 @@ module Logging
     # object's class will be used to retrieve the logger.
     #
     def has_logger?( key ) @h.has_key?(to_key(key)) end
+
+    # call-seq:
+    #    delete( name )
+    #
+    # Deletes the named logger from the repository. All direct children of the
+    # logger will have their parent reassigned. So the parent of the logger
+    # being deleted becomes the new parent of the children.
+    #
+    # When _name_ is a +String+ or a +Symbol+ it will be used "as is" to
+    # remove the logger. When _name_ is a +Class+ the class name will be
+    # used to remove the logger. When _name_ is an object the name of the
+    # object's class will be used to remove the logger.
+    #
+    # Raises a RuntimeError if you try to delete the root logger.
+    # Raises an KeyError if the named logger is not found.
+    def delete( key )
+      key = to_key(key)
+      raise 'the :root logger cannot be deleted' if :root == key
+
+      parent = @h.fetch(key).parent
+      children(key).each {|c| c.__send__(:parent=, parent)}
+      @h.delete(key)
+    end
 
     # call-seq:
     #    parent( key )
@@ -165,43 +187,6 @@ module Logging
         if @h.has_key? k then p = k; break end
       end
       p
-    end
-
-    # call-seq:
-    #    add_master( 'First::Name', 'Second::Name', ... )
-    #
-    # Add the given logger names to the list of consolidation masters. All
-    # classes in the given namespace(s) will use these loggers instead of
-    # creating their own individual loggers.
-    #
-    def add_master( *args )
-      args.map do |key|
-        key = to_key(key)
-        @masters << key unless @masters.include? key
-        key
-      end
-    end
-
-    # call-seq:
-    #    master_for( key )
-    #
-    # Returns the consolidation master name for the given _key_. If there is
-    # no consolidation master, then +nil+ is returned.
-    #
-    def master_for( key )
-      return if @masters.empty?
-      key = to_key(key)
-
-      loop do
-        break key if @masters.include? key
-        break nil if :root == key
-
-        if index = key.rindex(PATH_DELIMITER)
-          key = key.slice(0, index)
-        else
-          key = :root
-        end
-      end
     end
 
     # :stopdoc:

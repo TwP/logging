@@ -56,6 +56,30 @@ module TestLogging
       assert @repo.has_logger?('A::B')
     end
 
+    def test_delete
+      %w(A A::B A::C A::B::D).each do |name|
+        ::Logging::Logger.new(name)
+      end
+
+      assert @repo.has_logger?('A')
+      assert @repo.has_logger?('A::B')
+      assert @repo.has_logger?('A::C')
+      assert @repo.has_logger?('A::B::D')
+
+      assert_raise(RuntimeError) {@repo.delete :root}
+      assert_raise(KeyError) {@repo.delete 'Does::Not::Exist'}
+
+      @repo.delete 'A'
+      assert !@repo.has_logger?('A')
+      assert_equal @repo[:root], @repo['A::B'].parent
+      assert_equal @repo[:root], @repo['A::C'].parent
+      assert_equal @repo['A::B'], @repo['A::B::D'].parent
+
+      @repo.delete 'A::B'
+      assert !@repo.has_logger?('A::B')
+      assert_equal @repo[:root], @repo['A::B::D'].parent
+    end
+
     def test_parent
       %w(A A::B A::B::C::D A::B::C::E A::B::C::F).each do |name|
         ::Logging::Logger.new(name)
@@ -118,38 +142,6 @@ module TestLogging
 
       assert_equal 'blah', @repo.to_key('blah')
       assert_equal 'blah', @repo.to_key(:blah)
-    end
-
-    def test_add_master
-      ary = @repo.instance_variable_get(:@masters)
-      assert ary.empty?
-
-      @repo.add_master 'root'
-      assert_equal [:root], ary
-
-      @repo.add_master Object, 'Foo'
-      assert_equal [:root, 'Object', 'Foo'], ary
-    end
-
-    def test_master_for
-      assert_nil @repo.master_for('root')
-      assert_nil @repo.master_for('Foo::Bar::Baz')
-
-      @repo.add_master('Foo')
-      assert_equal 'Foo', @repo.master_for('Foo')
-      assert_equal 'Foo', @repo.master_for('Foo::Bar::Baz')
-
-      @repo.add_master('Foo::Bar::Baz')
-      assert_equal 'Foo', @repo.master_for('Foo')
-      assert_equal 'Foo', @repo.master_for('Foo::Bar')
-      assert_equal 'Foo::Bar::Baz', @repo.master_for('Foo::Bar::Baz')
-      assert_equal 'Foo::Bar::Baz', @repo.master_for('Foo::Bar::Baz::Buz')
-
-      assert_nil @repo.master_for('Bar::Baz::Buz')
-      @repo.add_master 'root'
-      assert_equal :root, @repo.master_for('Bar::Baz::Buz')
-      assert_equal 'Foo', @repo.master_for('Foo::Bar')
-      assert_equal 'Foo::Bar::Baz', @repo.master_for('Foo::Bar::Baz::Buz')
     end
 
   end  # class TestRepository

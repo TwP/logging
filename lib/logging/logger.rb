@@ -51,22 +51,9 @@ module Logging
         @mutex.synchronize do
           logger = repo[name]
           if logger.nil?
-
-            master = repo.master_for(name)
-            if master
-              if repo.has_logger?(master)
-                logger = repo[master]
-              else
-                logger = super(master)
-                repo[master] = logger
-                repo.children(master).each {|c| c.__send__(:parent=, logger)}
-              end
-              repo[name] = logger
-            else
-              logger = super(name)
-              repo[name] = logger
-              repo.children(name).each {|c| c.__send__(:parent=, logger)}
-            end
+            logger = super(name)
+            repo[name] = logger
+            repo.children(name).each {|c| c.__send__(:parent=, logger)}
           end
           logger
         end
@@ -110,7 +97,7 @@ module Logging
               def #{name}?( ) true end
               def #{name}( data = nil )
                 data = yield if block_given?
-                log_event(::Logging::LogEvent.new(@name, #{num}, data, @trace))
+                log_event(::Logging::LogEvent.new(@name, #{num}, data, @caller_tracing))
                 true
               end
             CODE
@@ -124,7 +111,7 @@ module Logging
 
     end  # class << self
 
-    attr_reader :name, :parent, :additive, :trace
+    attr_reader :name, :parent, :additive, :caller_tracing
 
     # call-seq:
     #    Logger.new( name )
@@ -214,7 +201,7 @@ module Logging
       return false if lvl < level
 
       data = yield if block_given?
-      log_event(::Logging::LogEvent.new(@name, lvl, data, @trace))
+      log_event(::Logging::LogEvent.new(@name, lvl, data, @caller_tracing))
       true
     end
 
@@ -234,18 +221,19 @@ module Logging
     end
 
     # call-seq:
-    #    trace = true
+    #    caller_tracing = true
     #
-    # Sets the tracing of the logger. Acceptable values are +true+,
-    # 'true', +false+, 'false', or +nil+. In this case +nil+ does not
-    # change the tracing.
+    # Sets the caller tracing of the logger. Acceptable values are +true+,
+    # 'true', +false+, 'false', or +nil+. In this case +nil+ does not change
+    # the tracing.
     #
-    def trace=( val )
-      @trace = case val
-               when true, 'true'; true
-               when false, 'false'; false
-               when nil; @trace
-               else raise ArgumentError, 'expecting a boolean' end
+    def caller_tracing=( val )
+      @caller_tracing =
+          case val
+          when true, 'true'; true
+          when false, 'false'; false
+          when nil; @caller_tracing
+          else raise ArgumentError, 'expecting a boolean' end
     end
 
     # call-seq:
@@ -443,11 +431,11 @@ module Logging
     #
     def _setup( name, opts = {} )
       @name      = name
-      @parent    = opts.getopt(:parent)
-      @appenders = opts.getopt(:appenders, [])
-      @additive  = opts.getopt(:additive, true)
-      @trace     = opts.getopt(:trace, false)
-      @level     = opts.getopt(:level)
+      @parent    = opts.fetch(:parent, nil)
+      @appenders = opts.fetch(:appenders, [])
+      @additive  = opts.fetch(:additive, true)
+      @caller_tracing     = opts.fetch(:caller_tracing, false)
+      @level     = opts.fetch(:level, nil)
       ::Logging::Logger.define_log_methods(self)
     end
 
@@ -456,21 +444,21 @@ module Logging
     #
     # An internal method that is used to dump this logger's configuration to
     # the given _io_ stream. The configuration includes the logger's name,
-    # level, additivity, and trace settings. The configured appenders are
-    # also printed to the _io_ stream.
+    # level, additivity, and caller_tracing settings. The configured appenders
+    # are also printed to the _io_ stream.
     #
-    def _dump_configuration( io = STDOUT, indent = 0 )
+    def _dump_configuration( indent = 0 )
       str, spacer, base = '', '  ', 50
       indent_str = indent == 0 ? '' : ' ' * indent
 
       str << indent_str
-      str << self.name.reduce(base - indent)
+      str << self.name.shrink(base - indent)
       if (str.length + spacer.length) < base
         str << spacer
         str << '.' * (base - str.length)
       end
-      io.write(str.ljust(base))
-      io.write(spacer)
+      str = str.ljust(base)
+      str << spacer
 
       level_str  = @level.nil? ? '' : '*'
       level_str << if level < ::Logging::LEVELS.length
@@ -480,27 +468,27 @@ module Logging
       end
       level_len = ::Logging::MAX_LEVEL_LENGTH + 1
 
-      io.write("%#{level_len}s" % level_str)
-      io.write(spacer)
+      str << sprintf("%#{level_len}s" % level_str)
+      str << spacer
 
       if self.respond_to?(:additive)
-        io.write(additive ? '+A' : '-A')
+        str << (additive ? '+A' : '-A')
       else
-        io.write('  ')
+        str << '  '
       end
 
-      io.write(spacer)
-      io.write(trace ? '+T' : '-T')
-      io.write("\n")
+      str << spacer
+      str << (caller_tracing ? '+T' : '-T')
+      str << "\n"
 
       @appenders.each do |appender|
-        io.write(indent_str)
-        io.write('- ')
-        io.write(appender.inspect)
-        io.write("\n")
+        str << indent_str
+        str << '- '
+        str << appender.inspect
+        str << "\n"
       end
 
-      return io
+      return str
     end
     # :startdoc:
 

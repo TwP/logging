@@ -34,7 +34,10 @@ module Logging
     extend self
 
     # The name used to retrieve the MDC from thread-local storage.
-    NAME = 'logging.mapped-diagnostic-context'.freeze
+    NAME = :logging_mapped_diagnostic_context
+
+    # The name used to retrieve the MDC stack from thread-local storage.
+    STACK_NAME = :logging_mapped_diagnostic_context_stack
 
     # Public: Put a context value as identified with the key parameter into
     # the current thread's context map.
@@ -45,7 +48,8 @@ module Logging
     # Returns the value.
     #
     def []=( key, value )
-      context.store(key.to_s, value)
+      clear_context
+      peek.store(key.to_s, value)
     end
 
     # Public: Get the context value identified with the key parameter.
@@ -67,8 +71,51 @@ module Logging
     # present.
     #
     def delete( key )
-      context.delete(key.to_s)
+      clear_context
+      peek.delete(key.to_s)
     end
+
+    # Public: Add all the key/value pairs from the given hash to the current
+    # mapped diagnostic context. The keys will be converted to strings.
+    # Existing keys of the same name will be overwritten.
+    #
+    # hash - The Hash of values to add to the current context.
+    #
+    # Returns this context.
+    #
+    def update( hash )
+      clear_context
+      sanitize(hash, peek)
+      self
+    end
+
+    # Public: Push a new Hash of key/value pairs onto the stack of contexts.
+    #
+    # hash - The Hash of values to push onto the context stack.
+    #
+    # Returns this context.
+    # Raises an ArgumentError if hash is not a Hash.
+    #
+    def push( hash )
+      clear_context
+      stack << sanitize(hash)
+      self
+    end
+
+    # Public: Remove the most recently pushed Hash from the stack of contexts.
+    # If no contexts have been pushed then no action will be taken. The
+    # default context cannot be popped off the stack; please use the `clear`
+    # method if you want to remove all key/value pairs from the context.
+    #
+    # Returns nil or the Hash removed from the stack.
+    #
+    def pop
+      return unless Thread.current[STACK_NAME]
+      return unless stack.length > 1
+      clear_context
+      stack.pop
+    end
+
 
     # Public: Clear all mapped diagnostic information if any. This method is
     # useful in cases where the same thread can be potentially used over and
@@ -77,7 +124,8 @@ module Logging
     # Returns the MappedDiagnosticContext.
     #
     def clear
-      context.clear if Thread.current[NAME]
+      clear_context
+      Thread.current[STACK_NAME] = nil
       self
     end
 
@@ -92,24 +140,90 @@ module Logging
     def inherit( obj )
       case obj
       when Hash
-        Thread.current[NAME] = obj.dup
+        Thread.current[STACK_NAME] = [obj.dup]
       when Thread
         return if Thread.current == obj
         Thread.exclusive {
-          Thread.current[NAME] = obj[NAME].dup if obj[NAME]
+          if obj[STACK_NAME]
+            hash = flatten(obj[STACK_NAME])
+            Thread.current[STACK_NAME] = [hash]
+          end
         }
       end
 
       self
     end
 
-    # Returns the Hash acting as the storage for this NestedDiagnosticContext.
+    # Returns the Hash acting as the storage for this MappedDiagnosticContext.
     # A new storage Hash is created for each Thread running in the
     # application.
     #
     def context
-      Thread.current[NAME] ||= Hash.new
+      c = Thread.current[NAME]
+      return c unless c.nil?
+
+      return Thread.current[NAME] = {} unless Thread.current[STACK_NAME]
+
+      Thread.current[NAME] = flatten(stack)
     end
+
+    # Returns the stack of Hash objects that are storing the diagnostic
+    # context information. This stack is guarnteed to always contain at least
+    # one Hash.
+    #
+    def stack
+      Thread.current[STACK_NAME] ||= [{}]
+    end
+
+    # Returns the most current Hash from the stack of contexts.
+    #
+    def peek
+      stack.last
+    end
+
+    # Remove the flattened context.
+    #
+    def clear_context
+      Thread.current[NAME] = nil
+      self
+    end
+
+    # Given a Hash convert all keys into Strings. The values are not altered
+    # in any way. The converted keys and their values are stored in the target
+    # Hash if provided. Otherwise a new Hash is created and returned.
+    #
+    # hash   - The Hash of values to push onto the context stack.
+    # target - The target Hash to store the key value pairs.
+    #
+    # Returns a new Hash with all keys converted to Strings.
+    # Raises an ArgumentError if hash is not a Hash.
+    #
+    def sanitize( hash, target = {} )
+      unless Hash === hash
+        raise ArgumentError, "Expecting a Hash but received a #{hash.class.name}"
+      end
+
+      hash.each { |k,v| target[k.to_s] = v }
+      return target
+    end
+
+    # Given an Array of Hash objects, flatten all the key/value pairs from the
+    # Hash objects in the ary into a single Hash. The flattening occurs left
+    # to right. So that the key/value in the very last Hash overrides any
+    # other key from the previous Hash objcts.
+    #
+    # ary - An Array of Hash objects.
+    #
+    # Returns a Hash.
+    #
+    def flatten( ary )
+      return ary.first.dup if ary.length == 1
+
+      hash = {}
+      ary.each { |h| hash.update h }
+      return hash
+    end
+
   end  # MappedDiagnosticContext
 
 
@@ -154,7 +268,7 @@ module Logging
     extend self
 
     # The name used to retrieve the NDC from thread-local storage.
-    NAME = 'logging.nested-diagnostic-context'.freeze
+    NAME = :logging_nested_diagnostic_context
 
     # Public: Push new diagnostic context information for the current thread.
     # The contents of the message parameter is determined solely by the
@@ -206,7 +320,7 @@ module Logging
     # Returns the NestedDiagnosticContext.
     #
     def clear
-      context.clear if Thread.current[NAME]
+      Thread.current[NAME] = nil
       self
     end
 
@@ -269,8 +383,9 @@ module Logging
     if all
       Thread.exclusive {
         Thread.list.each { |thread|
-          thread[MappedDiagnosticContext::NAME].clear if thread[MappedDiagnosticContext::NAME]
-          thread[NestedDiagnosticContext::NAME].clear if thread[NestedDiagnosticContext::NAME]
+          thread[MappedDiagnosticContext::NAME] = nil if thread[MappedDiagnosticContext::NAME]
+          thread[NestedDiagnosticContext::NAME] = nil if thread[NestedDiagnosticContext::NAME]
+          thread[MappedDiagnosticContext::STACK_NAME] = nil if thread[MappedDiagnosticContext::STACK_NAME]
         }
       }
     else
@@ -316,12 +431,12 @@ class Thread
     def create_with_logging_context( m, *a, &b )
       mdc, ndc = nil
 
-      if Thread.current[Logging::MappedDiagnosticContext::NAME]
-        mdc = Thread.current[Logging::MappedDiagnosticContext::NAME].dup
+      if Thread.current[Logging::MappedDiagnosticContext::STACK_NAME]
+        mdc = Logging::MappedDiagnosticContext.context.dup
       end
 
       if Thread.current[Logging::NestedDiagnosticContext::NAME]
-        ndc = Thread.current[Logging::NestedDiagnosticContext::NAME].dup
+        ndc = Logging::NestedDiagnosticContext.context.dup
       end
 
       self.send(m, *a) { |*args|

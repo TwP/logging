@@ -111,7 +111,7 @@ module TestAppenders
       Dir.glob(d_glob).each {|fn| ::File.delete fn}
       cleanup
 
-      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, 'age' => 'daily')
+      ap = Logging.appenders.rolling_file(NAME, :filename => @fn, :age => 'daily')
       ap << "random message\n"
       assert_equal 1, Dir.glob(@glob).length
 
@@ -238,6 +238,67 @@ module TestAppenders
       assert_equal 0, File.size(@fn)
       assert_equal 118, File.size(Dir.glob(@glob).sort.first)
       assert !File.exist?(fn_copy), '_copy_ file should not exist'
+
+      cleanup
+    end
+
+    def test_custom_numberd_filename
+      fn = File.expand_path('test.log{{.%d}}', TMP)
+      filename = File.expand_path('test.log', TMP)
+      glob = File.expand_path('test.log.*', TMP)
+
+      assert_equal [], Dir.glob(glob)
+      ap = Logging.appenders.rolling_file(NAME, :filename => fn, :size => 100, :keep => 2)
+
+      ap << 'X' * 100; ap.flush
+      assert_equal 0, Dir.glob(glob).length
+      assert_equal 100, File.size(filename)
+
+      # this character is appended to the log file (bringing its size to 101)
+      # and THEN the file is rolled resulting in a new, empty log file
+      ap << 'X'
+      assert_equal 1, Dir.glob(glob).length
+      assert_equal 0, File.size(filename)
+
+      ap << 'Y' * 100; ap.flush
+      assert_equal 1, Dir.glob(glob).length
+      assert_equal 100, File.size(filename)
+
+      ap << 'Y'
+      assert_equal 2, Dir.glob(glob).length
+      assert_equal 0, File.size(filename)
+
+      # now make sure we prune the correct file
+      ap << 'Z' * 101; ap.flush
+      files = Dir.glob(glob).sort
+      assert_equal 2, files.length
+      assert_equal 'Z'*101, ::File.read(files.first)
+      assert_equal 'Y'*101, ::File.read(files.last)
+
+      cleanup
+    end
+
+    def test_custom_timestamp_filename
+      fn = File.expand_path('test{{.%S:%M}}.log', TMP)
+      filename = File.expand_path('test.log', TMP)
+      age_file = filename + '.age'
+      glob = File.expand_path('test.*.log', TMP)
+
+      assert_equal [], Dir.glob(glob)
+      ap = Logging.appenders.rolling_file(NAME, :filename => fn, :age => 1, :keep => 2)
+
+      ap << "random message\n"
+      assert_equal 0, Dir.glob(glob).length
+
+      now = ::File.mtime(age_file)
+      start = now - 42
+      ::File.utime(start, start, age_file)
+      ap.instance_variable_set(:@age_fn_mtime, nil)
+      ap << "another random message\n"
+
+      files = Dir.glob(glob)
+      assert_equal 1, files.length
+      assert_match %r/test\.\d{2}:\d{2}\.log\z/, files.first
 
       cleanup
     end

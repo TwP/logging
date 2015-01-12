@@ -598,40 +598,40 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging::Logger[:root] <=> 'string'}
     end
 
-    def test_trace
+    def test_caller_tracing
       log = ::Logging::Logger[:root]
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
 
       log = ::Logging::Logger['A']
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
     end
 
-    def test_trace_eq
+    def test_caller_trace_eq
       log = ::Logging::Logger.new 'A'
-      assert_equal false, log.trace
+      assert_equal false, log.caller_tracing
 
-      log.trace = true
-      assert_equal true, log.trace
+      log.caller_tracing = true
+      assert_equal true, log.caller_tracing
 
-      log.trace = false
-      assert_equal false, log.trace
+      log.caller_tracing = false
+      assert_equal false, log.caller_tracing
 
-      log.trace = 'true'
-      assert_equal true, log.trace
+      log.caller_tracing = 'true'
+      assert_equal true, log.caller_tracing
 
-      log.trace = 'false'
-      assert_equal false, log.trace
+      log.caller_tracing = 'false'
+      assert_equal false, log.caller_tracing
 
-      log.trace = nil
-      assert_equal false, log.trace
+      log.caller_tracing = nil
+      assert_equal false, log.caller_tracing
 
-      assert_raise(ArgumentError) {log.trace = Object}
+      assert_raise(ArgumentError) {log.caller_tracing = Object}
     end
 
     def test_dump_configuration
@@ -640,57 +640,54 @@ module TestLogging
       log_c = ::Logging::Logger['A-logger::B-logger::C-logger']
       log_d = ::Logging::Logger['A-logger::D-logger']
 
-      sio = StringIO.new
-      sio.extend ::Logging::Appenders::StringIo::IoToS
+      assert_equal \
+        "A-logger  ........................................   debug  +A  -T\n",
+        log_a._dump_configuration
 
-      log_a._dump_configuration( sio )
-      assert_equal(
-        "A-logger  ........................................   debug  +A  -T\n", sio.to_s)
+      assert_equal \
+        "A-logger::B-logger  ..............................   debug  +A  -T\n",
+        log_b._dump_configuration
 
-      log_b._dump_configuration( sio )
-      assert_equal(
-        "A-logger::B-logger  ..............................   debug  +A  -T\n", sio.to_s)
+      assert_equal \
+        "A-logger::B-logger::C-logger  ....................   debug  +A  -T\n",
+        log_c._dump_configuration
 
-      log_c._dump_configuration( sio )
-      assert_equal(
-        "A-logger::B-logger::C-logger  ....................   debug  +A  -T\n", sio.to_s)
-
-      log_d._dump_configuration( sio )
-      assert_equal(
-        "A-logger::D-logger  ..............................   debug  +A  -T\n", sio.to_s)
+      assert_equal \
+        "A-logger::D-logger  ..............................   debug  +A  -T\n",
+        log_d._dump_configuration
 
       log_b.level = :warn
-      log_b.trace = true
-      log_b._dump_configuration( sio )
-      assert_equal(
-        "A-logger::B-logger  ..............................   *warn  +A  +T\n", sio.to_s)
+      log_b.caller_tracing = true
+      assert_equal \
+        "A-logger::B-logger  ..............................   *warn  +A  +T\n",
+        log_b._dump_configuration
 
       log_c.additive = false
-      log_c._dump_configuration( sio )
-      assert_equal(
-        "A-logger::B-logger::C-logger  ....................    warn  -A  -T\n", sio.to_s)
+      assert_equal \
+        "A-logger::B-logger::C-logger  ....................    warn  -A  -T\n",
+        log_c._dump_configuration
 
       # with an indent specified
-      log_a._dump_configuration( sio, 4 )
-      assert_equal(
-        "    A-logger  ....................................   debug  +A  -T\n", sio.to_s)
+      assert_equal \
+        "    A-logger  ....................................   debug  +A  -T\n",
+        log_a._dump_configuration(4)
 
-      log_b._dump_configuration( sio, 8 )
-      assert_equal(
-        "        A-logger::B-logger  ......................   *warn  +A  +T\n", sio.to_s)
+      assert_equal \
+        "        A-logger::B-logger  ......................   *warn  +A  +T\n",
+        log_b._dump_configuration(8)
 
-      log_c._dump_configuration( sio, 10 )
-      assert_equal(
-        "          A-logger::B-logger::C-logger  ..........    warn  -A  -T\n", sio.to_s)
+      assert_equal \
+        "          A-logger::B-logger::C-logger  ..........    warn  -A  -T\n",
+        log_c._dump_configuration(10)
 
-      log_d._dump_configuration( sio, 22 )
-      assert_equal(
-        "                      A-logger::D-logger  ........   debug  +A  -T\n", sio.to_s)
+      assert_equal \
+        "                      A-logger::D-logger  ........   debug  +A  -T\n",
+        log_d._dump_configuration(22)
 
       log_c.level = 0
-      log_c._dump_configuration( sio, 26 )
-      assert_equal(
-        "                          A-logger::B...::C-logger  *debug  -A  -T\n", sio.to_s)
+      assert_equal \
+        "                          A-logger::B...::C-logger  *debug  -A  -T\n",
+        log_c._dump_configuration(26)
     end
 
   end  # class TestLogger

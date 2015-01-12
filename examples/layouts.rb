@@ -28,15 +28,8 @@
     :layout => Logging.layouts.json
   )
 
-  # send growl notifications for errors and fatals using a nice pattern
-  Logging.appenders.growl(
-    'growl',
-    :level  => :error,
-    :layout => Logging.layouts.pattern(:pattern => '[%d] %-5l: %m\n')
-  )
-
   log = Logging.logger['Foo::Bar']
-  log.add_appenders 'stdout', 'development.log', 'growl'
+  log.add_appenders 'stdout', 'development.log'
   log.level = :debug
 
   log.debug "a very nice little debug message"

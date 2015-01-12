@@ -11,7 +11,7 @@ module TestLayouts
       super
       @layout = Logging.layouts.pattern({})
       @levels = Logging::LEVELS
-      @date_fmt = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}'
+      @date_fmt = '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
       Thread.current[:name] = nil
     end
 
@@ -42,7 +42,7 @@ module TestLayouts
     end
 
     def test_date_pattern
-      assert_equal '%Y-%m-%d %H:%M:%S', @layout.date_pattern
+      assert_equal '%Y-%m-%dT%H:%M:%S', @layout.date_pattern
     end
 
     def test_date_pattern_eq
@@ -141,6 +141,10 @@ module TestLayouts
       assert_equal "", @layout.format(event)
       Thread.current[:name] = "Main"
       assert_equal "Main", @layout.format(event)
+
+      @layout.pattern = '%h'
+      hostname = Socket.gethostname
+      assert_equal hostname, @layout.format(event)
 
       @layout.pattern = '%%'
       assert_equal '%', @layout.format(event)

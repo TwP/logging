@@ -57,6 +57,7 @@ module Logging::Layouts
   #       the log event.
   #  [M]  Used to output the method name where the logging request was
   #       issued.
+  #  [h]  Used to output the hostname
   #  [p]  Used to output the process ID of the currently running program.
   #  [r]  Used to output the number of milliseconds elapsed from the
   #       construction of the Layout until creation of the log event.
@@ -159,6 +160,7 @@ module Logging::Layouts
       'L' => 'event.line'.freeze,
       'm' => 'format_obj(event.data)'.freeze,
       'M' => 'event.method'.freeze,
+      'h' => "'#{Socket.gethostname}'".freeze,
       'p' => 'Process.pid'.freeze,
       'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
       't' => 'Thread.current.object_id.to_s'.freeze,
@@ -178,13 +180,14 @@ module Logging::Layouts
     DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{([^\}]+)\})?)?(.*)/m
 
     # default date format
-    ISO8601 = "%Y-%m-%d %H:%M:%S".freeze
+    ISO8601 = "%Y-%m-%dT%H:%M:%S".freeze
 
     # Human name aliases for directives - used for colorization of tokens
     COLOR_ALIAS_TABLE = {
       'c' => :logger,
       'd' => :date,
       'm' => :message,
+      'h' => :hostname,
       'p' => :pid,
       'r' => :time,
       'T' => :thread,
@@ -353,14 +356,14 @@ module Logging::Layouts
       super
       @created_at = Time.now
 
-      @date_pattern = opts.getopt(:date_pattern)
-      @date_method = opts.getopt(:date_method)
+      @date_pattern = opts.fetch(:date_pattern, nil)
+      @date_method = opts.fetch(:date_method, nil)
       @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
 
-      @pattern = opts.getopt(:pattern,
+      @pattern = opts.fetch(:pattern,
           "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n")
 
-      cs_name = opts.getopt(:color_scheme)
+      cs_name = opts.fetch(:color_scheme, nil)
       @color_scheme =
           case cs_name
           when false, nil; nil

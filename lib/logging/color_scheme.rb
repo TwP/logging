@@ -1,4 +1,3 @@
-
 # color_scheme.rb
 #
 # Created by Jeremy Hinegardner on 2007-01-24
@@ -73,7 +72,7 @@ module Logging
     # end of this file. Multiple color codes can be aliased by grouping them
     # in an array as shown in the example above.
     #
-    # Since color schemes are primary intended to be used with the Pattern
+    # Since color schemes are primarily intended to be used with the Pattern
     # layout, there are a few special options of note. First the log levels
     # are enumerated in their own hash:
     #
@@ -241,21 +240,21 @@ module Logging
     ON_CYAN    = "\e[46m".freeze    # Set the terminal's background ANSI color to cyan.
     ON_WHITE   = "\e[47m".freeze    # Set the terminal's background ANSI color to white.
 
-    RED_BRIGHT        = "\e[1;31m".freeze    # Set the terminal's foreground ANSI color to bright red.
-    GREEN_BRIGHT      = "\e[1;32m".freeze    # Set the terminal's foreground ANSI color to bright green.
-    YELLOW_BRIGHT     = "\e[1;33m".freeze    # Set the terminal's foreground ANSI color to bright yellow.
-    BLUE_BRIGHT       = "\e[1;34m".freeze    # Set the terminal's foreground ANSI color to bright blue.
-    MAGENTA_BRIGHT    = "\e[1;35m".freeze    # Set the terminal's foreground ANSI color to bright magenta.
-    CYAN_BRIGHT       = "\e[1;36m".freeze    # Set the terminal's foreground ANSI color to bright cyan.
-    WHITE_BRIGHT      = "\e[1;37m".freeze    # Set the terminal's foreground ANSI color to bright white.
+    BRIGHT_RED        = "\e[1;31m".freeze    # Set the terminal's foreground ANSI color to bright red.
+    BRIGHT_GREEN      = "\e[1;32m".freeze    # Set the terminal's foreground ANSI color to bright green.
+    BRIGHT_YELLOW     = "\e[1;33m".freeze    # Set the terminal's foreground ANSI color to bright yellow.
+    BRIGHT_BLUE       = "\e[1;34m".freeze    # Set the terminal's foreground ANSI color to bright blue.
+    BRIGHT_MAGENTA    = "\e[1;35m".freeze    # Set the terminal's foreground ANSI color to bright magenta.
+    BRIGHT_CYAN       = "\e[1;36m".freeze    # Set the terminal's foreground ANSI color to bright cyan.
+    BRIGHT_WHITE      = "\e[1;37m".freeze    # Set the terminal's foreground ANSI color to bright white.
 
-    ON_RED_BRIGHT     = "\e[1;41m".freeze    # Set the terminal's background ANSI color to bright red.
-    ON_GREEN_BRIGHT   = "\e[1;42m".freeze    # Set the terminal's background ANSI color to bright green.
-    ON_YELLOW_BRIGHT  = "\e[1;43m".freeze    # Set the terminal's background ANSI color to bright yellow.
-    ON_BLUE_BRIGHT    = "\e[1;44m".freeze    # Set the terminal's background ANSI color to bright blue.
-    ON_MAGENTA_BRIGHT = "\e[1;45m".freeze    # Set the terminal's background ANSI color to bright magenta.
-    ON_CYAN_BRIGHT    = "\e[1;46m".freeze    # Set the terminal's background ANSI color to bright cyan.
-    ON_WHITE_BRIGHT   = "\e[1;47m".freeze    # Set the terminal's background ANSI color to bright white.
+    ON_BRIGHT_RED     = "\e[1;41m".freeze    # Set the terminal's background ANSI color to bright red.
+    ON_BRIGHT_GREEN   = "\e[1;42m".freeze    # Set the terminal's background ANSI color to bright green.
+    ON_BRIGHT_YELLOW  = "\e[1;43m".freeze    # Set the terminal's background ANSI color to bright yellow.
+    ON_BRIGHT_BLUE    = "\e[1;44m".freeze    # Set the terminal's background ANSI color to bright blue.
+    ON_BRIGHT_MAGENTA = "\e[1;45m".freeze    # Set the terminal's background ANSI color to bright magenta.
+    ON_BRIGHT_CYAN    = "\e[1;46m".freeze    # Set the terminal's background ANSI color to bright cyan.
+    ON_BRIGHT_WHITE   = "\e[1;47m".freeze    # Set the terminal's background ANSI color to bright white.
 
   end  # ColorScheme
 
