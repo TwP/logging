@@ -42,7 +42,7 @@ class Appender
     self.layout = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
     self.level = opts.fetch(:level, nil)
     self.encoding = opts.fetch(:encoding, self.encoding)
-    self.filter = opts.getopt(:filter)
+    self.filter = opts.fetch(:filter, nil)
 
     @mutex = ReentrantMutex.new
 
