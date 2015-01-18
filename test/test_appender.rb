@@ -40,6 +40,30 @@ module TestLogging
       assert_raise(RuntimeError) {@appender.append @event}
     end
 
+    def test_append_with_filter
+      ary = []
+      @appender.instance_variable_set :@ary, ary
+      def @appender.write(event)
+        @ary << event
+      end
+      @appender.level = :debug
+
+      # Excluded
+      @appender.filter = ::Logging::Filters::Level.new :info
+      @appender.append @event
+      assert_nil ary.pop
+
+      # Allowed
+      @appender.filter = ::Logging::Filters::Level.new :debug
+      @appender.append @event
+      assert_equal @event, ary.pop
+
+      # No filter
+      @appender.filter = nil
+      @appender.append @event
+      assert_equal @event, ary.pop
+    end
+
     def test_close
       assert_equal false, @appender.closed?
 
