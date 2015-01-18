@@ -6,6 +6,8 @@ module TestLogging
     include LoggingTestCase
 
     def setup
+      super
+
       ::Logging::init
       @lf = ::Logging::Filters::Level.new :debug, :warn
     end
