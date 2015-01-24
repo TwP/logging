@@ -76,7 +76,7 @@ class Appender
 
     # only append if the event level is less than or equal to the configured
     # appender level and the filter does not disallow it
-    if allow? event
+    if event = allow(event)
       begin
         write(event)
       rescue StandardError => err
@@ -295,10 +295,13 @@ class Appender
   #
   # event - The LogEvent to check
   #
-  # Returns `true` if the appender should continue processing this event.
-  def allow?( event )
-    return false if @level > event.level
-    @filters.all? { |filter| filter.allow(event) }
+  # Returns the event if it is allowed; returns `nil` if it is not allowed.
+  def allow( event )
+    return nil if @level > event.level
+    @filters.each do |filter|
+      break unless event = filter.allow(event)
+    end
+    event
   end
 
   # Returns `true` if the appender has been turned off. This is useful for
