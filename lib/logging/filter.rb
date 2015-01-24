@@ -6,7 +6,6 @@ module Logging
   # All other Filters inherit from this class, and must override the
   # +allow+ method to return true if the event should be allowed into
   # the log, and false otherwise.
-  #
   class Filter
 
     # call-seq:

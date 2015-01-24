@@ -434,8 +434,10 @@ module Logging
       @parent    = opts.fetch(:parent, nil)
       @appenders = opts.fetch(:appenders, [])
       @additive  = opts.fetch(:additive, true)
-      @caller_tracing     = opts.fetch(:caller_tracing, false)
       @level     = opts.fetch(:level, nil)
+
+      @caller_tracing = opts.fetch(:caller_tracing, false)
+
       ::Logging::Logger.define_log_methods(self)
     end
 
