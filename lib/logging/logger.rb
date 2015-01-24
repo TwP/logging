@@ -42,7 +42,7 @@ module Logging
       end
 
       # Returns a logger instance for the given name.
-      def [](name)
+      def []( name )
         repo = ::Logging::Repository.instance
         name = repo.to_key(name)
         logger = repo[name]
@@ -53,7 +53,7 @@ module Logging
           return logger unless logger.nil? # thread-safe double checking
 
           logger = instantiate(name)
-          repo[ name ] = logger
+          repo[name] = logger
           repo.children(name).each { |c| c.__send__(:parent=, logger) }
           logger
         end
