@@ -75,7 +75,7 @@ class Appender
 
     # only append if the event level is less than or equal to the configured
     # appender level and the filter does not disallow it
-    if @level <= event.level && (@filter.nil? || @filter.allow(event))
+    if allow? event
       begin
         write(event)
       rescue StandardError => err
@@ -98,7 +98,7 @@ class Appender
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    unless @level >= ::Logging::LEVELS.length
+    unless off?
       begin
         write(str)
       rescue StandardError => err
@@ -263,13 +263,33 @@ class Appender
   # value - The encoding as a String, Symbol, or Encoding instance.
   #
   # Raises ArgumentError if the value is not a valid encoding.
-  #
   def encoding=( value )
     if value.nil?
       @encoding = nil
     else
       @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value.to_s) : nil
     end
+  end
+
+  # Check to see if the event should be processed by the appender. An event will
+  # be rejected if the event level is lower than the configured level for the
+  # appender. Or it will be rejected if one of the filters rejects the event.
+  #
+  # event - The LogEvent to check
+  #
+  # Returns `true` if the appender should continue processing this event.
+  def allow?( event )
+    @level <= event.level && (@filter.nil? || @filter.allow(event))
+  end
+
+  # Returns `true` if the appender has been turned off. This is useful for
+  # appenders that write data to a remote location (such as syslog or email),
+  # and that write encounters too many errors. The appender can turn itself off
+  # to and log an error via the `Logging` logger.
+  #
+  # Set the appender's level to a valid value to turn it back on.
+  def off?
+    @level >= ::Logging::LEVELS.length
   end
 
 
