@@ -28,37 +28,36 @@ module Logging
 
     class << self
 
-      # call-seq:
-      #    Logger.root
-      #
       # Returns the root logger.
-      #
       def root
         ::Logging::Repository.instance[:root]
       end
 
-      # :stopdoc:
+      alias_method :instantiate, :new  # the "real" new
 
       # Overrides the new method such that only one Logger will be created
       # for any given logger name.
-      #
       def new( *args )
-        return super if args.empty?
+        args.empty? ? super : self[args.shift]
+      end
 
+      # Returns a logger instance for the given name.
+      def [](name)
         repo = ::Logging::Repository.instance
-        name = repo.to_key(args.shift)
+        name = repo.to_key(name)
+        logger = repo[name]
+        return logger unless logger.nil?
 
         @mutex.synchronize do
           logger = repo[name]
-          if logger.nil?
-            logger = super(name)
-            repo[name] = logger
-            repo.children(name).each {|c| c.__send__(:parent=, logger)}
-          end
+          return logger unless logger.nil? # thread-safe double checking
+
+          logger = instantiate(name)
+          repo[ name ] = logger
+          repo.children(name).each { |c| c.__send__(:parent=, logger) }
           logger
         end
       end
-      alias_method :[], :new
 
       # This is where the actual logging methods are defined. Two methods
       # are created for each log level. The first is a query method used to
@@ -107,8 +106,6 @@ module Logging
         end
         logger
       end
-      # :startdoc:
-
     end  # class << self
 
     attr_reader :name, :parent, :additive, :caller_tracing
