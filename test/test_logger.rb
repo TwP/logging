@@ -406,6 +406,33 @@ module TestLogging
       assert_equal true,  logb.info?
     end
 
+    def test_level_with_filter
+      root = ::Logging::Logger[:root]
+      root.level = 'debug'
+
+      details_filter = ::Logging::Filters::Level.new :debug
+      error_filter = ::Logging::Filters::Level.new :error
+
+      a_detail = ::Logging::Appenders::StringIo.new 'detail', :filters => details_filter
+      a_error = ::Logging::Appenders::StringIo.new 'error', :filters => error_filter
+
+      root.add_appenders a_detail, a_error
+
+      log = ::Logging::Logger.new 'A Logger'
+
+      log.debug "debug level"
+      assert_equal "DEBUG  A Logger : debug level\n", a_detail.readline
+      assert_nil a_error.readline
+
+      log.error "error level"
+      assert_nil a_detail.readline
+      assert_equal "ERROR  A Logger : error level\n", a_error.readline
+
+      log.warn "warn level"
+      assert_nil a_detail.readline
+      assert_nil a_error.readline
+    end
+
     def test_log
       root = ::Logging::Logger[:root]
       root.level = 'info'

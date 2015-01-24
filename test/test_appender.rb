@@ -40,6 +40,54 @@ module TestLogging
       assert_raise(RuntimeError) {@appender.append @event}
     end
 
+    def test_append_with_filter
+      ary = []
+      @appender.instance_variable_set :@ary, ary
+      def @appender.write(event)
+        @ary << event
+      end
+      @appender.level = :debug
+
+      # Excluded
+      @appender.filters = ::Logging::Filters::Level.new :info
+      @appender.append @event
+      assert_nil ary.pop
+
+      # Allowed
+      @appender.filters = ::Logging::Filters::Level.new :debug
+      @appender.append @event
+      assert_equal @event, ary.pop
+
+      # No filter
+      @appender.filters = nil
+      @appender.append @event
+      assert_equal @event, ary.pop
+    end
+
+    def test_append_with_modifying_filter
+      ary = []
+      @appender.instance_variable_set :@ary, ary
+      def @appender.write(event)
+        @ary << event
+      end
+      @appender.level = :debug
+      @appender.filters = [
+        ::Logging::Filters::Level.new(:debug, :info),
+        RedactFilter.new
+      ]
+
+      # data will be redacted
+      @appender.append @event
+      event = ary.pop
+      assert_not_same @event, event
+      assert_equal "REDACTED!", event.data
+
+      # event will be filtered out
+      @event.level = @levels['warn']
+      @appender.append @event
+      assert_nil ary.pop
+    end
+
     def test_close
       assert_equal false, @appender.closed?
 
@@ -148,4 +196,12 @@ module TestLogging
 
   end  # class TestAppender
 end  # module TestLogging
+
+class RedactFilter < ::Logging::Filter
+  def allow( event )
+    event = event.dup
+    event.data = "REDACTED!"
+    event
+  end
+end
 

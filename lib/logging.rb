@@ -490,6 +490,7 @@ module Logging
   require libpath('logging/version')
   require libpath('logging/appender')
   require libpath('logging/layout')
+  require libpath('logging/filter')
   require libpath('logging/log_event')
   require libpath('logging/logger')
   require libpath('logging/repository')
@@ -497,6 +498,7 @@ module Logging
   require libpath('logging/color_scheme')
   require libpath('logging/appenders')
   require libpath('logging/layouts')
+  require libpath('logging/filters')
   require libpath('logging/proxy')
   require libpath('logging/diagnostic_context')
 

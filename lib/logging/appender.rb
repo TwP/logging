@@ -16,7 +16,7 @@ module Logging
 #
 class Appender
 
-  attr_reader :name, :layout, :level
+  attr_reader :name, :layout, :level, :filters
 
   # call-seq:
   #    Appender.new( name )
@@ -32,18 +32,20 @@ class Appender
   #    :layout   => the layout to use when formatting log events
   #    :level    => the level at which to log
   #    :encoding => encoding to use when writing messages (defaults to UTF-8)
+  #    :filters  => filters to apply to events before processing
   #
   def initialize( name, opts = {} )
     ::Logging.init unless ::Logging.initialized?
 
-    @name = name.to_s
-    @closed = false
+    @name    = name.to_s
+    @closed  = false
+    @filters = []
+    @mutex   = ReentrantMutex.new
 
-    self.layout = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
-    self.level = opts.fetch(:level, nil)
+    self.layout   = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
+    self.level    = opts.fetch(:level, nil)
     self.encoding = opts.fetch(:encoding, self.encoding)
-
-    @mutex = ReentrantMutex.new
+    self.filters  = opts.fetch(:filters, nil)
 
     if opts.fetch(:header, true)
       header = @layout.header
@@ -73,8 +75,8 @@ class Appender
     end
 
     # only append if the event level is less than or equal to the configured
-    # appender level
-    unless @level > event.level
+    # appender level and the filter does not disallow it
+    if event = allow(event)
       begin
         write(event)
       rescue StandardError => err
@@ -97,7 +99,7 @@ class Appender
             "appender '<#{self.class.name}: #{@name}>' is closed"
     end
 
-    unless @level >= ::Logging::LEVELS.length
+    unless off?
       begin
         write(str)
       rescue StandardError => err
@@ -160,6 +162,35 @@ class Appender
             "#{layout.inspect} is not a kind of 'Logging::Layout'"
     end
     @layout = layout
+  end
+
+  # Sets the filter(s) to be used by this appender. This method will clear the
+  # current filter set and add those passed to this setter method.
+  #
+  # Examples
+  #    appender.filters = Logging::Filters::Level.new(:warn, :error)
+  #
+  def filters=( args )
+    @filters.clear
+    add_filters(*args)
+  end
+
+  # Sets the filter(s) to be used by this appender. The filters will be
+  # applied in the order that they are added to the appender.
+  #
+  # Examples
+  #    add_filters(Logging::Filters::Level.new(:warn, :error))
+  #
+  # Returns this appender instance.
+  def add_filters( *args )
+    args.flatten.each do |filter|
+      next if filter.nil?
+      unless filter.kind_of?(::Logging::Filter)
+        raise TypeError, "#{filter.inspect} is not a kind of 'Logging::Filter'"
+      end
+      @filters << filter
+    end
+    self
   end
 
   # call-seq:
@@ -250,13 +281,37 @@ class Appender
   # value - The encoding as a String, Symbol, or Encoding instance.
   #
   # Raises ArgumentError if the value is not a valid encoding.
-  #
   def encoding=( value )
     if value.nil?
       @encoding = nil
     else
       @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value.to_s) : nil
     end
+  end
+
+  # Check to see if the event should be processed by the appender. An event will
+  # be rejected if the event level is lower than the configured level for the
+  # appender. Or it will be rejected if one of the filters rejects the event.
+  #
+  # event - The LogEvent to check
+  #
+  # Returns the event if it is allowed; returns `nil` if it is not allowed.
+  def allow( event )
+    return nil if @level > event.level
+    @filters.each do |filter|
+      break unless event = filter.allow(event)
+    end
+    event
+  end
+
+  # Returns `true` if the appender has been turned off. This is useful for
+  # appenders that write data to a remote location (such as syslog or email),
+  # and that write encounters too many errors. The appender can turn itself off
+  # to and log an error via the `Logging` logger.
+  #
+  # Set the appender's level to a valid value to turn it back on.
+  def off?
+    @level >= ::Logging::LEVELS.length
   end
 
 
