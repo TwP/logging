@@ -289,7 +289,7 @@ module Logging
       end
       self
     end
-    alias :<< :push
+    alias_method :<<, :push
 
     # Public: Clients should call this method before leaving a diagnostic
     # context. The returned value is the last pushed message. If no
@@ -405,7 +405,7 @@ class Thread
 
     %w[new start fork].each do |m|
       class_eval <<-__, __FILE__, __LINE__
-        alias :_orig_#{m} :#{m}
+        alias_method :_orig_#{m}, :#{m}
         private :_orig_#{m}
         def #{m}( *a, &b )
           create_with_logging_context(:_orig_#{m}, *a ,&b)

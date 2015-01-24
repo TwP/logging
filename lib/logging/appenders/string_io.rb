@@ -57,7 +57,7 @@ module Logging::Appenders
         @sio.truncate 0
       }
     end
-    alias :reset :clear
+    alias_method :reset, :clear
 
     %w[read readline readlines].each do|m|
       class_eval <<-CODE, __FILE__, __LINE__+1

@@ -150,7 +150,7 @@ class ReentrantMutex < Mutex
     @locker = nil
   end
 
-  alias :original_synchronize :synchronize
+  alias_method :original_synchronize, :synchronize
 
   def synchronize
     if @locker == Thread.current

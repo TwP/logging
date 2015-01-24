@@ -58,7 +58,7 @@ module Logging
           logger
         end
       end
-      alias :[] :new
+      alias_method :[], :new
 
       # This is where the actual logging methods are defined. Two methods
       # are created for each log level. The first is a query method used to
@@ -170,7 +170,7 @@ module Logging
       @appenders.each {|a| a << msg}
       @parent << msg if @additive
     end
-    alias :write :<<
+    alias_method :write, :<<
 
     # call-seq:
     #    add( severity, message = nil ) {block}
