@@ -413,8 +413,8 @@ module TestLogging
       details_filter = ::Logging::Filters::Level.new :debug
       error_filter = ::Logging::Filters::Level.new :error
 
-      a_detail = ::Logging::Appenders::StringIo.new 'detail', :filter => details_filter
-      a_error = ::Logging::Appenders::StringIo.new 'error', :filter => error_filter
+      a_detail = ::Logging::Appenders::StringIo.new 'detail', :filters => details_filter
+      a_error = ::Logging::Appenders::StringIo.new 'error', :filters => error_filter
 
       root.add_appenders a_detail, a_error
 
@@ -431,7 +431,6 @@ module TestLogging
       log.warn "warn level"
       assert_nil a_detail.readline
       assert_nil a_error.readline
-
     end
 
     def test_log

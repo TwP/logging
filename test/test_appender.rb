@@ -49,17 +49,17 @@ module TestLogging
       @appender.level = :debug
 
       # Excluded
-      @appender.filter = ::Logging::Filters::Level.new :info
+      @appender.filters = ::Logging::Filters::Level.new :info
       @appender.append @event
       assert_nil ary.pop
 
       # Allowed
-      @appender.filter = ::Logging::Filters::Level.new :debug
+      @appender.filters = ::Logging::Filters::Level.new :debug
       @appender.append @event
       assert_equal @event, ary.pop
 
       # No filter
-      @appender.filter = nil
+      @appender.filters = nil
       @appender.append @event
       assert_equal @event, ary.pop
     end

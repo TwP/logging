@@ -16,7 +16,7 @@ module Logging
 #
 class Appender
 
-  attr_reader :name, :layout, :level, :filter
+  attr_reader :name, :layout, :level, :filters
 
   # call-seq:
   #    Appender.new( name )
@@ -36,15 +36,15 @@ class Appender
   def initialize( name, opts = {} )
     ::Logging.init unless ::Logging.initialized?
 
-    @name = name.to_s
-    @closed = false
+    @name    = name.to_s
+    @closed  = false
+    @filters = []
+    @mutex   = ReentrantMutex.new
 
-    self.layout = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
-    self.level = opts.fetch(:level, nil)
+    self.layout   = opts.fetch(:layout, ::Logging::Layouts::Basic.new)
+    self.level    = opts.fetch(:level, nil)
     self.encoding = opts.fetch(:encoding, self.encoding)
-    self.filter = opts.fetch(:filter, nil)
-
-    @mutex = ReentrantMutex.new
+    self.filters  = opts.fetch(:filters, nil)
 
     if opts.fetch(:header, true)
       header = @layout.header
@@ -163,16 +163,33 @@ class Appender
     @layout = layout
   end
 
-  # call-seq
-  #    appender.filter = Logging::Filters::Level.new :warn, :error
+  # Sets the filter(s) to be used by this appender. This method will clear the
+  # current filter set and add those passed to this setter method.
   #
-  # Sets the filter to be used by this appender
-  def filter=( filter )
-    unless (filter.nil? || filter.kind_of?(::Logging::Filter))
-      raise TypeError,
-            "#{filter.inspect} is not a kind of 'Logging::Filter'"
+  # Examples
+  #    appender.filters = Logging::Filters::Level.new(:warn, :error)
+  #
+  def filters=( args )
+    @filters.clear
+    add_filters(*args)
+  end
+
+  # Sets the filter(s) to be used by this appender. The filters will be
+  # applied in the order that they are added to the appender.
+  #
+  # Examples
+  #    add_filters(Logging::Filters::Level.new(:warn, :error))
+  #
+  # Returns this appender instance.
+  def add_filters( *args )
+    args.flatten.each do |filter|
+      next if filter.nil?
+      unless filter.kind_of?(::Logging::Filter)
+        raise TypeError, "#{filter.inspect} is not a kind of 'Logging::Filter'"
+      end
+      @filters << filter
     end
-    @filter = filter
+    self
   end
 
   # call-seq:
@@ -279,7 +296,8 @@ class Appender
   #
   # Returns `true` if the appender should continue processing this event.
   def allow?( event )
-    @level <= event.level && (@filter.nil? || @filter.allow(event))
+    return false if @level > event.level
+    @filters.all? { |filter| filter.allow(event) }
   end
 
   # Returns `true` if the appender has been turned off. This is useful for
