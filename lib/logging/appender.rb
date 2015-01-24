@@ -32,6 +32,7 @@ class Appender
   #    :layout   => the layout to use when formatting log events
   #    :level    => the level at which to log
   #    :encoding => encoding to use when writing messages (defaults to UTF-8)
+  #    :filters  => filters to apply to events before processing
   #
   def initialize( name, opts = {} )
     ::Logging.init unless ::Logging.initialized?
