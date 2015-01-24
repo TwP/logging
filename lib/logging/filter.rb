@@ -1,20 +1,18 @@
 module Logging
 
-  # The +Filter+ class allows for filtering messages based on event
+  # The `Filter` class allows for filtering messages based on event
   # properties independently of the standard minimum-level restriction.
   #
   # All other Filters inherit from this class, and must override the
-  # +allow+ method to return true if the event should be allowed into
-  # the log, and false otherwise.
+  # `allow` method to return the event if it should be allowed into the log.
+  # Otherwise the `allow` method should return `nil`.
   class Filter
 
-    # call-seq:
-    #    allow( event )
-    #
-    # Returns true if the given _event_ should be allowed to proceed
-    # to the log, and false if it should be prevented.
+    # Returns the event if it should be allowed into the log. Returns `nil` if
+    # the event should _not_ be allowed into the log. Subclasses should override
+    # this method and provide their own filtering semantics.
     def allow( event )
-      true
+      event
     end
   end
 end

@@ -15,13 +15,13 @@ module TestLogging
     def test_level_filter_includes_selected_level
       debug_evt = event_for_level(:debug)
       warn_evt = event_for_level(:warn)
-      assert @lf.allow(debug_evt), "Debug messages should be allowed"
-      assert @lf.allow(warn_evt), "Warn messages should be allowed"
+      assert_same debug_evt, @lf.allow(debug_evt), "Debug messages should be allowed"
+      assert_same warn_evt, @lf.allow(warn_evt), "Warn messages should be allowed"
     end
 
     def test_level_filter_excludes_unselected_level
       event = event_for_level(:info)
-      assert !@lf.allow(event), "Info messages should be disallowed"
+      assert_nil @lf.allow(event), "Info messages should be disallowed"
     end
 
     def event_for_level(level)
