@@ -29,15 +29,6 @@ module Logging
   class << self
 
     # call-seq:
-    #    Logging.configure { block }
-    #
-    # Configures the Logging framework using the configuration block.
-    #
-    def configure( &block )
-      ::Logging::Config::Configurator.process(&block)
-    end
-
-    # call-seq:
     #    Logging.logger( device, age = 7, size = 1048576 )
     #    Logging.logger( device, age = 'weekly' )
     #
@@ -501,8 +492,6 @@ module Logging
   require libpath('logging/filters')
   require libpath('logging/proxy')
   require libpath('logging/diagnostic_context')
-
-  require libpath('logging/config/configurator')
 
   require libpath('logging/rails_compat')
 end  # module Logging
