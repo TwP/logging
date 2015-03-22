@@ -439,6 +439,9 @@ class Thread
         ndc = Logging::NestedDiagnosticContext.context.dup
       end
 
+      # This calls the actual `Thread#new` method to create the Thread instance.
+      # If your memory profiling tool says this method is leaking memory, then
+      # you are leaking Thread instances somewhere.
       self.send(m, *a) { |*args|
         Logging::MappedDiagnosticContext.inherit(mdc)
         Logging::NestedDiagnosticContext.inherit(ndc)
