@@ -1,3 +1,4 @@
+require 'socket'
 
 module Logging::Layouts
 
