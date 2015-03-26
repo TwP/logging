@@ -1,4 +1,4 @@
-
+require 'time'
 require File.expand_path('../setup', File.dirname(__FILE__))
 
 module TestLogging
