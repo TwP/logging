@@ -1,5 +1,5 @@
 ## Logging
-by Tim Pease ![http://travis-ci.org/TwP/logging](https://secure.travis-ci.org/TwP/logging.png)
+by Tim Pease ![https://travis-ci.org/TwP/logging](https://secure.travis-ci.org/TwP/logging.png)
 
 * [Homepage](http://rubygems.org/gems/logging)
 * [Github Project](https://github.com/TwP/logging)
@@ -114,20 +114,15 @@ class names.
 
 The Logging source code relies on the Mr Bones project for default rake tasks.
 You will need to install the Mr Bones gem if you want to build or test the
-logging gem.
+logging gem. Conveniently there is a bootstrap script that you can run to setup
+your development environment.
 
 ```
-gem install bones
+script/bootstrap
 ```
 
-After Mr Bones is installed you can install all the depdencies via the rake
-task.
-
-```
-rake gem:install_dependencies
-```
-
-Always remember that `rake -T` is your friend!
+This will install the Mr Bones gem and the required Ruby gems for development.
+After this is done you can rake `rake -T` to see the available rake tasks.
 
 ### License
 
