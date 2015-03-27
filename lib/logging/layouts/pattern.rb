@@ -3,12 +3,13 @@ module Logging::Layouts
 
   # Accessor / Factory for the Pattern layout.
   #
+  # Returns a new Pattern layout instance
   def self.pattern( *args )
     return ::Logging::Layouts::Pattern if args.empty?
     ::Logging::Layouts::Pattern.new(*args)
   end
 
-  # A flexible layout configurable with pattern string.
+  # A flexible layout configurable via a conversion pattern string.
   #
   # The goal of this class is to format a LogEvent and return the results as
   # a String. The results depend on the conversion pattern.
@@ -185,13 +186,13 @@ module Logging::Layouts
     # call-seq:
     #    Pattern.create_format_method( pl )
     #
-    # This method will create the +format+ method in the given Pattern
-    # Layout _pl_ based on the configured format pattern specified by the
+    # This method will create the `format` method in the given Pattern
+    # Layout `pl` based on the configured format pattern specified by the
     # user.
     #
     def self.create_format_method( pl )
       builder = FormatMethodBuilder.new(pl)
-      code = builder.build
+      code = builder.build_code
 
       ::Logging.log_internal(0) { code }
 
@@ -277,15 +278,14 @@ module Logging::Layouts
 
     # :stopdoc:
 
-    # call-seq:
-    #    _meta_eval( code )
-    #
-    # Evaluates the given string of _code_ if the singleton class of this
+    # Evaluates the given string of `code` if the singleton class of this
     # Pattern Layout object.
     #
+    # Returns this Pattern Layout instance.
     def _meta_eval( code, file = nil, line = nil )
       meta = class << self; self end
       meta.class_eval code, file, line
+      self
     end
 
     class FormatMethodBuilder
@@ -355,7 +355,7 @@ module Logging::Layouts
 
       #
       #
-      def build
+      def build_code
         build_format_string
 
         sprintf = "sprintf("
@@ -373,6 +373,49 @@ module Logging::Layouts
 
       #
       #
+      def handle_logger_name( format, directive, precision )
+        fmt = format + 's'
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+
+        format_string << fmt
+        sprintf_args << DIRECTIVE_TABLE[directive].dup
+
+        if precision
+          numeric = Integer(precision) rescue nil
+          if numeric
+            raise ArgumentError, "logger name precision must be an integer greater than zero: #{numeric}" unless numeric > 0
+            sprintf_args.last <<
+                ".split(::Logging::Repository::PATH_DELIMITER)" \
+                ".last(#{precision}).join(::Logging::Repository::PATH_DELIMITER)"
+          else
+            format_string << "{#{precision}}"
+          end
+        end
+
+        nil
+      end
+
+      def handle_level( format, directive, precision )
+        if color_scheme and color_scheme.levels?
+          name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{format}s" % name), name) }
+          var = "@name_map_#{name_map_count}"
+          pf.instance_variable_set(var.to_sym, name_map)
+          name_map_count += 1
+
+          format_string << '%s'
+          format_string << "{#{precision}}" if precision
+          sprintf_args << "#{var}[event.level]"
+        else
+          format_string << format + 's'
+          format_string << "{#{precision}}" if precision
+          sprintf_args << DIRECTIVE_TABLE[directive]
+        end
+
+        nil
+      end
+
+      #
+      #
       def build_format_string
         while true
           m = DIRECTIVE_RGXP.match(pattern)
@@ -380,38 +423,8 @@ module Logging::Layouts
 
           case m[3]
           when '%'; format_string << '%%'
-          when 'c'
-            fmt = m[2] + 's'
-            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-            format_string << fmt
-            sprintf_args << DIRECTIVE_TABLE[m[3]].dup
-            if m[4]
-              precision = Integer(m[4]) rescue nil
-              if precision
-                raise ArgumentError, "logger name precision must be an integer greater than zero: #{precision}" unless precision > 0
-                sprintf_args.last <<
-                    ".split(::Logging::Repository::PATH_DELIMITER)" \
-                    ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
-              else
-                format_string << "{#{m[4]}}"
-              end
-            end
-          when 'l'
-            if color_scheme and color_scheme.levels?
-              name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{m[2]}s" % name), name) }
-              var = "@name_map_#{name_map_count}"
-              pf.instance_variable_set(var.to_sym, name_map)
-              name_map_count += 1
-
-              format_string << '%s'
-              format_string << "{#{m[4]}}" if m[4]
-              sprintf_args << "#{var}[event.level]"
-            else
-              format_string << m[2] + 's'
-              format_string << "{#{m[4]}}" if m[4]
-              sprintf_args << DIRECTIVE_TABLE[m[3]]
-            end
+          when 'c'; handle_logger_name(m[2], m[3], m[4])
+          when 'l'; handle_level(m[2], m[3], m[4])
 
           when 'X'
             raise ArgumentError, "MDC must have a key reference" unless m[4]
