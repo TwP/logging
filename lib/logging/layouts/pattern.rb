@@ -382,10 +382,10 @@ module Logging::Layouts
 
           case directive
           when '%'; format_string << '%%'
-          when 'c'; handle_logger_name( format, directive, precision )
-          when 'l'; handle_level(       format, directive, precision )
-          when 'X'; handle_mdc(         format, directive, precision )
-          when 'x'; handle_ndc(         format, directive, precision )
+          when 'c'; handle_logger( format, directive, precision )
+          when 'l'; handle_level(  format, directive, precision )
+          when 'X'; handle_mdc(    format, directive, precision )
+          when 'x'; handle_ndc(    format, directive, precision )
 
           when *DIRECTIVE_TABLE.keys
             handle_directives(format, directive, precision)
@@ -404,7 +404,7 @@ module Logging::Layouts
 
       #
       #
-      def handle_logger_name( format, directive, precision )
+      def handle_logger( format, directive, precision )
         fmt = format + 's'
         fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
 
