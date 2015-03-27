@@ -373,6 +373,37 @@ module Logging::Layouts
 
       #
       #
+      def build_format_string
+        while true
+          match = DIRECTIVE_RGXP.match(pattern)
+          _, pre, format, directive, precision, post = *match
+
+          format_string << pre unless pre.empty?
+
+          case directive
+          when '%'; format_string << '%%'
+          when 'c'; handle_logger_name( format, directive, precision )
+          when 'l'; handle_level(       format, directive, precision )
+          when 'X'; handle_mdc(         format, directive, precision )
+          when 'x'; handle_ndc(         format, directive, precision )
+
+          when *DIRECTIVE_TABLE.keys
+            handle_directives(format, directive, precision)
+
+          when nil; break
+          else
+            raise ArgumentError, "illegal format character - '#{directive}'"
+          end
+
+          break if post.empty?
+          self.pattern = post
+        end
+
+        format_string << '"'
+      end
+
+      #
+      #
       def handle_logger_name( format, directive, precision )
         fmt = format + 's'
         fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
@@ -395,6 +426,8 @@ module Logging::Layouts
         nil
       end
 
+      #
+      #
       def handle_level( format, directive, precision )
         if color_scheme and color_scheme.levels?
           name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{format}s" % name), name) }
@@ -416,52 +449,44 @@ module Logging::Layouts
 
       #
       #
-      def build_format_string
-        while true
-          m = DIRECTIVE_RGXP.match(pattern)
-          format_string << m[1] unless m[1].empty?
+      def handle_mdc( format, directive, key )
+        raise ArgumentError, "MDC must have a key reference" unless key
+        fmt = format + 's'
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
 
-          case m[3]
-          when '%'; format_string << '%%'
-          when 'c'; handle_logger_name(m[2], m[3], m[4])
-          when 'l'; handle_level(m[2], m[3], m[4])
+        format_string << fmt
+        sprintf_args << "::Logging.mdc['#{key}']"
 
-          when 'X'
-            raise ArgumentError, "MDC must have a key reference" unless m[4]
-            fmt = m[2] + 's'
-            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-            format_string << fmt
-            sprintf_args << "::Logging.mdc['#{m[4]}']"
-
-          when 'x'
-            fmt = m[2] + 's'
-            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-            format_string << fmt
-            separator = m[4].to_s
-            separator = ' ' if separator.empty?
-            sprintf_args << "::Logging.ndc.context.join('#{separator}')"
-
-          when *DIRECTIVE_TABLE.keys
-            fmt = m[2] + 's'
-            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-            format_string << fmt
-            format_string << "{#{m[4]}}" if m[4]
-            sprintf_args << DIRECTIVE_TABLE[m[3]]
-
-          when nil; break
-          else
-            raise ArgumentError, "illegal format character - '#{m[3]}'"
-          end
-
-          break if m[5].empty?
-          self.pattern = m[5]
-        end
-
-        format_string << '"'
+        nil
       end
+
+      #
+      #
+      def handle_ndc( format, directive, separator )
+        fmt = format + 's'
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+
+        format_string << fmt
+        separator = separator.to_s
+        separator = ' ' if separator.empty?
+        sprintf_args << "::Logging.ndc.context.join('#{separator}')"
+
+        nil
+      end
+
+      #
+      #
+      def handle_directives( format, directive, precision )
+        fmt = format + 's'
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+
+        format_string << fmt
+        format_string << "{#{precision}}" if precision
+        sprintf_args << DIRECTIVE_TABLE[directive]
+
+        nil
+      end
+
     end
     # :startdoc:
 
