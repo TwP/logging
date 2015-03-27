@@ -151,186 +151,51 @@ module Logging::Layouts
 
     # :stopdoc:
 
-    # Arguments to sprintf keyed to directive letters
-    DIRECTIVE_TABLE = {
-      'c' => 'event.logger'.freeze,
-      'd' => 'format_date(event.time)'.freeze,
-      'F' => 'event.file'.freeze,
-      'l' => '::Logging::LNAMES[event.level]'.freeze,
-      'L' => 'event.line'.freeze,
-      'm' => 'format_obj(event.data)'.freeze,
-      'M' => 'event.method'.freeze,
-      'h' => "'#{Socket.gethostname}'".freeze,
-      'p' => 'Process.pid'.freeze,
-      'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
-      't' => 'Thread.current.object_id.to_s'.freeze,
-      'T' => 'Thread.current[:name]'.freeze,
-      'X' => :placeholder,
-      'x' => :placeholder,
-      '%' => :placeholder
-    }.freeze
-
-    # Matches the first directive encountered and the stuff around it.
-    #
-    # * $1 is the stuff before directive or "" if not applicable
-    # * $2 is the %#.# match within directive group
-    # * $3 is the directive letter
-    # * $4 is the precision specifier for the logger name
-    # * $5 is the stuff after the directive or "" if not applicable
-    DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{([^\}]+)\})?)?(.*)/m
-
     # default date format
     ISO8601 = "%Y-%m-%dT%H:%M:%S".freeze
 
-    # Human name aliases for directives - used for colorization of tokens
-    COLOR_ALIAS_TABLE = {
-      'c' => :logger,
-      'd' => :date,
-      'm' => :message,
-      'h' => :hostname,
-      'p' => :pid,
-      'r' => :time,
-      'T' => :thread,
-      't' => :thread_id,
-      'F' => :file,
-      'L' => :line,
-      'M' => :method,
-      'X' => :mdc,
-      'x' => :ndc
-    }.freeze
-
     # call-seq:
-    #    Pattern.create_date_format_methods( pf )
+    #    Pattern.create_date_format_methods( pl )
     #
     # This method will create the +date_format+ method in the given Pattern
-    # Layout _pf_ based on the configured date patten and/or date method
+    # Layout _pl_ based on the configured date pattern and/or date method
     # specified by the user.
     #
-    def self.create_date_format_methods( pf )
+    def self.create_date_format_methods( pl )
       code = "undef :format_date if method_defined? :format_date\n"
       code << "def format_date( time )\n"
-      if pf.date_method.nil?
-        if pf.date_pattern =~ %r/%s/
+      if pl.date_method.nil?
+        if pl.date_pattern =~ %r/%s/
           code << <<-CODE
-            dp = '#{pf.date_pattern}'.gsub('%s','%06d' % time.usec)
+            dp = '#{pl.date_pattern}'.gsub('%s','%06d' % time.usec)
             time.strftime dp
           CODE
         else
-          code << "time.strftime '#{pf.date_pattern}'\n"
+          code << "time.strftime '#{pl.date_pattern}'\n"
         end
       else
-        code << "time.#{pf.date_method}\n"
+        code << "time.#{pl.date_method}\n"
       end
       code << "end\n"
       ::Logging.log_internal(0) {code}
 
-      pf._meta_eval(code, __FILE__, __LINE__)
+      pl._meta_eval(code, __FILE__, __LINE__)
     end
 
     # call-seq:
-    #    Pattern.create_format_method( pf )
+    #    Pattern.create_format_method( pl )
     #
     # This method will create the +format+ method in the given Pattern
-    # Layout _pf_ based on the configured format pattern specified by the
+    # Layout _pl_ based on the configured format pattern specified by the
     # user.
     #
-    def self.create_format_method( pf )
-      # Create the format(event) method
-      format_string = '"'
-      pattern = pf.pattern.dup
-      color_scheme = pf.color_scheme
-      args = []
-      name_map_count = 0
+    def self.create_format_method( pl )
+      builder = FormatMethodBuilder.new(pl)
+      code = builder.build
 
-      while true
-        m = DIRECTIVE_RGXP.match(pattern)
-        format_string << m[1] unless m[1].empty?
+      ::Logging.log_internal(0) { code }
 
-        case m[3]
-        when '%'; format_string << '%%'
-        when 'c'
-          fmt = m[2] + 's'
-          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-          format_string << fmt
-          args << DIRECTIVE_TABLE[m[3]].dup
-          if m[4]
-            precision = Integer(m[4]) rescue nil
-            if precision
-              raise ArgumentError, "logger name precision must be an integer greater than zero: #{precision}" unless precision > 0
-              args.last <<
-                  ".split(::Logging::Repository::PATH_DELIMITER)" \
-                  ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
-            else
-              format_string << "{#{m[4]}}"
-            end
-          end
-        when 'l'
-          if color_scheme and color_scheme.levels?
-            name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{m[2]}s" % name), name) }
-            var = "@name_map_#{name_map_count}"
-            pf.instance_variable_set(var.to_sym, name_map)
-            name_map_count += 1
-
-            format_string << '%s'
-            format_string << "{#{m[4]}}" if m[4]
-            args << "#{var}[event.level]"
-          else
-            format_string << m[2] + 's'
-            format_string << "{#{m[4]}}" if m[4]
-            args << DIRECTIVE_TABLE[m[3]]
-          end
-
-        when 'X'
-          raise ArgumentError, "MDC must have a key reference" unless m[4]
-          fmt = m[2] + 's'
-          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-          format_string << fmt
-          args << "::Logging.mdc['#{m[4]}']"
-
-        when 'x'
-          fmt = m[2] + 's'
-          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-          format_string << fmt
-          separator = m[4].to_s
-          separator = ' ' if separator.empty?
-          args << "::Logging.ndc.context.join('#{separator}')"
-
-        when *DIRECTIVE_TABLE.keys
-          fmt = m[2] + 's'
-          fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
-
-          format_string << fmt
-          format_string << "{#{m[4]}}" if m[4]
-          args << DIRECTIVE_TABLE[m[3]]
-
-        when nil; break
-        else
-          raise ArgumentError, "illegal format character - '#{m[3]}'"
-        end
-
-        break if m[5].empty?
-        pattern = m[5]
-      end
-
-      format_string << '"'
-
-      sprintf = "sprintf("
-      sprintf << format_string
-      sprintf << ', ' + args.join(', ') unless args.empty?
-      sprintf << ")"
-
-      if color_scheme and color_scheme.lines?
-        sprintf = "color_scheme.color(#{sprintf}, ::Logging::LNAMES[event.level])"
-      end
-
-      code = "undef :format if method_defined? :format\n"
-      code << "def format( event )\n#{sprintf}\nend\n"
-      ::Logging.log_internal(0) {code}
-
-      pf._meta_eval(code, __FILE__, __LINE__)
+      pl._meta_eval(code, __FILE__, __LINE__)
     end
     # :startdoc:
 
@@ -422,8 +287,171 @@ module Logging::Layouts
       meta = class << self; self end
       meta.class_eval code, file, line
     end
+
+    class FormatMethodBuilder
+      # Matches the first directive encountered and the stuff around it.
+      #
+      # * $1 is the stuff before directive or "" if not applicable
+      # * $2 is the %#.# match within directive group
+      # * $3 is the directive letter
+      # * $4 is the precision specifier for the logger name
+      # * $5 is the stuff after the directive or "" if not applicable
+      DIRECTIVE_RGXP = %r/([^%]*)(?:(%-?\d*(?:\.\d+)?)([a-zA-Z%])(?:\{([^\}]+)\})?)?(.*)/m
+
+      # Arguments to sprintf keyed to directive letters
+      DIRECTIVE_TABLE = {
+        'c' => 'event.logger'.freeze,
+        'd' => 'format_date(event.time)'.freeze,
+        'F' => 'event.file'.freeze,
+        'l' => '::Logging::LNAMES[event.level]'.freeze,
+        'L' => 'event.line'.freeze,
+        'm' => 'format_obj(event.data)'.freeze,
+        'M' => 'event.method'.freeze,
+        'h' => "'#{Socket.gethostname}'".freeze,
+        'p' => 'Process.pid'.freeze,
+        'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
+        't' => 'Thread.current.object_id.to_s'.freeze,
+        'T' => 'Thread.current[:name]'.freeze,
+        'X' => :placeholder,
+        'x' => :placeholder,
+        '%' => :placeholder
+      }.freeze
+
+      # Human name aliases for directives - used for colorization of tokens
+      COLOR_ALIAS_TABLE = {
+        'c' => :logger,
+        'd' => :date,
+        'm' => :message,
+        'h' => :hostname,
+        'p' => :pid,
+        'r' => :time,
+        'T' => :thread,
+        't' => :thread_id,
+        'F' => :file,
+        'L' => :line,
+        'M' => :method,
+        'X' => :mdc,
+        'x' => :ndc
+      }.freeze
+
+      attr_reader :layout
+      attr_accessor :pattern
+      attr_reader :color_scheme
+      attr_reader :sprintf_args
+      attr_reader :format_string
+      attr_reader :name_map_count
+
+      #
+      #
+      def initialize( pattern_layout )
+        @layout         = pattern_layout
+        @pattern        = layout.pattern.dup
+        @color_scheme   = layout.color_scheme
+
+        @sprintf_args = []
+        @format_string = '"'
+        @name_map_count = 0
+      end
+
+      #
+      #
+      def build
+        build_format_string
+
+        sprintf = "sprintf("
+        sprintf << format_string
+        sprintf << ', ' + sprintf_args.join(', ') unless sprintf_args.empty?
+        sprintf << ")"
+
+        if color_scheme && color_scheme.lines?
+          sprintf = "color_scheme.color(#{sprintf}, ::Logging::LNAMES[event.level])"
+        end
+
+        code = "undef :format if method_defined? :format\n"
+        code << "def format( event )\n#{sprintf}\nend\n"
+      end
+
+      #
+      #
+      def build_format_string
+        while true
+          m = DIRECTIVE_RGXP.match(pattern)
+          format_string << m[1] unless m[1].empty?
+
+          case m[3]
+          when '%'; format_string << '%%'
+          when 'c'
+            fmt = m[2] + 's'
+            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+            format_string << fmt
+            sprintf_args << DIRECTIVE_TABLE[m[3]].dup
+            if m[4]
+              precision = Integer(m[4]) rescue nil
+              if precision
+                raise ArgumentError, "logger name precision must be an integer greater than zero: #{precision}" unless precision > 0
+                sprintf_args.last <<
+                    ".split(::Logging::Repository::PATH_DELIMITER)" \
+                    ".last(#{m[4]}).join(::Logging::Repository::PATH_DELIMITER)"
+              else
+                format_string << "{#{m[4]}}"
+              end
+            end
+          when 'l'
+            if color_scheme and color_scheme.levels?
+              name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{m[2]}s" % name), name) }
+              var = "@name_map_#{name_map_count}"
+              pf.instance_variable_set(var.to_sym, name_map)
+              name_map_count += 1
+
+              format_string << '%s'
+              format_string << "{#{m[4]}}" if m[4]
+              sprintf_args << "#{var}[event.level]"
+            else
+              format_string << m[2] + 's'
+              format_string << "{#{m[4]}}" if m[4]
+              sprintf_args << DIRECTIVE_TABLE[m[3]]
+            end
+
+          when 'X'
+            raise ArgumentError, "MDC must have a key reference" unless m[4]
+            fmt = m[2] + 's'
+            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+            format_string << fmt
+            sprintf_args << "::Logging.mdc['#{m[4]}']"
+
+          when 'x'
+            fmt = m[2] + 's'
+            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+            format_string << fmt
+            separator = m[4].to_s
+            separator = ' ' if separator.empty?
+            sprintf_args << "::Logging.ndc.context.join('#{separator}')"
+
+          when *DIRECTIVE_TABLE.keys
+            fmt = m[2] + 's'
+            fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[m[3]]) if color_scheme and !color_scheme.lines?
+
+            format_string << fmt
+            format_string << "{#{m[4]}}" if m[4]
+            sprintf_args << DIRECTIVE_TABLE[m[3]]
+
+          when nil; break
+          else
+            raise ArgumentError, "illegal format character - '#{m[3]}'"
+          end
+
+          break if m[5].empty?
+          self.pattern = m[5]
+        end
+
+        format_string << '"'
+      end
+    end
     # :startdoc:
 
-  end  # Pattern
-end  # Logging::Layouts
+  end
+end
 
