@@ -8,7 +8,6 @@
 # description of each. Please refer to the documentation for specific
 # configuration options available for each.
 #
-#   Email         generates e-mail messages
 #   File          writes to a regular file
 #   IO            generic IO appender
 #   RollingFile   writes to a file and rolls based on size or age
@@ -19,7 +18,6 @@
 #
 # And you can access these appenders:
 #
-#   Logging.appenders.email
 #   Logging.appenders.file
 #   Logging.appenders.io
 #   Logging.appenders.rolling_file
