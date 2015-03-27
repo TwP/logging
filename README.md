@@ -12,13 +12,13 @@ design of Java's log4j library. It features a hierarchical logging system,
 custom level names, multiple output destinations per log event, custom
 formatting, and more.
 
-### Install
+### Installation
 
 ```
 gem install logging
 ```
 
-### Example
+### Examples
 
 This example configures a logger to output messages in a format similar to the
 core ruby Logger class. Only log messages that are warnings or higher will be
@@ -101,7 +101,26 @@ of the logging package. The recommended reading order is the following:
 * [fork.rb](https://github.com/TwP/logging/blob/master/examples/fork.rb)
 * [mdc.rb](https://github.com/TwP/logging/blob/master/examples/mdc.rb)
 
-### Requirements
+### Extending
+
+The Logging framework is extensible via the [little-plugger](https://github.com/twp/little-plugger)
+gem based plugin system. New appenders or formatters can be released as ruby
+gems. When installed locally, the Logging framework will automatically detect
+these gems as plugins and make them available for use.
+
+The [logging-email](https://github.com/twp/logging-email) plugin is a good
+example to follow. It includes a [`lib/logging/plugins/email.rb`](https://github.com/twp/logging-email/tree/master/lib/logging/plugins/email.rb)
+file which is detected by the plugin framework. This file declares a
+`Logging::Plugins::Email.initialize_email` method that is called when the plugin
+is loaded.
+
+The three steps for creating a plugin are:
+
+* create a new Ruby gem: `logging-<name>`
+* include a plugin file: `lib/logging/plugins/<name>.rb`
+* definie a plugin initializer: `Logging::Plugins::<Name>.initialize_<name>`
+
+### Development
 
 The Logging source code relies on the Mr Bones project for default rake tasks.
 You will need to install the Mr Bones gem if you want to build or test the
