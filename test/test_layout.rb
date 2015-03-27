@@ -85,11 +85,7 @@ module TestLogging
       assert_match %r/\A<Array> \n--- ?\n- one\n- two\n- three\n- four\n/, r
 
       r = @layout.format_obj Class
-      if defined? YAML::ENGINE and YAML::ENGINE.yamler == 'psych'
-        assert_equal "<Class> \n--- !ruby/class 'Class'\n", r
-      else
-        assert_equal "<Class> Class", r
-      end
+      assert_match %r/\A<Class> (\n--- !ruby\/class ')?Class('\n)?/, r
     end
 
     def test_format_obj_without_backtrace
