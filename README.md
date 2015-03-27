@@ -41,11 +41,11 @@ file. Only log messages that are informational or higher will be logged.
 require 'logging'
 
 logger = Logging.logger['example_logger']
-logger.add_appenders(
+logger.level = :info
+
+logger.add_appenders \
     Logging.appenders.stdout,
     Logging.appenders.file('example.log')
-)
-logger.level = :info
 
 logger.debug "this debug message will not be output by the logger"
 logger.info "just some friendly advice"
@@ -100,15 +100,6 @@ of the logging package. The recommended reading order is the following:
 * [consolidation.rb](https://github.com/TwP/logging/blob/master/examples/consolidation.rb)
 * [fork.rb](https://github.com/TwP/logging/blob/master/examples/fork.rb)
 * [mdc.rb](https://github.com/TwP/logging/blob/master/examples/mdc.rb)
-
-### Notes
-
-Although Logging is intended to supersede Log4r, it is not a one-to-one
-replacement for the Log4r library. Most notably is the difference in namespaces
--- Logging vs. Log4r. Other differences include renaming Log4r::Outputter to
-Logging::Appender and renaming Log4r::Formatter to Logging::Layout. These
-changes were meant to bring the Logging class names more in line with the Log4j
-class names.
 
 ### Requirements
 
