@@ -3,7 +3,6 @@ by Tim Pease [![](https://secure.travis-ci.org/TwP/logging.png)](https://travis-
 
 * [Homepage](http://rubygems.org/gems/logging)
 * [Github Project](https://github.com/TwP/logging)
-* email tim dot pease at gmail dot com
 
 ### Description
 
