@@ -206,32 +206,30 @@ module Logging::Appenders
     #
     # Returns this rolling file appender instance
     def build_singleton_methods
-      method = lambda { false }
+      method =
+        case @age
+        when 'daily'
+          -> {
+            now = Time.now
+            (now.day != age_fn_mtime.day) || (now - age_fn_mtime) > 86400
+          }
 
-      case @age
-      when 'daily'
-        method = lambda {
-          now = Time.now
-          (now.day != age_fn_mtime.day) || (now - age_fn_mtime) > 86400
-        }
+        when 'weekly'
+          -> { (Time.now - age_fn_mtime) > 604800 }
 
-      when 'weekly'
-        method = lambda {
-          (Time.now - age_fn_mtime) > 604800
-        }
+        when 'monthly'
+          -> {
+            now = Time.now
+            (now.month != age_fn_mtime.month) || (now - age_fn_mtime) > 2678400
+          }
 
-      when 'monthly'
-        method = lambda {
-          now = Time.now
-          (now.month != age_fn_mtime.month) || (now - age_fn_mtime) > 2678400
-        }
+        when Integer, String
+          @age = Integer(@age)
+          -> { (Time.now - age_fn_mtime) > @age }
 
-      when Integer, String
-        @age = Integer(@age)
-        method = lambda {
-          (Time.now - age_fn_mtime) > @age
-        }
-      end
+        else
+          -> { false }
+        end
 
       self.define_singleton_method(:sufficiently_aged?, method)
     end
