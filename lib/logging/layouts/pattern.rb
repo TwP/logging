@@ -1,4 +1,3 @@
-
 module Logging::Layouts
 
   # Accessor / Factory for the Pattern layout.
@@ -76,7 +75,7 @@ module Logging::Layouts
   #  [%]  The sequence '%%' outputs a single percent sign.
   #
   # The logger name directive 'c' accepts an optional precision that will
-  # only print the rightmost number of namespace identifiers for the logger.
+  # only print the rightmost number of name space identifiers for the logger.
   # By default the logger name is printed in full. For example, for the
   # logger name "Foo::Bar::Baz" the pattern %c{2} will output "Bar::Baz".
   #
@@ -288,6 +287,9 @@ module Logging::Layouts
       self
     end
 
+    # This class is used to build the `format` method for the Pattern layout. It
+    # parses the user defined pattern and emits Ruby source code (as a string)
+    # that can be `eval`d in the context of the Pattern layout instance.
     class FormatMethodBuilder
       # Matches the first directive encountered and the stuff around it.
       #
@@ -341,7 +343,10 @@ module Logging::Layouts
       attr_reader :format_string
       attr_accessor :name_map_count
 
+      # Creates the format method builder and initializes some variables from
+      # the given Patter layout instance.
       #
+      # pattern_layout - The Pattern Layout instance
       #
       def initialize( pattern_layout )
         @layout         = pattern_layout
@@ -353,26 +358,31 @@ module Logging::Layouts
         @name_map_count = 0
       end
 
-      #
-      #
+      # Returns `true` if the log messages should be colorized.
       def colorize?
         color_scheme && !color_scheme.lines?
       end
 
-      #
-      #
+      # Returns `true` if the log messages should be colorized by line.
       def colorize_lines?
         color_scheme && color_scheme.lines?
       end
 
-      #
-      #
+      # Returns `true` if the log levels have special colorization defined.
       def colorize_levels?
         color_scheme && color_scheme.levels?
       end
 
+      # This method returns a String which can be `eval`d in the context of the
+      # Pattern layout. When it is `eval`d, a `format` method is defined in the
+      # Pattern layout.
       #
+      # At the heart of the format method is `sprintf`. The conversion pattern
+      # specified in the Pattern layout is parsed and converted into a format
+      # string and corresponding arguments list. The format string and arguments
+      # are then processed by `sprintf` to format log events.
       #
+      # Returns a Ruby code as a String.
       def build_code
         build_format_string
 
@@ -389,8 +399,17 @@ module Logging::Layouts
         code << "def format( event )\n#{sprintf}\nend\n"
       end
 
+      # This method builds the format string used by `sprintf` to format log
+      # events. The conversion pattern given by the user is iteratively parsed
+      # by a regular expression into separate format directives. Each directive
+      # builds up the format string and the corresponding arguments list that
+      # will be formatted.
       #
+      # The actual building of the format string is handled by separate
+      # directive specific methods. Those handlers also populate the arguments
+      # list passed to `sprintf`.
       #
+      # Returns the format String.
       def build_format_string
         while true
           match = DIRECTIVE_RGXP.match(pattern)
@@ -420,32 +439,48 @@ module Logging::Layouts
         format_string << '"'
       end
 
+      # Add the logger name to the `format_string` and the `sprintf_args`. The
+      # `slice` argument is a little interesting - this is the number of logger
+      # name segments to keep. If we have a logger named "Foo::Bar::Baz" and our
+      # `slice` is 2, then "Bar::Baz" will appear in the generated log message.
+      # So the `slice` selects the last two parts of the logger name.
       #
+      # format    - format String
+      # directive - the directive character ('c')
+      # slice     - the number of name segments to keep
       #
-      def handle_logger( format, directive, precision )
+      # Returns nil
+      def handle_logger( format, directive, slice )
         fmt = format + 's'
         fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
 
         format_string << fmt
         sprintf_args << DIRECTIVE_TABLE[directive].dup
 
-        if precision
-          numeric = Integer(precision) rescue nil
+        if slice
+          numeric = Integer(slice) rescue nil
           if numeric
-            raise ArgumentError, "logger name precision must be an integer greater than zero: #{numeric}" unless numeric > 0
+            raise ArgumentError, "logger name slice must be an integer greater than zero: #{numeric}" unless numeric > 0
             sprintf_args.last <<
                 ".split(::Logging::Repository::PATH_DELIMITER)" \
-                ".last(#{precision}).join(::Logging::Repository::PATH_DELIMITER)"
+                ".last(#{slice}).join(::Logging::Repository::PATH_DELIMITER)"
           else
-            format_string << "{#{precision}}"
+            format_string << "{#{slice}}"
           end
         end
 
         nil
       end
 
+      # Add the log event level to the `format_string` and the `sprintf_args`.
+      # The color scheme is taken into account when formatting the log event
+      # level.
       #
+      # format    - format String
+      # directive - the directive character ('l')
+      # precision - added back to the format string
       #
+      # Returns nil
       def handle_level( format, directive, precision )
         if colorize_levels?
           name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{format}s" % name), name) }
@@ -465,8 +500,15 @@ module Logging::Layouts
         nil
       end
 
+      # Add a Mapped Diagnostic Context to the `format_string` and the
+      # `sprintf_args`. Only one MDC value is added at a time, so this directive
+      # can appear multiple times using various keys.
       #
+      # format    - format String
+      # directive - the directive character ('X')
+      # key       - which MDC value to add to the log message
       #
+      # Returns nil
       def handle_mdc( format, directive, key )
         raise ArgumentError, "MDC must have a key reference" unless key
         fmt = format + 's'
@@ -478,8 +520,16 @@ module Logging::Layouts
         nil
       end
 
+      # Add a Nested Diagnostic Context to the `format_string` and the
+      # `sprintf_args`. Since the NDC is an Array of values, the directive will
+      # appear only once in the conversion pattern. A `separator` is inserted
+      # between the values in generated log message.
       #
+      # format    - format String
+      # directive - the directive character ('x')
+      # separator - used to separate the values in the NDC array
       #
+      # Returns nil
       def handle_ndc( format, directive, separator )
         fmt = format + 's'
         fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
@@ -492,8 +542,14 @@ module Logging::Layouts
         nil
       end
 
+      # Handles the rest of the directives; none of these need any special
+      # handling.
       #
+      # format    - format String
+      # directive - the directive character
+      # precision - added back to the format string
       #
+      # Returns nil
       def handle_directives( format, directive, precision )
         fmt = format + 's'
         fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
