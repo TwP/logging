@@ -1,4 +1,3 @@
-
 module Logging::Appenders
 
   # Accessor / Factory for the RollingFile appender.
@@ -91,60 +90,13 @@ module Logging::Appenders
       @size = opts.fetch(:size, nil)
       @size = Integer(@size) unless @size.nil?
 
-      code = 'def sufficiently_aged?() false end'
       @age_fn = filename + '.age'
       @age_fn_mtime = nil
+      @age = opts.fetch(:age, nil)
 
-      case @age = opts.fetch(:age, nil)
-      when 'daily'
-        code = <<-CODE
-        def sufficiently_aged?
-          @age_fn_mtime ||= ::File.mtime(@age_fn)
-          now = Time.now
-          if (now.day != @age_fn_mtime.day) or (now - @age_fn_mtime) > 86400
-            return true
-          end
-          false
-        end
-        CODE
-      when 'weekly'
-        code = <<-CODE
-        def sufficiently_aged?
-          @age_fn_mtime ||= ::File.mtime(@age_fn)
-          if (Time.now - @age_fn_mtime) > 604800
-            return true
-          end
-          false
-        end
-        CODE
-      when 'monthly'
-        code = <<-CODE
-        def sufficiently_aged?
-          @age_fn_mtime ||= ::File.mtime(@age_fn)
-          now = Time.now
-          if (now.month != @age_fn_mtime.month) or (now - @age_fn_mtime) > 2678400
-            return true
-          end
-          false
-        end
-        CODE
-      when Integer, String
-        @age = Integer(@age)
-        code = <<-CODE
-        def sufficiently_aged?
-          @age_fn_mtime ||= ::File.mtime(@age_fn)
-          if (Time.now - @age_fn_mtime) > @age
-            return true
-          end
-          false
-        end
-        CODE
-      end
-
-      FileUtils.touch(@age_fn) if @age and !test(?f, @age_fn)
-
-      meta = class << self; self end
-      meta.class_eval code, __FILE__, __LINE__
+      # create our `sufficiently_aged?` method
+      build_singleton_methods
+      FileUtils.touch(@age_fn) if @age && !test(?f, @age_fn)
 
       # we are opening the file in read/write mode so that a shared lock can
       # be used on the file descriptor => http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
@@ -169,7 +121,7 @@ module Logging::Appenders
     # is currently open then it will be closed and immediately opened.
     def reopen
       @mutex.synchronize {
-        if defined? @io and @io
+        if defined?(@io) && @io
           flush
           @io.close rescue nil
         end
@@ -195,7 +147,7 @@ module Logging::Appenders
     def canonical_write( str )
       return self if @io.nil?
 
-      str = str.force_encoding(encoding) if encoding and str.encoding != encoding
+      str = str.force_encoding(encoding) if encoding && str.encoding != encoding
       @io.flock_sh { @io.syswrite str }
 
       if roll_required?
@@ -214,7 +166,7 @@ module Logging::Appenders
 
     # Returns +true+ if the log file needs to be rolled.
     def roll_required?
-      return false if ::File.exist?(copy_file) and (Time.now - ::File.mtime(copy_file)) < 180
+      return false if ::File.exist?(copy_file) && (Time.now - ::File.mtime(copy_file)) < 180
 
       # check if max size has been exceeded
       s = @size ? ::File.size(filename) > @size : false
@@ -242,6 +194,47 @@ module Logging::Appenders
       @roller.roll = true
     end
 
+    # Returns the modification time of the age file.
+    def age_fn_mtime
+      @age_fn_mtime ||= ::File.mtime(@age_fn)
+    end
+
+    # We use meta-programming here to define the `sufficiently_aged?` method for
+    # the rolling appender. The `sufficiently_aged?` method is responsible for
+    # determining if the current log file is older than the rolling criteria -
+    # daily, weekly, etc.
+    #
+    # Returns this rolling file appender instance
+    def build_singleton_methods
+      method = lambda { false }
+
+      case @age
+      when 'daily'
+        method = lambda {
+          now = Time.now
+          (now.day != age_fn_mtime.day) || (now - age_fn_mtime) > 86400
+        }
+
+      when 'weekly'
+        method = lambda {
+          (Time.now - age_fn_mtime) > 604800
+        }
+
+      when 'monthly'
+        method = lambda {
+          now = Time.now
+          (now.month != age_fn_mtime.month) || (now - age_fn_mtime) > 2678400
+        }
+
+      when Integer, String
+        @age = Integer(@age)
+        method = lambda {
+          (Time.now - age_fn_mtime) > @age
+        }
+      end
+
+      self.define_singleton_method(:sufficiently_aged?, method)
+    end
 
     # Not intended for general consumption, but the Roller class is used
     # internally by the RollingFile appender to roll dem log files according
@@ -340,7 +333,7 @@ module Logging::Appenders
       #
       # Returns nil
       def roll_files
-        return unless roll and ::File.exist?(copy_file)
+        return unless roll && ::File.exist?(copy_file)
 
         files = Dir.glob(glob)
         files.delete copy_file
@@ -372,7 +365,7 @@ module Logging::Appenders
         # for each file, roll its count number one higher
         files.each do |fn|
           cnt = Integer(@number_rgxp.match(fn)[1])
-          if keep and cnt >= keep
+          if keep && cnt >= keep
             ::File.delete fn
             next
           end
@@ -405,7 +398,6 @@ module Logging::Appenders
         # rename the copied log file
         ::File.rename(copy_file, Time.now.strftime(format))
       end
-    end  # Roller
-  end  # RollingFile
-end  # Logging::Appenders
-
+    end
+  end
+end
