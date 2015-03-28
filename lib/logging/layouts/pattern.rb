@@ -224,7 +224,7 @@ module Logging::Layouts
 
       @date_pattern = opts.fetch(:date_pattern, nil)
       @date_method = opts.fetch(:date_method, nil)
-      @date_pattern = ISO8601 if @date_pattern.nil? and @date_method.nil?
+      @date_pattern = ISO8601 if @date_pattern.nil? && @date_method.nil?
 
       @pattern = opts.fetch(:pattern,
           "[%d] %-#{::Logging::MAX_LEVEL_LENGTH}l -- %c : %m\n")
@@ -339,7 +339,7 @@ module Logging::Layouts
       attr_reader :color_scheme
       attr_reader :sprintf_args
       attr_reader :format_string
-      attr_reader :name_map_count
+      attr_accessor :name_map_count
 
       #
       #
@@ -348,9 +348,27 @@ module Logging::Layouts
         @pattern        = layout.pattern.dup
         @color_scheme   = layout.color_scheme
 
-        @sprintf_args = []
-        @format_string = '"'
+        @sprintf_args   = []
+        @format_string  = '"'
         @name_map_count = 0
+      end
+
+      #
+      #
+      def colorize?
+        color_scheme && !color_scheme.lines?
+      end
+
+      #
+      #
+      def colorize_lines?
+        color_scheme && color_scheme.lines?
+      end
+
+      #
+      #
+      def colorize_levels?
+        color_scheme && color_scheme.levels?
       end
 
       #
@@ -363,7 +381,7 @@ module Logging::Layouts
         sprintf << ', ' + sprintf_args.join(', ') unless sprintf_args.empty?
         sprintf << ")"
 
-        if color_scheme && color_scheme.lines?
+        if colorize_lines?
           sprintf = "color_scheme.color(#{sprintf}, ::Logging::LNAMES[event.level])"
         end
 
@@ -406,7 +424,7 @@ module Logging::Layouts
       #
       def handle_logger( format, directive, precision )
         fmt = format + 's'
-        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
 
         format_string << fmt
         sprintf_args << DIRECTIVE_TABLE[directive].dup
@@ -429,11 +447,11 @@ module Logging::Layouts
       #
       #
       def handle_level( format, directive, precision )
-        if color_scheme and color_scheme.levels?
+        if colorize_levels?
           name_map = ::Logging::LNAMES.map { |name| color_scheme.color(("#{format}s" % name), name) }
           var = "@name_map_#{name_map_count}"
-          pf.instance_variable_set(var.to_sym, name_map)
-          name_map_count += 1
+          layout.instance_variable_set(var.to_sym, name_map)
+          self.name_map_count += 1
 
           format_string << '%s'
           format_string << "{#{precision}}" if precision
@@ -452,7 +470,7 @@ module Logging::Layouts
       def handle_mdc( format, directive, key )
         raise ArgumentError, "MDC must have a key reference" unless key
         fmt = format + 's'
-        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
 
         format_string << fmt
         sprintf_args << "::Logging.mdc['#{key}']"
@@ -464,7 +482,7 @@ module Logging::Layouts
       #
       def handle_ndc( format, directive, separator )
         fmt = format + 's'
-        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
 
         format_string << fmt
         separator = separator.to_s
@@ -478,7 +496,7 @@ module Logging::Layouts
       #
       def handle_directives( format, directive, precision )
         fmt = format + 's'
-        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if color_scheme and !color_scheme.lines?
+        fmt = color_scheme.color(fmt, COLOR_ALIAS_TABLE[directive]) if colorize?
 
         format_string << fmt
         format_string << "{#{precision}}" if precision
@@ -486,10 +504,8 @@ module Logging::Layouts
 
         nil
       end
-
     end
     # :startdoc:
 
   end
 end
-
