@@ -14,22 +14,23 @@ module Logging::Appenders
   module Buffering
 
     # Default buffer size
-    #
     DEFAULT_BUFFER_SIZE = 500;
 
     # The buffer holding the log messages
-    #
     attr_reader :buffer
 
     # The auto-flushing setting. When the buffer reaches this size, all
     # messages will be be flushed automatically.
-    #
     attr_reader :auto_flushing
 
     # When set, the buffer will be flushed at regular intervals defined by the
     # flush_period.
-    #
     attr_reader :flush_period
+
+    # Messages will be written in chunks. This controls the number of messages
+    # to pull from the buffer for each write operation. The default is to pull
+    # all messages from the buffer at once.
+    attr_accessor :write_size
 
     # Setup the message buffer and other variables for automatically and
     # periodically flushing the buffer.
@@ -67,20 +68,34 @@ module Logging::Appenders
       super
     end
 
-    # Call +flush+ to force an appender to write out any buffered log events.
-    # Similar to IO#flush, so use in a similar fashion.
-    #
+    # Call `flush` to force an appender to write out any buffered log events.
+    # Similar to `IO#flush`, so use in a similar fashion.
     def flush
       return self if @buffer.empty?
 
-      str = nil
+      ary = nil
       sync {
-        str = @buffer.join
+        ary = @buffer.dup
         @buffer.clear
       }
 
-      canonical_write str unless str.empty?
+      if ary.length <= write_size
+        str = ary.join
+        canonical_write str unless str.empty?
+      else
+        ary.each_slice(write_size) do |a|
+          str = a.join
+          canonical_write str unless str.empty?
+        end
+      end
+
       self
+    end
+
+    # Clear the underlying buffer of all log events. These events will not be
+    # appended to the logging destination; they will be lost.
+    def clear!
+      sync { @buffer.clear }
     end
 
     # Configure the levels that will trigger an immediate flush of the
@@ -154,7 +169,7 @@ module Logging::Appenders
           "auto_flushing period must be greater than zero: #{period.inspect}"
       end
 
-      @auto_flushing = DEFAULT_BUFFER_SIZE if @flush_period and @auto_flushing <= 1
+      @auto_flushing = DEFAULT_BUFFER_SIZE if @flush_period && @auto_flushing <= 1
     end
 
     # Configure periodic flushing of the message buffer. Periodic flushing is
@@ -208,6 +223,7 @@ module Logging::Appenders
       self.immediate_at  = opts.fetch(:immediate_at, '')
       self.auto_flushing = opts.fetch(:auto_flushing, true)
       self.flush_period  = opts.fetch(:flush_period, nil)
+      self.write_size    = opts.fetch(:write_size, DEFAULT_BUFFER_SIZE)
     end
 
     # Returns true if the _event_ level matches one of the configured
@@ -241,7 +257,7 @@ module Logging::Appenders
         canonical_write(str)
       else
         sync {
-          str = str.force_encoding(encoding) if encoding and str.encoding != encoding
+          str = str.force_encoding(encoding) if encoding && str.encoding != encoding
           @buffer << str
         }
         @periodic_flusher.signal if @periodic_flusher

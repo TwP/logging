@@ -41,6 +41,26 @@ module TestAppenders
       assert_raise(RuntimeError) {@appender.append event}
     end
 
+    def test_append_with_write_size
+      event = Logging::LogEvent.new('TestLogger', @levels['warn'], %w[a b c d], false)
+      @appender.write_size = 2
+
+      @appender.append event
+      assert_nil(readline)
+
+      @appender.append event
+      assert_nil(readline)
+
+      event.level = @levels['debug']
+      event.data = 'the big log message'
+      @appender.append event
+
+      assert_equal " WARN  TestLogger : <Array> #{%w[a b c d]}\n", readline
+      assert_equal " WARN  TestLogger : <Array> #{%w[a b c d]}\n", readline
+      assert_equal "DEBUG  TestLogger : the big log message\n", readline
+      assert_nil(readline)
+    end
+
     def test_append_error
       # setup an internal logger to capture error messages from the IO
       # appender
@@ -144,6 +164,15 @@ module TestAppenders
 
       @appender.flush
       assert_equal "this is a test message\n", readline
+      assert_nil(readline)
+    end
+
+    def test_clear
+      @appender << "this is a test message\n"
+      @appender << "this is another test message\n"
+
+      @appender.clear!
+      @appender.flush
       assert_nil(readline)
     end
 
