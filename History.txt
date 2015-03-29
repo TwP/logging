@@ -1,3 +1,23 @@
+== 2.0.0 / 2015-03-28
+
+Enhancements
+- added event filtering via the Filter framework
+- improvements to buffered logging
+- code readability improvements around meta-programming
+
+Bug Fixes
+- fixed an `already initialized error`
+- avoid unnecessary mutex-ing in logger lookup
+
+Deprecations
+- dropped Ruby 1.8 support
+- removed logger consolidation
+- removed YAML style configuration
+- removed the Logging::Stats module
+- removed the Hash#getopt method
+- removed the Growl appender
+- moved the Email appender to the logging-email plugin gem
+
 == 1.8.2 / 2014-01-29
 
 Bug Fixes
