@@ -100,14 +100,13 @@ module TestAppenders
 
       def test_encoding
         log = File.join(TMP, 'file-encoding.log')
-        #appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ISO-8859-16')
         appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ASCII')
 
         appender << "A normal line of text\n"
         appender << "ümlaut\n"
         appender.close
 
-        lines = File.readlines(log)
+        lines = File.readlines(log, :encoding => 'UTF-8')
         assert_equal "A normal line of text\n", lines[0]
         assert_equal "ümlaut\n", lines[1]
 
