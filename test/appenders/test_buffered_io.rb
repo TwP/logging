@@ -10,9 +10,12 @@ module TestAppenders
 
     def setup
       super
-      @appender = Logging.appenders.string_io(
-        'test_appender', :auto_flushing => 3, :immediate_at => :error
-      )
+      @appender = Logging.appenders.string_io \
+        'test_appender',
+        :auto_flushing => 3,
+        :immediate_at  => :error,
+        :encoding      => 'UTF-8'
+
       @appender.clear
       @sio = @appender.sio
       @levels = Logging::LEVELS
