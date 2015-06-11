@@ -18,6 +18,12 @@ module TestAppenders
       @glob = File.expand_path('*.log', TMP)
     end
 
+    def test_factory_method_validates_input
+      assert_raise(ArgumentError) do
+        Logging.appenders.rolling_file
+      end
+    end
+
     def test_initialize
       assert_equal [], Dir.glob(@glob)
 

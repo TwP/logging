@@ -19,6 +19,12 @@ module TestAppenders
       @logopt |= ::Syslog::LOG_PERROR if defined?(::Syslog::LOG_PERROR)
     end
 
+    def test_factory_method_validates_input
+      assert_raise(ArgumentError) do
+        Logging.appenders.syslog
+      end
+    end
+
     def test_append
       return if RUBY_PLATFORM =~ %r/cygwin|java/i
 
