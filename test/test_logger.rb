@@ -76,6 +76,22 @@ module TestLogging
       assert_nil a2.readline
     end
 
+    def test_add_on_rails
+      root = ::Logging::Logger[:root]
+      root.level = 'info'
+
+      a1 = ::Logging::Appenders::StringIo.new 'a1'
+      log = ::Logging::Logger.new 'A Logger'
+
+      root.add_appenders a1
+      assert_nil a1.readline
+
+      Rails.logger.extend(ActiveSupport::Logger.broadcast(log))
+
+      Rails.logger.info('this should be logged')
+      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
+    end
+
     def test_add_appenders
       log = ::Logging::Logger.new 'A'
 
