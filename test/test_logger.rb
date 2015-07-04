@@ -33,8 +33,8 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
-      log.add(1, nil, 'this should be logged')
-      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
+      log.add(1, nil, 'this should be logged (when used by Rails.logger.extend(ActiveSupport::Logger.broadcast())')
+      assert_equal " INFO  A Logger : this should be logged (when used by Rails.logger.extend(ActiveSupport::Logger.broadcast())\n", a1.readline
       assert_nil a1.readline
       assert_nil a2.readline
 
