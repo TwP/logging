@@ -29,7 +29,6 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<flexmock>, ["~> 1.0"])
       s.add_development_dependency(%q<bones-git>, ["~> 1.3"])
       s.add_development_dependency(%q<bones>, [">= 3.8.3"])
-      s.add_development_dependency(%q<rails>, ["~> 4.1.0"])
     else
       s.add_dependency(%q<little-plugger>, ["~> 1.1"])
       s.add_dependency(%q<multi_json>, ["~> 1.10"])

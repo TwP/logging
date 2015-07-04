@@ -30,6 +30,5 @@ Bones {
 
   depend_on 'bones-git', '~> 1.3', :development => true
   #depend_on 'bones-rcov',   :development => true
-  depend_on 'rails', '~> 4.1.0', :development => true
 }
 
