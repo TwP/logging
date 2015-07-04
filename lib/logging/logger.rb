@@ -197,7 +197,13 @@ module Logging
       lvl = Integer(lvl)
       return false if lvl < level
 
-      data = yield if block_given?
+      if data.nil?
+        if block_given?
+          data = yield
+        else
+          data = progname
+        end
+      end
       log_event(::Logging::LogEvent.new(@name, lvl, data, @caller_tracing))
       true
     end

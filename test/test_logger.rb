@@ -33,6 +33,11 @@ module TestLogging
       assert_nil a1.readline
       assert_nil a2.readline
 
+      log.add(1, nil, 'this should be logged')
+      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
+      assert_nil a1.readline
+      assert_nil a2.readline
+
       log.add(2,[1,2,3,4])
       assert_equal " WARN  A Logger : <Array> #{[1,2,3,4]}\n", a1.readline
       assert_nil a1.readline
@@ -74,22 +79,6 @@ module TestLogging
       end
       assert_nil a1.readline
       assert_nil a2.readline
-    end
-
-    def test_add_on_rails
-      root = ::Logging::Logger[:root]
-      root.level = 'info'
-
-      a1 = ::Logging::Appenders::StringIo.new 'a1'
-      log = ::Logging::Logger.new 'A Logger'
-
-      root.add_appenders a1
-      assert_nil a1.readline
-
-      Rails.logger.extend(ActiveSupport::Logger.broadcast(log))
-
-      Rails.logger.info('this should be logged')
-      assert_equal " INFO  A Logger : this should be logged\n", a1.readline
     end
 
     def test_add_appenders
