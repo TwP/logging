@@ -2,7 +2,7 @@ module Logging::Appenders
 
   # Accessor / Factory for the RollingFile appender.
   def self.rolling_file( *args )
-    return ::Logging::Appenders::RollingFile if args.empty?
+    fail ArgumentError, '::Logging::Appenders::RollingFile needs a name as first argument.' if args.empty?
     ::Logging::Appenders::RollingFile.new(*args)
   end
 

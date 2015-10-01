@@ -4,7 +4,7 @@ module Logging::Appenders
   # Accessor / Factory for the File appender.
   #
   def self.file( *args )
-    return ::Logging::Appenders::File if args.empty?
+    fail ArgumentError, '::Logging::Appenders::File needs a name as first argument.' if args.empty?
     ::Logging::Appenders::File.new(*args)
   end
 

@@ -9,7 +9,7 @@ module Logging::Appenders
   # Accessor / Factory for the Syslog appender.
   #
   def self.syslog( *args )
-    return ::Logging::Appenders::Syslog if args.empty?
+    fail ArgumentError, '::Logging::Appenders::Syslog needs a name as first argument.' if args.empty?
     ::Logging::Appenders::Syslog.new(*args)
   end
 

@@ -20,24 +20,30 @@ module TestAppenders
       FileUtils.chmod 0444, File.join(TMP, 'uw_file')
     end
 
+    def test_factory_method_validates_input
+      assert_raise(ArgumentError) do
+        Logging.appenders.file
+      end
+    end
+
     def test_class_assert_valid_logfile
       log = File.join(TMP, 'uw_dir', 'file.log')
       assert_raise(ArgumentError) do
-        Logging.appenders.file.assert_valid_logfile(log)
+        Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'dir')
       assert_raise(ArgumentError) do
-        Logging.appenders.file.assert_valid_logfile(log)
+        Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'uw_file')
       assert_raise(ArgumentError) do
-        Logging.appenders.file.assert_valid_logfile(log)
+        Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
       log = File.join(TMP, 'file.log')
-      assert Logging.appenders.file.assert_valid_logfile(log)
+      assert Logging.appenders.file(log).class.assert_valid_logfile(log)
     end
 
     def test_initialize
