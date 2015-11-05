@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.authors = ["Tim Pease"]
   s.date = "2015-03-29"
+  s.license = "MIT"
   s.description = "Logging is a flexible logging library for use in Ruby programs based on the\ndesign of Java's log4j library. It features a hierarchical logging system,\ncustom level names, multiple output destinations per log event, custom\nformatting, and more."
   s.email = "tim.pease@gmail.com"
   s.extra_rdoc_files = ["History.txt"]
