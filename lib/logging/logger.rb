@@ -204,6 +204,7 @@ module Logging
           data = progname
         end
       end
+
       log_event(::Logging::LogEvent.new(@name, lvl, data, @caller_tracing))
       true
     end
