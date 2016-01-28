@@ -55,7 +55,7 @@ module Logging::Appenders
 
       io, @io = @io, nil
       unless [STDIN, STDERR, STDOUT].include?(io)
-        io.send(@close_method) if @close_method and io.respond_to? @close_method
+        io.send(@close_method) if @close_method && io.respond_to?(@close_method)
       end
     rescue IOError
     ensure
@@ -70,7 +70,7 @@ module Logging::Appenders
     #
     def canonical_write( str )
       return self if @io.nil?
-      str = str.force_encoding(encoding) if encoding and str.encoding != encoding
+      str = str.force_encoding(encoding) if encoding && str.encoding != encoding
       @io.syswrite str
       self
     rescue StandardError => err
@@ -81,4 +81,3 @@ module Logging::Appenders
 
   end  # IO
 end  # Logging::Appenders
-
