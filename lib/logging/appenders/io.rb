@@ -74,6 +74,11 @@ module Logging::Appenders
       @io.syswrite str
       self
     rescue StandardError => err
+      handle_internal_error(err)
+    end
+
+    def handle_internal_error( err )
+      return err if off?
       self.level = :off
       ::Logging.log_internal {"appender #{name.inspect} has been disabled"}
       ::Logging.log_internal_error(err)
