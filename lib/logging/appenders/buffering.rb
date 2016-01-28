@@ -256,8 +256,8 @@ module Logging::Appenders
       if @auto_flushing == 1
         canonical_write(str)
       else
+        str = str.force_encoding(encoding) if encoding && str.encoding != encoding
         sync {
-          str = str.force_encoding(encoding) if encoding && str.encoding != encoding
           @buffer << str
         }
         @periodic_flusher.signal if @periodic_flusher
@@ -411,4 +411,3 @@ module Logging::Appenders
 
   end  # Buffering
 end  # Logging::Appenders
-
