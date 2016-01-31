@@ -19,6 +19,8 @@ module Logging::Appenders
     # will not be closed when the appender's close method is called.
     #
     attr_accessor :close_method
+    # Wrtie to I/O using an auxilery thread. Defaults to false.
+    attr_accessor :async
 
     # call-seq:
     #    IO.new( name, io )
@@ -36,6 +38,7 @@ module Logging::Appenders
       @io.sync = true if io.respond_to? :sync=    # syswrite complains if the IO stream is buffered
       @io.flush rescue nil                        # syswrite also complains if in unbuffered mode and buffer isn't empty
       @close_method = :close
+      @async = opts[:async]
 
       super(name, opts)
       configure_buffering(opts)
@@ -71,7 +74,12 @@ module Logging::Appenders
     def canonical_write( str )
       return self if @io.nil?
       str = str.force_encoding(encoding) if encoding and str.encoding != encoding
-      @io.syswrite str
+      if @async == true
+        puts "async"
+        Thread.new { @io.syswrite str }
+      else
+        @io.syswrite str
+      end
       self
     rescue StandardError => err
       self.level = :off
@@ -81,4 +89,3 @@ module Logging::Appenders
 
   end  # IO
 end  # Logging::Appenders
-
