@@ -111,6 +111,15 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging::Layout.new :backtrace => 'foo'}
     end
 
+    def test_backtrace_accessors
+      assert @layout.backtrace?
+
+      @layout.backtrace = :off
+      refute @layout.backtrace?
+
+      @layout.backtrace = 'on'
+      assert_equal true, @layout.backtrace
+    end
   end  # class TestLayout
 end  # module TestLogging
 
