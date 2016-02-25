@@ -190,10 +190,17 @@ module TestLogging
     end
 
     def test_inspect
-      expected = "<Appender:0x%x name=\"test_appender\">" % @appender.object_id
+      expected = "<Appender:0x%014x name=\"test_appender\">" % (@appender.object_id << 1)
       assert_equal expected, @appender.inspect
     end
 
+    def test_inspect_matches_default
+      # `to_s` triggers the default inspect behavior
+      expected = @appender.to_s.match(/0x[a-f\d]+/)[0]
+      actual = @appender.inspect.match(/0x[a-f\d]+/)[0]
+
+      assert_equal expected, actual
+    end
   end  # class TestAppender
 end  # module TestLogging
 

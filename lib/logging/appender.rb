@@ -257,9 +257,9 @@ class Appender
   # Returns a string representation of the appender.
   #
   def inspect
-    "<%s:0x%x name=\"%s\">" % [
+    "<%s:0x%014x name=\"%s\">" % [
         self.class.name.sub(%r/^Logging::/, ''),
-        self.object_id,
+        (self.object_id << 1),
         self.name
     ]
   end

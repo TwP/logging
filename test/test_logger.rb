@@ -268,8 +268,18 @@ module TestLogging
     def test_inspect
       root = ::Logging::Logger.new :root
 
-      str = "<#{root.class.name}:0x%x name=\"#{root.name}\">" % root.object_id
+      str = "<#{root.class.name}:0x%014x name=\"#{root.name}\">" % (root.object_id << 1)
       assert_equal str, root.inspect
+    end
+
+    def test_inspect_matches_default
+      root = ::Logging::Logger.new :root
+
+      # `to_s` triggers the default inspect behavior
+      expected = root.to_s.match(/0x[a-f\d]+/)[0]
+      actual = root.inspect.match(/0x[a-f\d]+/)[0]
+
+      assert_equal expected, actual
     end
 
     def test_level

@@ -366,7 +366,7 @@ module Logging
     # Returns a string representation of the logger.
     #
     def inspect
-      "<%s:0x%x name=\"%s\">" % [self.class.name, self.object_id, self.name]
+      "<%s:0x%014x name=\"%s\">" % [self.class.name, (self.object_id << 1), self.name]
     end
 
 
