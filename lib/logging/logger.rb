@@ -490,7 +490,7 @@ module Logging
       @appenders.each do |appender|
         str << indent_str
         str << '- '
-        str << appender.inspect
+        str << appender.to_s
         str << "\n"
       end
 

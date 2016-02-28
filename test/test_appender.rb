@@ -196,7 +196,7 @@ module TestLogging
 
     def test_inspect_matches_default
       # `to_s` triggers the default inspect behavior
-      expected = @appender.to_s.match(/0x[a-f\d]+/)[0]
+      expected = @appender._to_s.match(/0x[a-f\d]+/)[0]
       actual = @appender.inspect.match(/0x[a-f\d]+/)[0]
 
       assert_equal expected, actual
