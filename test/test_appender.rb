@@ -190,7 +190,7 @@ module TestLogging
     end
 
     def test_inspect
-      expected = "<Appender:0x%014x name=\"test_appender\">" % (@appender.object_id << 1)
+      expected = "<Logging::Appender:0x%014x name=\"test_appender\">" % (@appender.object_id << 1)
       assert_equal expected, @appender.inspect
     end
 
