@@ -41,14 +41,27 @@ class Layout
                   when :inspect, :yaml, :json; f
                   else :string end
 
-    b = opts.fetch(:backtrace, ::Logging.backtrace)
-    @backtrace = case b
-        when :on, 'on', true;    true
-        when :off, 'off', false; false
-        else
-          raise ArgumentError, "backtrace must be true or false"
-        end
+    self.backtrace = opts.fetch(:backtrace, ::Logging.backtrace)
   end
+
+  # call-seq:
+  #    layout.backtrace = true
+  #
+  # Set the backtrace flag to the given value. This can be set to `true` or
+  # `false`.
+  #
+  def backtrace=( value )
+    @backtrace = case value
+      when :on, 'on', true;    true
+      when :off, 'off', false; false
+      else
+        raise ArgumentError, "backtrace must be `true` or `false`"
+      end
+  end
+
+  # Returns the backtrace setting.
+  attr_reader :backtrace
+  alias :backtrace? :backtrace
 
   # call-seq:
   #    format( event )
@@ -85,7 +98,7 @@ class Layout
     when String; obj
     when Exception
       str = "<#{obj.class.name}> #{obj.message}"
-      if @backtrace && !obj.backtrace.nil?
+      if backtrace? && !obj.backtrace.nil?
         str << "\n\t" << obj.backtrace.join("\n\t")
       end
       str
