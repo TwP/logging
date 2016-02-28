@@ -251,17 +251,25 @@ class Appender
     self
   end
 
+  # Save off the original `to_s` for use in tests
+  alias_method :_to_s, :to_s
+
   # call-seq:
-  #     inspect    => string
+  #     to_s => string
+  #
+  # Returns a string representation of the appender.
+  #
+  def to_s
+    "<%s name=\"%s\">" % [self.class.name.sub(%r/^Logging::/, ''), self.name]
+  end
+
+  # call-seq:
+  #     inspect => string
   #
   # Returns a string representation of the appender.
   #
   def inspect
-    "<%s:0x%x name=\"%s\">" % [
-        self.class.name.sub(%r/^Logging::/, ''),
-        self.object_id,
-        self.name
-    ]
+    "<%s:0x%014x name=\"%s\">" % [self.class.name, (self.object_id << 1), self.name]
   end
 
   # Returns the current Encoding for the appender or nil if an encoding has
