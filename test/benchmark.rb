@@ -76,6 +76,43 @@ module Logging
         bm.report('Logger:') {this_many.times {logger << 'logged'}}
         puts "Log4r:      not supported" if log4r
       end
+
+      Logging.appenders.file(
+        'benchmark',
+        :layout => Logging.layouts.pattern(
+          :pattern => '%.1l, [%d] %5l -- %c: %m\n',
+          :date_pattern => "%Y-%m-%dT%H:%M:%S.%s"
+        ),
+        :async => true,
+        :auto_flushing => true
+      )
+
+      logging_async = ::Logging.logger('benchmark')
+      logging_async.level = :warn
+      logging_async.appenders = 'benchmark'
+
+      Logging.appenders.file(
+        'benchmark2',
+        :layout => Logging.layouts.pattern(
+          :pattern => '%.1l, [%d] %5l -- %c: %m\n',
+          :date_pattern => "%Y-%m-%dT%H:%M:%S.%s"
+        ),
+        :async => false,
+        :auto_flushing => true
+      )
+
+      logging_sync = ::Logging.logger('benchmark')
+      logging_sync.level = :warn
+      logging_sync.appenders = 'benchmark2'
+
+      puts "\n== File ==\n"
+      ::Benchmark.bm(20) do |bm|
+        bm.report('Logging (Async):') {this_many.times {logging_async << 'logged'}}
+        File.delete('benchmark')
+
+        bm.report('Logging (Sync):') {this_many.times {logging_sync << 'logged'}}
+        File.delete('benchmark2')
+      end
     end
 
   end  # class Benchmark
@@ -86,4 +123,3 @@ if __FILE__ == $0
   bm = ::Logging::Benchmark.new
   bm.run
 end
-
