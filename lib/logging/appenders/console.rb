@@ -37,6 +37,19 @@ module Logging::Appenders
 
       super(name, STDOUT, opts)
     end
+
+    private
+
+      # @override of ::Logging::Appenders::IO
+      def canonical_write( str )
+        return self if @io.nil?
+        str = str.force_encoding(encoding) if encoding && str.encoding != encoding
+        @io.write str # instead of syswrite
+        self
+      rescue StandardError => err
+        handle_internal_error(err)
+      end
+
   end  # Stdout
 
 
@@ -76,6 +89,18 @@ module Logging::Appenders
 
       super(name, STDERR, opts)
     end
+
+    private
+
+      # @override of ::Logging::Appenders::IO
+      def canonical_write( str )
+        return self if @io.nil?
+        str = str.force_encoding(encoding) if encoding && str.encoding != encoding
+        @io.write str # instead of syswrite
+        self
+      rescue StandardError => err
+        handle_internal_error(err)
+      end
+
   end  # Stderr
 end  # Logging::Appenders
-
