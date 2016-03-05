@@ -42,12 +42,12 @@ module TestAppenders
       assert_equal 200, @appender.auto_flushing
     end
 
-    def test_periodic_flusher_running
-      flusher = @appender.instance_variable_get(:@periodic_flusher)
-      assert_instance_of Logging::Appenders::Buffering::PeriodicFlusher, flusher
+    def test_async_flusher_running
+      flusher = @appender.instance_variable_get(:@async_flusher)
+      assert_instance_of Logging::Appenders::Buffering::AsyncFlusher, flusher
 
       sleep 0.250  # give the flusher thread another moment to start
-      assert flusher.waiting?, 'the periodic flusher should be waiting for a signal'
+      assert flusher.waiting?, 'the async flusher should be waiting for a signal'
     end
 
     def test_append

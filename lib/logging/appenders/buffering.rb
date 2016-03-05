@@ -27,6 +27,10 @@ module Logging::Appenders
     # flush_period.
     attr_reader :flush_period
 
+    # When set, the buffer will be flushed using an asynchronous Thread. That
+    # is, the main program thread will not be blocked during writes.
+    attr_reader :async
+
     # Messages will be written in chunks. This controls the number of messages
     # to pull from the buffer for each write operation. The default is to pull
     # all messages from the buffer at once.
@@ -39,20 +43,21 @@ module Logging::Appenders
       @buffer = []
       @immediate = []
       @auto_flushing = 1
-      @flush_period = @periodic_flusher = nil
+      @async = false
+      @flush_period = @async_flusher = nil
 
       super(*args, &block)
     end
 
-    # Close the message buffer by flushing all log events to the appender. If a
-    # periodic flusher thread is running, shut it down and allow it to exit.
+    # Close the message buffer by flushing all log events to the appender. If an
+    # async flusher thread is running, shut it down and allow it to exit.
     #
     def close( *args )
       flush
 
-      if @periodic_flusher
-        @periodic_flusher.stop
-        @periodic_flusher = nil
+      if @async_flusher
+        @async_flusher.stop
+        @async_flusher = nil
         Thread.pass
       end
 
@@ -60,11 +65,11 @@ module Logging::Appenders
     end
 
     # Reopen the connection to the underlying logging destination. In addition
-    # if the appender is configured for periodic flushing, then the flushing
+    # if the appender is configured for asynchronous flushing, then the flushing
     # thread will be stopped and restarted.
     #
     def reopen
-      _setup_periodic_flusher
+      _setup_async_flusher
       super
     end
 
@@ -194,20 +199,36 @@ module Logging::Appenders
     # manually if so desired.
     #
     def flush_period=( period )
-      period =
+      @flush_period =
         case period
         when Integer, Float, nil; period
-        when String;
+        when String
           num = _parse_hours_minutes_seconds(period) || _parse_numeric(period)
-          num = ArgumentError.new("unrecognized flush period: #{period.inspect}") if num.nil?
+          raise ArgumentError.new("unrecognized flush period: #{period.inspect}") if num.nil?
           num
-        else ArgumentError.new("unrecognized flush period: #{period.inspect}") end
+        else
+          raise ArgumentError.new("unrecognized flush period: #{period.inspect}")
+        end
 
-      raise period if Exception === period
-      @flush_period = period
+      if !@flush_period.nil? && @flush_period <= 0
+        raise ArgumentError,
+          "flush_period must be greater than zero: #{period.inspect}"
+      end
 
-      _setup_periodic_flusher
+      _setup_async_flusher
     end
+
+    # Enable or disable asynchronous logging via a dedicated logging Thread.
+    # Pass in `true` to enable and `false` to disable.
+    #
+    # bool - A boolean value
+    #
+    def async=( bool )
+      @async = bool ? true : false
+      _setup_async_flusher
+    end
+
+    alias_method :async?, :async
 
   protected
 
@@ -223,12 +244,12 @@ module Logging::Appenders
       self.immediate_at  = opts.fetch(:immediate_at, '')
       self.auto_flushing = opts.fetch(:auto_flushing, true)
       self.flush_period  = opts.fetch(:flush_period, nil)
+      self.async         = opts.fetch(:async, false)
       self.write_size    = opts.fetch(:write_size, DEFAULT_BUFFER_SIZE)
     end
 
-    # Returns true if the _event_ level matches one of the configured
-    # immediate logging levels. Otherwise returns false.
-    #
+    # Returns `true` if the `event` level matches one of the configured
+    # immediate logging levels. Otherwise returns `false`.
     def immediate?( event )
       return false unless event.respond_to? :level
       @immediate[event.level]
@@ -240,14 +261,15 @@ module Logging::Appenders
     # call-seq:
     #    write( event )
     #
-    # Writes the given _event_ to the logging destination. The _event_ can
+    # Writes the given `event` to the logging destination. The `event` can
     # be either a LogEvent or a String. If a LogEvent, then it will be
     # formatted using the layout given to the appender when it was created.
     #
-    # The _event_ will be formatted and then buffered until the
+    # The `event` will be formatted and then buffered until the
     # "auto_flushing" level has been reached. At this time the canonical_write
     # method will be used to log all events stored in the buffer.
     #
+    # Returns this appender instance
     def write( event )
       str = event.instance_of?(::Logging::LogEvent) ?
             layout.format(event) : event.to_s
@@ -260,8 +282,17 @@ module Logging::Appenders
         sync {
           @buffer << str
         }
-        @periodic_flusher.signal if @periodic_flusher
-        flush if @buffer.length >= @auto_flushing || immediate?(event)
+        flush_now = @buffer.length >= @auto_flushing || immediate?(event)
+
+        if flush_now
+          if async?
+            @async_flusher.signal(flush_now)
+          else
+            self.flush
+          end
+        elsif @async_flusher
+          @async_flusher.signal
+        end
       end
 
       self
@@ -270,9 +301,14 @@ module Logging::Appenders
     # Attempt to parse an hours/minutes/seconds value from the string and return
     # an integer number of seconds.
     #
+    # str - The input String to parse for time values.
+    #
+    # Examples
+    #
     #   _parse_hours_minutes_seconds("14:12:42")  #=> 51162
     #   _parse_hours_minutes_seconds("foo")       #=> nil
     #
+    # Returns a Numeric or `nil`
     def _parse_hours_minutes_seconds( str )
       m = %r/^\s*(\d{2,}):(\d{2}):(\d{2}(?:\.\d+)?)\s*$/.match(str)
       return if m.nil?
@@ -281,49 +317,59 @@ module Logging::Appenders
     end
 
     # Convert the string into a numeric value. If the string does not
-    # represent a valid Integer or Float then +nil+ is returned.
+    # represent a valid Integer or Float then `nil` is returned.
+    #
+    # str - The input String to parse for Numeric values.
+    #
+    # Examples
     #
     #   _parse_numeric("10")   #=> 10
     #   _parse_numeric("1.0")  #=> 1.0
     #   _parse_numeric("foo")  #=> nil
     #
+    # Returns a Numeric or `nil`
     def _parse_numeric( str )
       Integer(str) rescue (Float(str) rescue nil)
     end
 
-    # Using the flush_period, create a new PeriodicFlusher attached to this
+    # Using the flush_period, create a new AsyncFlusher attached to this
     # appender. If the flush_period is nil, then no action will be taken. If a
-    # PeriodicFlusher already exists, it will be stopped and a new one will be
+    # AsyncFlusher already exists, it will be stopped and a new one will be
     # created.
     #
-    def _setup_periodic_flusher
-      # stop and remove any existing periodic flusher instance
-      if @periodic_flusher
-        @periodic_flusher.stop
-        @periodic_flusher = nil
+    # Returns `nil`
+    def _setup_async_flusher
+      # stop and remove any existing async flusher instance
+      if @async_flusher
+        @async_flusher.stop
+        @async_flusher = nil
         Thread.pass
       end
 
-      # create a new periodic flusher if we have a valid flush period
-      if @flush_period
+      # create a new async flusher if we have a valid flush period
+      if @flush_period || async?
         @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
-        @periodic_flusher = PeriodicFlusher.new(self, @flush_period)
-        @periodic_flusher.start
+        @async_flusher = AsyncFlusher.new(self, @flush_period)
+        @async_flusher.start
       end
+
+      nil
     end
 
     # :stopdoc:
 
-    # The PeriodicFlusher contains an internal run loop that will periodically
+    # The AsyncFlusher contains an internal run loop that will periodically
     # wake up and flush any log events contained in the message buffer of the
-    # owning appender instance. The PeriodicFlusher relies on a _signal_ from
+    # owning appender instance. The AsyncFlusher relies on a `signal` from
     # the appender in order to wakeup and perform the flush on the appender.
-    #
-    class PeriodicFlusher
+    class AsyncFlusher
 
-      # Create a new PeriodicFlusher instance that will call the +flush+
-      # method on the given _appender_. The +flush+ method will be called
-      # every _period_ seconds, but only when the message buffer is non-empty.
+      # Create a new AsyncFlusher instance that will call the `flush`
+      # method on the given `appender`. The `flush` method will be called
+      # every `period` seconds, but only when the message buffer is non-empty.
+      #
+      # appender - The Appender instance to periodically `flush`
+      # period   - The Numeric sleep period or `nil`
       #
       def initialize( appender, period )
         @appender = appender
@@ -334,10 +380,12 @@ module Logging::Appenders
         @thread = nil
         @waiting = nil
         @signaled = false
+        @immediate = 0
       end
 
       # Start the periodic flusher's internal run loop.
       #
+      # Returns this flusher instance
       def start
         return if @thread
 
@@ -345,50 +393,67 @@ module Logging::Appenders
           begin
             break if Thread.current[:stop]
             _wait_for_signal
-            sleep @period unless Thread.current[:stop]
+            _try_to_sleep
             @appender.flush
           rescue => err
-            ::Logging.log_internal {"PeriodicFlusher for appender #{@appender.inspect} encountered an error"}
+            ::Logging.log_internal {"AsyncFlusher for appender #{@appender.inspect} encountered an error"}
             ::Logging.log_internal_error(err)
           end
-        }; @thread = nil }
+        }}
 
         self
       end
 
-      # Stop the periodic flusher's internal run loop.
+      # Stop the async flusher's internal run loop.
       #
+      # Returns this flusher instance
       def stop
         return if @thread.nil?
         @thread[:stop] = true
         signal if waiting?
+        @thread = nil
         self
       end
 
-      # Signal the periodic flusher. This will wake up the run loop if it is
+      # Signal the async flusher. This will wake up the run loop if it is
       # currently waiting for something to do. If the signal method is never
-      # called, the periodic flusher will never perform the flush action on
+      # called, the async flusher will never perform the flush action on
       # the appender.
       #
-      def signal
+      # immediate - Set to `true` if the sleep period should be skipped
+      #
+      # Returns this flusher instance
+      def signal( immediate = nil )
         return if Thread.current == @thread   # don't signal ourselves
         return if @signaled                   # don't need to signal again
 
         @mutex.synchronize {
           @signaled = true
+          @immediate += 1 if immediate
           @cv.signal
         }
         self
       end
 
-      # Returns +true+ if the flusher is waiting for a signal. Returns +false+
+      # Returns `true` if the flusher is waiting for a signal. Returns `false`
       # if the flusher is somewhere in the processing loop.
-      #
       def waiting?
         @waiting
       end
 
+      # Returns `true` if the flusher should immeidately write the buffer to the
+      # IO destination.
+      def immediate?
+        @immediate > 0
+      end
+
     private
+
+      def _try_to_sleep
+        return if Thread.current[:stop]
+        return if immediate?
+        sleep @period unless @period.nil?
+      end
 
       def _wait_for_signal
         @mutex.synchronize {
@@ -396,6 +461,7 @@ module Logging::Appenders
             # wait on the condition variable only if we have NOT been signaled
             unless @signaled
               @waiting = true
+              @immediate -= 1 if immediate?
               @cv.wait(@mutex)
               @waiting = false
             end
@@ -406,8 +472,7 @@ module Logging::Appenders
       ensure
         @waiting = false
       end
-    end  # class PeriodicFlusher
+    end
     # :startdoc:
-
-  end  # Buffering
-end  # Logging::Appenders
+  end
+end
