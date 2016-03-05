@@ -31,6 +31,9 @@ module Logging::Appenders
       opts[:encoding] = io.external_encoding if io.respond_to? :external_encoding
 
       super(name, io, opts)
+    rescue NameError
+      raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
+                          "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead"
     end
 
   private

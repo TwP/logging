@@ -4,6 +4,14 @@ require File.expand_path('../setup', File.dirname(__FILE__))
 module TestLogging
 module TestAppenders
 
+  class TestConsole < Test::Unit::TestCase
+    include LoggingTestCase
+
+    def test_initialize
+      assert_raise(RuntimeError) { Logging::Appenders::Console.new("test") }
+    end
+  end
+
   class TestStdout < Test::Unit::TestCase
     include LoggingTestCase
 
