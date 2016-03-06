@@ -28,7 +28,7 @@ module Logging
       Logging.appenders.string_io('sio', :layout => pattern)
       sio = Logging.appenders['sio'].sio
 
-      logging = ::Logging.logger('benchmark')
+      logging = ::Logging.logger['benchmark']
       logging.level = :warn
       logging.appenders = 'sio'
 
