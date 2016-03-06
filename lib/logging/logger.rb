@@ -26,6 +26,10 @@ module Logging
 
     @mutex = Mutex.new  # :nodoc:
 
+    def instance_mutex # :nodoc:
+      @instance_mutex ||= Mutex.new
+    end
+
     class << self
 
       # Returns the root logger.
@@ -419,12 +423,14 @@ module Logging
     # call-seq:
     #    _meta_eval( code )
     #
-    # Evaluates the given string of _code_ if the singleton class of this
+    # Evaluates the given string of _code_ in the singleton class of this
     # Logger object.
     #
     def _meta_eval( code, file = nil, line = nil )
-      meta = class << self; self end
-      meta.class_eval code, file, line
+      instance_mutex.synchronize do
+        meta = class << self; self end
+        meta.class_eval code, file, line
+      end
     end
 
     # call-seq:
@@ -500,4 +506,3 @@ module Logging
 
   end  # Logger
 end  # Logging
-
