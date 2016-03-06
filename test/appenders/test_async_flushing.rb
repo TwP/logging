@@ -160,6 +160,7 @@ module TestAppenders
       event.level = @levels['debug']
       event.data = 'the big log message'
       @appender.append event
+      sleep 0.250
       assert_nil(readline)
 
       event.level = @levels['info']

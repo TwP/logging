@@ -218,6 +218,12 @@ module Logging::Appenders
       _setup_async_flusher
     end
 
+    # Returns `true` if an asynchronous flush period has been defined for the
+    # appender.
+    def flush_period?
+      !@flush_period.nil?
+    end
+
     # Enable or disable asynchronous logging via a dedicated logging Thread.
     # Pass in `true` to enable and `false` to disable.
     #
@@ -290,7 +296,7 @@ module Logging::Appenders
           else
             self.flush
           end
-        elsif @async_flusher
+        elsif @async_flusher && flush_period?
           @async_flusher.signal
         end
       end
