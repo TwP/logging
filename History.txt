@@ -1,3 +1,19 @@
+== 2.1.0 / 2016-03-
+
+Enhancements
+- appender factories now fail explicitly on bad arguments [PR #117]
+- console loggers (stdout, stderr) use `write` for compatibility [PR #127]
+- allow whitespace in traced method names [PR #128]
+- accessor methods for `backtrace` settings [PR #134]
+- asynchronous writing from buffered appenders [PR #135]
+- improve date format performance when outputting microseconds [PR #136]
+
+Bug Fixes
+- fixing encodings in tests [PR #116]
+- fix Rails4 logger compatibility [PR #121]
+- explicitly adding the MIT license [PR #123]
+- update `object_id` format in inspect methods [PR #133]
+
 == 2.0.0 / 2015-03-28
 
 Enhancements
