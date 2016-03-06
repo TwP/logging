@@ -74,7 +74,7 @@ module Logging
         puts "Log4r:      not supported" if log4r
       end
 
-      write_size         = 500
+      write_size         = 250
       auto_flushing_size = 500
 
       logging_async = ::Logging.logger['AsyncFile']
