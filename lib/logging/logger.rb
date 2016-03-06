@@ -26,87 +26,96 @@ module Logging
 
     @mutex = Mutex.new  # :nodoc:
 
+    # Returns the root logger.
+    def self.root
+      ::Logging::Repository.instance[:root]
+    end
+
     class << self
+      alias_method :instantiate, :new  # `instantiate` becomes the "real" `new`
+    end
 
-      # Returns the root logger.
-      def root
-        ::Logging::Repository.instance[:root]
-      end
+    # Overrides the new method such that only one Logger will be created
+    # for any given logger name.
+    def self.new( *args )
+      args.empty? ? super : self[args.shift]
+    end
 
-      alias_method :instantiate, :new  # the "real" new
+    # Returns a logger instance for the given name.
+    def self.[]( name )
+      repo = ::Logging::Repository.instance
+      name = repo.to_key(name)
+      logger = repo[name]
+      return logger unless logger.nil?
 
-      # Overrides the new method such that only one Logger will be created
-      # for any given logger name.
-      def new( *args )
-        args.empty? ? super : self[args.shift]
-      end
-
-      # Returns a logger instance for the given name.
-      def []( name )
-        repo = ::Logging::Repository.instance
-        name = repo.to_key(name)
+      @mutex.synchronize do
         logger = repo[name]
-        return logger unless logger.nil?
+        return logger unless logger.nil? # thread-safe double checking
 
-        @mutex.synchronize do
-          logger = repo[name]
-          return logger unless logger.nil? # thread-safe double checking
-
-          logger = instantiate(name)
-          repo[name] = logger
-          repo.children(name).each { |c| c.__send__(:parent=, logger) }
-          logger
-        end
-      end
-
-      # This is where the actual logging methods are defined. Two methods
-      # are created for each log level. The first is a query method used to
-      # determine if that perticular logging level is enabled. The second is
-      # the actual logging method that accepts a list of objects to be
-      # logged or a block. If a block is given, then the object returned
-      # from the block will be logged.
-      #
-      # Example
-      #
-      #    log = Logging::Logger['my logger']
-      #    log.level = :warn
-      #
-      #    log.info?                               # => false
-      #    log.warn?                               # => true
-      #    log.warn 'this is your last warning'
-      #    log.fatal 'I die!', exception
-      #
-      #    log.debug do
-      #      # expensive method to construct log message
-      #      msg
-      #    end
-      #
-      def define_log_methods( logger )
-        ::Logging::LEVELS.each do |name,num|
-          code =  "undef :#{name}  if method_defined? :#{name}\n"
-          code << "undef :#{name}? if method_defined? :#{name}?\n"
-
-          if logger.level > num
-            code << <<-CODE
-              def #{name}?( ) false end
-              def #{name}( data = nil ) false end
-            CODE
-          else
-            code << <<-CODE
-              def #{name}?( ) true end
-              def #{name}( data = nil )
-                data = yield if block_given?
-                log_event(::Logging::LogEvent.new(@name, #{num}, data, @caller_tracing))
-                true
-              end
-            CODE
-          end
-
-          logger._meta_eval(code, __FILE__, __LINE__)
-        end
+        logger = instantiate(name)
+        repo[name] = logger
+        repo.children(name).each { |c| c.__send__(:parent=, logger) }
         logger
       end
-    end  # class << self
+    end
+
+    # This is where the actual logging methods are defined. Two methods
+    # are created for each log level. The first is a query method used to
+    # determine if that perticular logging level is enabled. The second is
+    # the actual logging method that accepts a list of objects to be
+    # logged or a block. If a block is given, then the object returned
+    # from the block will be logged.
+    #
+    # Example
+    #
+    #    log = Logging::Logger['my logger']
+    #    log.level = :warn
+    #
+    #    log.info?                               # => false
+    #    log.warn?                               # => true
+    #    log.warn 'this is your last warning'
+    #    log.fatal 'I die!', exception
+    #
+    #    log.debug do
+    #      # expensive method to construct log message
+    #      msg
+    #    end
+    #
+    def self.define_log_methods( logger )
+      code = log_methods_for_level(logger.level)
+      logger._meta_eval(code, __FILE__, __LINE__)
+      logger
+    end
+
+    #
+    #
+    def self.log_methods_for_level( level )
+      code = []
+      ::Logging::LEVELS.each do |name,num|
+        code << <<-CODE
+            # ---- #{name} ----
+            undef :#{name}  if method_defined? :#{name}
+            undef :#{name}? if method_defined? :#{name}?
+        CODE
+
+        if level > num
+          code << <<-CODE
+            def #{name}?( ) false end
+            def #{name}( data = nil ) false end
+          CODE
+        else
+          code << <<-CODE
+            def #{name}?( ) true end
+            def #{name}( data = nil )
+              data = yield if block_given?
+              log_event(::Logging::LogEvent.new(@name, #{num}, data, @caller_tracing))
+              true
+            end
+          CODE
+        end
+      end
+      code.join("\n")
+    end
 
     attr_reader :name, :parent, :additive, :caller_tracing
 
@@ -299,6 +308,11 @@ module Logging
       self.level
     end
 
+    # Returns `true` if the logger has its own level defined.
+    def has_own_level?
+      !@level.nil?
+    end
+
     # Returns the list of appenders.
     #
     def appenders
@@ -369,8 +383,7 @@ module Logging
       "<%s:0x%014x name=\"%s\">" % [self.class.name, (self.object_id << 1), self.name]
     end
 
-
-    protected
+  protected
 
     # call-seq:
     #    parent = ParentLogger
@@ -403,18 +416,26 @@ module Logging
     #
     # Recursively call this method on all our children loggers.
     #
-    def define_log_methods( force = false )
-      return if @level and !force
+    def define_log_methods( force = false, code = nil )
+      return if has_own_level? and !force
 
-      ::Logging::Logger.define_log_methods(self)
-      ::Logging::Repository.instance.children(name).each do |c|
-        c.define_log_methods
+      ::Logging::Logger._reentrant_mutex.synchronize do
+        ::Logging::Logger.define_log_methods(self)
+        ::Logging::Repository.instance.children(name).each do |c|
+          c.define_log_methods
+        end
       end
       self
     end
 
     # :stopdoc:
-    public
+  public
+
+    @reentrant_mutex = ReentrantMutex.new
+
+    def self._reentrant_mutex
+      @reentrant_mutex
+    end
 
     # call-seq:
     #    _meta_eval( code )
