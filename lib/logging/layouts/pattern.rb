@@ -83,7 +83,7 @@ module Logging::Layouts
   # events is configured to generate tracing information. If this is not
   # the case these fields will always be empty.
   #
-  # The directives for include diagnostic context information in the log
+  # The directives for including diagnostic context information in the log
   # messages are X and x. For the Mapped Diagnostic Context the directive must
   # be accompanied by the key identifying the value to insert into the log
   # message. The X directive can appear multiple times to include multiple
@@ -166,12 +166,9 @@ module Logging::Layouts
       code << "def format_date( time )\n"
       if pl.date_method.nil?
         if pl.date_pattern =~ %r/%s/
-          code << <<-CODE
-            dp = '#{pl.date_pattern}'.gsub('%s','%06d' % time.usec)
-            time.strftime dp
-          CODE
+          code << "time.strftime('#{pl.date_pattern.gsub('%s','%6N')}')\n"
         else
-          code << "time.strftime '#{pl.date_pattern}'\n"
+          code << "time.strftime('#{pl.date_pattern}')\n"
         end
       else
         code << "time.#{pl.date_method}\n"
