@@ -54,7 +54,7 @@ module Logging
 
         logger = instantiate(name)
         repo[name] = logger
-        repo.children(name).each { |c| c.__send__(:parent=, logger) }
+        repo.children(name).each { |child| child.__send__(:parent=, logger) }
         logger
       end
     end
@@ -421,8 +421,8 @@ module Logging
 
       ::Logging::Logger._reentrant_mutex.synchronize do
         ::Logging::Logger.define_log_methods(self)
-        ::Logging::Repository.instance.children(name).each do |c|
-          c.define_log_methods
+        ::Logging::Repository.instance.children(name).each do |child|
+          child.define_log_methods
         end
       end
       self
