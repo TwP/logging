@@ -1,3 +1,13 @@
+#
+# The peformance script is used to output a performance analysis page for the
+# Logging framework. You can run this script simply:
+#
+#   ruby test/performance.rb
+#
+# This will write a file called "performance.html" that you can open in your web
+# browser. You will need the `ruby-prof` gem installed in order to run this
+# script.
+# ------------------------------------------------------------------------------
 require 'rubygems'
 
 libpath = File.expand_path('../../lib', __FILE__)
