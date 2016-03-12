@@ -87,13 +87,14 @@ module Logging
       logger
     end
 
+    # This generator is used to define the log methods for the given `level`.
+    # This code is evaluated in the context of a Logger instance.
     #
-    #
+    # Returns log methods as a String
     def self.log_methods_for_level( level )
       code = []
       ::Logging::LEVELS.each do |name,num|
         code << <<-CODE
-            # ---- #{name} ----
             undef :#{name}  if method_defined? :#{name}
             undef :#{name}? if method_defined? :#{name}?
         CODE
