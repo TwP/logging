@@ -1,4 +1,3 @@
-
 module Logging::Appenders
 
   # This class is provides an Appender base class for writing to the standard IO
@@ -34,18 +33,6 @@ module Logging::Appenders
     rescue NameError
       raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
                           "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead"
-    end
-
-  private
-
-    # @override of ::Logging::Appenders::IO
-    def canonical_write( str )
-      return self if @io.nil?
-      str = str.force_encoding(encoding) if encoding && str.encoding != encoding
-      @io.write str # instead of syswrite
-      self
-    rescue StandardError => err
-      handle_internal_error(err)
     end
   end
 

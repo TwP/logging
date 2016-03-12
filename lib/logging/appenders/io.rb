@@ -28,13 +28,12 @@ module Logging::Appenders
     # stream as the logging destination.
     #
     def initialize( name, io, opts = {} )
-      unless io.respond_to? :syswrite
+      unless io.respond_to? :write
         raise TypeError, "expecting an IO object but got '#{io.class.name}'"
       end
 
       @io = io
-      @io.sync = true if io.respond_to? :sync=    # syswrite complains if the IO stream is buffered
-      @io.flush rescue nil                        # syswrite also complains if in unbuffered mode and buffer isn't empty
+      @io.sync = true if io.respond_to? :sync=
       @close_method = :close
 
       super(name, opts)
@@ -71,7 +70,7 @@ module Logging::Appenders
     def canonical_write( str )
       return self if @io.nil?
       str = str.force_encoding(encoding) if encoding && str.encoding != encoding
-      @io.syswrite str
+      @io.write str
       self
     rescue StandardError => err
       handle_internal_error(err)
