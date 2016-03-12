@@ -148,7 +148,7 @@ module Logging::Appenders
       return self if @io.nil?
 
       str = str.force_encoding(encoding) if encoding && str.encoding != encoding
-      @io.flock_sh { @io.syswrite str }
+      @io.flock_sh { @io.write str }
 
       if roll_required?
         @io.flock? {
