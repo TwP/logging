@@ -7,6 +7,7 @@ Enhancements
 - accessor methods for `backtrace` settings [PR #134]
 - asynchronous writing from buffered appenders [PR #135]
 - improve date format performance when outputting microseconds [PR #136]
+- added some thread safety to log level setters [PR #137]
 - use `write` everywhere instead of `syswrite` [PR #138]
 
 Bug Fixes
