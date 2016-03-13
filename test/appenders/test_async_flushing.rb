@@ -144,9 +144,9 @@ module TestAppenders
     end
 
     def test_async_writes
+      @appender.auto_flushing = 3
       @appender.flush_period = nil
       @appender.async = true
-      @appender.auto_flushing = 3
 
       event = Logging::LogEvent.new('TestLogger', @levels['warn'],
                                     [1, 2, 3, 4], false)
@@ -155,6 +155,7 @@ module TestAppenders
       assert_instance_of Logging::Appenders::Buffering::AsyncFlusher, flusher
 
       @appender.append event
+      sleep 0.250
       assert_nil(readline)
 
       event.level = @levels['debug']
