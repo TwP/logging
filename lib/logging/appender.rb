@@ -263,15 +263,6 @@ class Appender
     "<%s name=\"%s\">" % [self.class.name.sub(%r/^Logging::/, ''), self.name]
   end
 
-  # call-seq:
-  #     inspect => string
-  #
-  # Returns a string representation of the appender.
-  #
-  def inspect
-    "<%s:0x%014x name=\"%s\">" % [self.class.name, (self.object_id << 1), self.name]
-  end
-
   # Returns the current Encoding for the appender or nil if an encoding has
   # not been set.
   #

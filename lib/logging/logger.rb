@@ -375,15 +375,6 @@ module Logging
     #
     def clear_appenders( ) @appenders.clear end
 
-    # call-seq:
-    #     inspect    => string
-    #
-    # Returns a string representation of the logger.
-    #
-    def inspect
-      "<%s:0x%014x name=\"%s\">" % [self.class.name, (self.object_id << 1), self.name]
-    end
-
   protected
 
     # call-seq:

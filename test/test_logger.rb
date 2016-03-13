@@ -265,13 +265,6 @@ module TestLogging
       assert_nil a2.readline
     end
 
-    def test_inspect
-      root = ::Logging::Logger.new :root
-
-      str = "<#{root.class.name}:0x%014x name=\"#{root.name}\">" % (root.object_id << 1)
-      assert_equal str, root.inspect
-    end
-
     def test_inspect_matches_default
       root = ::Logging::Logger.new :root
 
