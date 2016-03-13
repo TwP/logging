@@ -143,7 +143,7 @@ module Logging
         Thread.current[STACK_NAME] = [obj.dup]
       when Thread
         return if Thread.current == obj
-        Thread.exclusive {
+        DIAGNOSTIC_MUTEX.synchronize {
           if obj[STACK_NAME]
             hash = flatten(obj[STACK_NAME])
             Thread.current[STACK_NAME] = [hash]
@@ -338,7 +338,7 @@ module Logging
         Thread.current[NAME] = obj.dup
       when Thread
         return if Thread.current == obj
-        Thread.exclusive {
+        DIAGNOSTIC_MUTEX.synchronize {
           Thread.current[NAME] = obj[NAME].dup if obj[NAME]
         }
       end
@@ -381,7 +381,7 @@ module Logging
   #
   def self.clear_diagnostic_contexts( all = false )
     if all
-      Thread.exclusive {
+      DIAGNOSTIC_MUTEX.synchronize {
         Thread.list.each { |thread|
           thread[MappedDiagnosticContext::NAME] = nil if thread[MappedDiagnosticContext::NAME]
           thread[NestedDiagnosticContext::NAME] = nil if thread[NestedDiagnosticContext::NAME]
@@ -395,6 +395,8 @@ module Logging
 
     self
   end
+
+  DIAGNOSTIC_MUTEX = Mutex.new
 
 end  # module Logging
 
