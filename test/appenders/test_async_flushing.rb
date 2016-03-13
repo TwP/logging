@@ -155,7 +155,6 @@ module TestAppenders
       assert_instance_of Logging::Appenders::Buffering::AsyncFlusher, flusher
 
       @appender.append event
-      sleep 0.250
       assert_nil(readline)
 
       event.level = @levels['debug']

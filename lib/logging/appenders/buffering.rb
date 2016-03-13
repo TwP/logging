@@ -357,6 +357,7 @@ module Logging::Appenders
         @auto_flushing = DEFAULT_BUFFER_SIZE unless @auto_flushing > 1
         @async_flusher = AsyncFlusher.new(self, @flush_period)
         @async_flusher.start
+        Thread.pass
       end
 
       nil
