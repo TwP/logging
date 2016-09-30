@@ -3,7 +3,7 @@ $:.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'logging'
-  s.version     = '1.0.0'
+  s.version     = '1.8.2'
   s.date        = '2013-07-08'
   s.summary     = 'CHT Logging'
   s.description = 'The gem used for all logging.'
