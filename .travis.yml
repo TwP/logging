@@ -6,9 +6,9 @@ install:        "rake gem:install_dependencies"
 script: "rake"
 
 rvm:
-  - 1.9.3
-  - 2.0.0
-  - 2.1.5
-  - 2.2.1
-  - 2.3.0
-  - jruby-9.0.4.0
+  - 1.9.3-p551
+  - 2.0.0-p648
+  - 2.1.10
+  - 2.2.10
+  - 2.3.1
+  - jruby-9.1.6.0
