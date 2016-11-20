@@ -33,7 +33,7 @@
   log.level = :debug
 
   log.debug "a very nice little debug message"
-  log.info "things are operating nominally"
+  log.info "things are operating normally"
   log.warn "this is your last warning"
   log.error StandardError.new("something went horribly wrong")
   log.fatal "I Die!"
