@@ -96,7 +96,6 @@ of the logging package. The recommended reading order is the following:
 * [layouts.rb](https://github.com/TwP/logging/blob/master/examples/layouts.rb)
 * [formatting.rb](https://github.com/TwP/logging/blob/master/examples/formatting.rb)
 * [colorization.rb](https://github.com/TwP/logging/blob/master/examples/colorization.rb)
-* [consolidation.rb](https://github.com/TwP/logging/blob/master/examples/consolidation.rb)
 * [fork.rb](https://github.com/TwP/logging/blob/master/examples/fork.rb)
 * [mdc.rb](https://github.com/TwP/logging/blob/master/examples/mdc.rb)
 
