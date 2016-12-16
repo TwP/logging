@@ -82,8 +82,8 @@ class SecondClass
 end
 ```
 
-There are many more examples in the [examples folder](https://github.com/TwP/logging/tree/master/examples)
-of the logging package. The recommended reading order is the following:
+There are many more examples in the [examples folder](/examples) of the logging
+package. The recommended reading order is the following:
 
 * [simple.rb](/examples/simple.rb)
 * [rspec_integration.rb](/blob/master/examples/rspec_integration.rb)
