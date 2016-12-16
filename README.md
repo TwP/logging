@@ -94,6 +94,7 @@ package. The recommended reading order is the following:
 * [lazy.rb](/examples/lazy.rb)
 * [appenders.rb](/examples/appenders.rb)
 * [layouts.rb](/examples/layouts.rb)
+* [reusing_layouts.rb](/examples/reusing_layouts.rb)
 * [formatting.rb](/examples/formatting.rb)
 * [colorization.rb](/examples/colorization.rb)
 * [fork.rb](/examples/fork.rb)
