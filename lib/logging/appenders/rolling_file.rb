@@ -141,6 +141,14 @@ module Logging::Appenders
       @roller.copy_file
     end
 
+    # Returns the modification time of the copy file if one exists. Otherwise
+    # returns `nil`.
+    def copy_file_mtime
+      ::File.mtime(copy_file)
+    rescue Errno::ENOENT
+      nil
+    end
+
     # Write the given _event_ to the log file. The log file will be rolled
     # if the maximum file size is exceeded or if the file is older than the
     # maximum age.
@@ -166,7 +174,8 @@ module Logging::Appenders
 
     # Returns +true+ if the log file needs to be rolled.
     def roll_required?
-      return false if ::File.exist?(copy_file) && (Time.now - ::File.mtime(copy_file)) < 180
+      mtime = copy_file_mtime
+      return false if mtime && (Time.now - mtime) < 180
 
       # check if max size has been exceeded
       s = @size ? ::File.size(filename) > @size : false
