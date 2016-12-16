@@ -1,5 +1,5 @@
 ## Logging
-by Tim Pease [![](https://secure.travis-ci.org/TwP/logging.png)](https://travis-ci.org/TwP/logging)
+by Tim Pease [![](https://secure.travis-ci.org/TwP/logging.svg)](https://travis-ci.org/TwP/logging)
 
 * [Homepage](http://rubygems.org/gems/logging)
 * [Github Project](https://github.com/TwP/logging)
