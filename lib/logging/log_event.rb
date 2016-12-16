@@ -35,6 +35,10 @@ module Logging
         f = match[1]
         l = Integer(match[2])
         m = match[3] unless match[3].nil?
+
+        if (bp = ::Logging.basepath) && !bp.empty? && f.index(bp) == 0
+          f = f.slice(bp.length + 1, f.length - bp.length)
+        end
       end
 
       super(logger, level, data, Time.now, f, l, m)

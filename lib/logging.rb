@@ -311,6 +311,28 @@ module Logging
           end
     end
 
+    # Used to define a `basepath` that will be removed from filenames when
+    # reporting tracing information for log events. Normally you would set this
+    # to the root of your project:
+    #
+    #   Logging.basepath = "/home/user/nifty_project"
+    #
+    # Or if you are in a Rails environment:
+    #
+    #   Logging.basepath = Rails.root.to_s
+    #
+    # The basepath is expanded to full path with trailing slashes removed. This
+    # setting will be cleared by a call to `Logging.reset`.
+    def basepath=( path )
+      if path.nil? || path.to_s.empty?
+        @basepath = nil
+      else
+        @basepath = File.expand_path(path)
+      end
+    end
+
+    attr_reader :basepath
+
     # Returns the library path for the module. If any arguments are given,
     # they will be joined to the end of the library path using
     # <tt>File.join</tt>.
@@ -466,6 +488,7 @@ module Logging
       LEVELS.clear
       LNAMES.clear
       remove_instance_variable :@backtrace if defined? @backtrace
+      remove_instance_variable :@basepath  if defined? @basepath
       remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
       remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
       self
