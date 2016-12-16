@@ -144,6 +144,7 @@ module Logging::Appenders
     # Returns the modification time of the copy file if one exists. Otherwise
     # returns `nil`.
     def copy_file_mtime
+      return nil unless ::File.exist?(copy_file)
       ::File.mtime(copy_file)
     rescue Errno::ENOENT
       nil
