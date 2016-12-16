@@ -2,8 +2,7 @@
 module Logging
 
   # This class defines a logging event.
-  #
-  LogEvent = Struct.new( :logger, :level, :data, :time, :file, :line, :method ) {
+  class LogEvent
     # :stopdoc:
 
     # Regular expression used to parse out caller information
@@ -16,6 +15,8 @@ module Logging
     CALLER_INDEX = ((defined? JRUBY_VERSION and JRUBY_VERSION > '1.6') or (defined? RUBY_ENGINE and RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
     # :startdoc:
 
+    attr_accessor :logger, :level, :data, :time, :file, :line, :method
+
     # call-seq:
     #    LogEvent.new( logger, level, [data], caller_tracing )
     #
@@ -25,24 +26,26 @@ module Logging
     # invoked to get the execution trace of the logging method.
     #
     def initialize( logger, level, data, caller_tracing )
-      f = l = m = ''
+      self.logger = logger
+      self.level  = level
+      self.data   = data
+      self.time   = Time.now
 
       if caller_tracing
         stack = Kernel.caller[CALLER_INDEX]
         return if stack.nil?
 
         match = CALLER_RGXP.match(stack)
-        f = match[1]
-        l = Integer(match[2])
-        m = match[3] unless match[3].nil?
+        self.file   = match[1]
+        self.line   = Integer(match[2])
+        self.method = match[3] unless match[3].nil?
 
-        if (bp = ::Logging.basepath) && !bp.empty? && f.index(bp) == 0
-          f = f.slice(bp.length + 1, f.length - bp.length)
+        if (bp = ::Logging.basepath) && !bp.empty? && file.index(bp) == 0
+          self.file = file.slice(bp.length + 1, file.length - bp.length)
         end
+      else
+        self.file = self.line = self.method = ''
       end
-
-      super(logger, level, data, Time.now, f, l, m)
     end
-  }
-end  # module Logging
-
+  end
+end
