@@ -2,7 +2,7 @@
 #
 # It happens sometimes that it is very expensive to construct a logging
 # message; for example, if a large object structure has to be traversed
-# during executing of an `object.to_s` method. It would be convenient to
+# during execution of an `object.to_s` method. It would be convenient to
 # delay creation of the message until the log event actually takes place.
 #
 # For example, with a logger configured only to show WARN messages and higher,

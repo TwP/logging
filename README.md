@@ -85,19 +85,19 @@ end
 There are many more examples in the [examples folder](https://github.com/TwP/logging/tree/master/examples)
 of the logging package. The recommended reading order is the following:
 
-* [simple.rb](https://github.com/TwP/logging/blob/master/examples/simple.rb)
-* [rspec_integration.rb](https://github.com/TwP/logging/blob/master/examples/rspec_integration.rb)
-* [loggers.rb](https://github.com/TwP/logging/blob/master/examples/loggers.rb)
-* [classes.rb](https://github.com/TwP/logging/blob/master/examples/classes.rb)
-* [hierarchies.rb](https://github.com/TwP/logging/blob/master/examples/hierarchies.rb)
-* [names.rb](https://github.com/TwP/logging/blob/master/examples/names.rb)
-* [lazy.rb](https://github.com/TwP/logging/blob/master/examples/lazy.rb)
-* [appenders.rb](https://github.com/TwP/logging/blob/master/examples/appenders.rb)
-* [layouts.rb](https://github.com/TwP/logging/blob/master/examples/layouts.rb)
-* [formatting.rb](https://github.com/TwP/logging/blob/master/examples/formatting.rb)
-* [colorization.rb](https://github.com/TwP/logging/blob/master/examples/colorization.rb)
-* [fork.rb](https://github.com/TwP/logging/blob/master/examples/fork.rb)
-* [mdc.rb](https://github.com/TwP/logging/blob/master/examples/mdc.rb)
+* [simple.rb](/examples/simple.rb)
+* [rspec_integration.rb](/blob/master/examples/rspec_integration.rb)
+* [loggers.rb](/blob/master/examples/loggers.rb)
+* [classes.rb](/blob/master/examples/classes.rb)
+* [hierarchies.rb](/examples/hierarchies.rb)
+* [names.rb](/examples/names.rb)
+* [lazy.rb](/examples/lazy.rb)
+* [appenders.rb](/examples/appenders.rb)
+* [layouts.rb](/examples/layouts.rb)
+* [formatting.rb](/examples/formatting.rb)
+* [colorization.rb](/examples/colorization.rb)
+* [fork.rb](/examples/fork.rb)
+* [mdc.rb](/examples/mdc.rb)
 
 ### Extending
 
@@ -134,25 +134,4 @@ After this is done you can rake `rake -T` to see the available rake tasks.
 
 ### License
 
-The MIT License
-
-Copyright (c) 2015 Tim Pease
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+The MIT License - see the [LICENSE](/LICENSE) file for the full text.
