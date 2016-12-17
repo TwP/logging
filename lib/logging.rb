@@ -321,8 +321,8 @@ module Logging
     #
     #   Logging.basepath = Rails.root.to_s
     #
-    # The basepath is expanded to full path with trailing slashes removed. This
-    # setting will be cleared by a call to `Logging.reset`.
+    # The basepath is expanded to a full path with trailing slashes removed.
+    # This setting will be cleared by a call to `Logging.reset`.
     def basepath=( path )
       if path.nil? || path.to_s.empty?
         @basepath = nil
