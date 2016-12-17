@@ -1,6 +1,3 @@
-
-if defined? ActiveSupport
-
 module Logging
 
   # Rails compatibility module.
@@ -9,10 +6,9 @@ module Logging
   # some Rails extensions expect these methods to exist. Those methods are
   # implemented in this module and included in the Logging::Logger class when
   # the ActiveSupport gem is present.
-  #
   module RailsCompat
 
-    # A no-op implementation of the +formatter+ method.
+    # A no-op implementation of the `formatter` method.
     def formatter; end
 
     # A no-op implementation of the +silence+ method. Setting of log levels
@@ -20,17 +16,12 @@ module Logging
     # opinion that overriding the log level programmatically is a logical
     # error.
     #
-    # Please see https://github.com/TwP/logging/issues/11 for a more detail
+    # Please see https://github.com/TwP/logging/issues/11 for a more detailed
     # discussion of the issue.
-    #
     def silence( *args )
       yield self
     end
-
-  end  # RailsCompat
+  end
 
   Logger.send :include, RailsCompat
-
-end  # Logging
-end  # if defined?
-
+end
