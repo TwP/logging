@@ -34,6 +34,14 @@ module TestLogging
       assert_match %r/test_log_event.rb\z/, @appender.event.file
     end
 
+    def test_file_with_basepath
+      ::Logging.basepath = File.expand_path("../../", __FILE__)
+
+      @logger.caller_tracing = true
+      @logger.warn "warning message"
+      assert_equal "test/test_log_event.rb", @appender.event.file
+    end
+
     def test_level
       assert_equal 1, @event.level
     end

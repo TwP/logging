@@ -39,6 +39,19 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging.backtrace 'foo'}
     end
 
+    def test_basepath
+      assert_nil ::Logging.basepath
+
+      ::Logging.basepath = ""
+      assert_nil ::Logging.basepath
+
+      ::Logging.basepath = "./"
+      assert_equal File.expand_path("../../", __FILE__), ::Logging.basepath
+
+      ::Logging.reset
+      assert_nil ::Logging.basepath
+    end
+
     def test_logger
       assert_raise(TypeError) {::Logging.logger []}
 
