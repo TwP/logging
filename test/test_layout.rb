@@ -142,6 +142,24 @@ module TestLogging
       layout = ::Logging::Layout.new
       assert_equal 0, layout.utc_offset
     end
+
+    def test_apply_utc_offset
+      time = Time.now.freeze
+
+      offset_time = @layout.apply_utc_offset(time)
+      assert_same time, offset_time
+
+      @layout.utc_offset = "UTC"
+      offset_time = @layout.apply_utc_offset(time)
+      assert_not_same time, offset_time
+      assert offset_time.utc?
+
+      @layout.utc_offset = "+01:00"
+      offset_time = @layout.apply_utc_offset(time)
+      assert_not_same time, offset_time
+      assert !offset_time.utc?
+      assert_equal 3600, offset_time.utc_offset
+    end
   end  # class TestLayout
 end  # module TestLogging
 

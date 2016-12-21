@@ -89,7 +89,12 @@ class Layout
   # Returns the UTC offset.
   attr_reader :utc_offset
 
+  # Internal: Helper method that applies the UTC offset to the given `time`
+  # instance. A new Time is returned that is equivalent to the original `time`
+  # but pinned to the timezone given by the UTC offset.
   #
+  # If a UTC offset has not been set, then the original `time` instance is
+  # returned unchanged.
   #
   def apply_utc_offset( time )
     return time if utc_offset.nil?
