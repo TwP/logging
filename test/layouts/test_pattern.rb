@@ -230,6 +230,19 @@ module TestLayouts
       assert_equal 'context a', @layout.format(event)
     end
 
+    def test_utc_offset
+      layout = Logging.layouts.pattern(:pattern => "%d", :utc_offset => "UTC")
+      event = Logging::LogEvent.new('DateLogger', @levels['info'], 'log message', false)
+      event.time = Time.utc(2016, 12, 1, 12, 0, 0).freeze
+
+      assert_equal "2016-12-01T12:00:00", layout.format(event)
+
+      layout.utc_offset = "-06:00"
+      assert_equal "2016-12-01T06:00:00", layout.format(event)
+
+      layout.utc_offset = "+01:00"
+      assert_equal "2016-12-01T13:00:00", layout.format(event)
+    end
   end  # TestBasic
 end  # TestLayouts
 end  # TestLogging

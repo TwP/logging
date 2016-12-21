@@ -164,6 +164,7 @@ module Logging::Layouts
     def self.create_date_format_methods( pl )
       code = "undef :format_date if method_defined? :format_date\n"
       code << "def format_date( time )\n"
+      code << "time = apply_utc_offset(time)\n"
       if pl.date_method.nil?
         if pl.date_pattern =~ %r/%s/
           code << "time.strftime('#{pl.date_pattern.gsub('%s','%6N')}')\n"
@@ -203,7 +204,8 @@ module Logging::Layouts
     #
     #    :pattern       =>  "[%d] %-5l -- %c : %m\n"
     #    :date_pattern  =>  "%Y-%m-%d %H:%M:%S"
-    #    :date_method   =>  'usec' or 'to_s'
+    #    :date_method   =>  "usec" or "to_s"
+    #    :utc_offset    =>  "-06:00" or -21600 or "UTC"
     #    :color_scheme  =>  :default
     #
     # If used, :date_method will supersede :date_pattern.
@@ -216,7 +218,7 @@ module Logging::Layouts
     #
     def initialize( opts = {} )
       super
-      @created_at = Time.now
+      @created_at = Time.now.freeze
 
       @date_pattern = opts.fetch(:date_pattern, nil)
       @date_method = opts.fetch(:date_method, nil)
