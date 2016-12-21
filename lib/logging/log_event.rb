@@ -29,7 +29,7 @@ module Logging
       self.logger = logger
       self.level  = level
       self.data   = data
-      self.time   = Time.now
+      self.time   = Time.now.freeze
 
       if caller_tracing
         stack = Kernel.caller[CALLER_INDEX]
