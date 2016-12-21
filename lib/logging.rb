@@ -311,6 +311,31 @@ module Logging
           end
     end
 
+    # Set the default UTC offset used when formatting time values sent to the
+    # appenders. If left unset, the default local time zone will be used for
+    # time values. This method accepts the `utc_offset` format supported by the
+    # `Time#localtime` method in Ruby.
+    #
+    # Passing "UTC" or `0` as the UTC offset will cause all times to be reported
+    # in the UTC timezone.
+    #
+    #   Logging.utc_offset = "-07:00"  # Mountain Standard Time in North America
+    #   Logging.utc_offset = "+01:00"  # Central European Time
+    #   Logging.utc_offset = "UTC"     # UTC
+    #   Logging.utc_offset = 0         # UTC
+    #
+    def utc_offset=( value )
+      case value
+      when nil;      @utc_offset = nil
+      when "UTC", 0; @utc_offset = 0
+      else
+        Time.now.localtime(value)
+        @utc_offset = value
+      end
+    end
+
+    attr_reader :utc_offset
+
     # Used to define a `basepath` that will be removed from filenames when
     # reporting tracing information for log events. Normally you would set this
     # to the root of your project:
@@ -491,6 +516,7 @@ module Logging
       remove_instance_variable :@basepath  if defined? @basepath
       remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
       remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
+      self.utc_offset = nil
       self
     end
 
