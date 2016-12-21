@@ -39,6 +39,21 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging.backtrace 'foo'}
     end
 
+    def test_utc_offset
+      assert_nil ::Logging.utc_offset
+
+      ::Logging.utc_offset = 0
+      assert_equal 0, ::Logging.utc_offset
+
+      ::Logging.utc_offset = "UTC"
+      assert_equal 0, ::Logging.utc_offset
+
+      ::Logging.utc_offset = "+01:00"
+      assert_equal "+01:00", ::Logging.utc_offset
+
+      assert_raise(ArgumentError) {::Logging.utc_offset = "06:00"}
+    end
+
     def test_basepath
       assert_nil ::Logging.basepath
 

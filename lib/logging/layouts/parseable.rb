@@ -177,8 +177,9 @@ module Logging::Layouts
     #
     # Creates a new Parseable layout using the following options:
     #
-    #    :style  => :json or :yaml
-    #    :items  => %w[timestamp level logger message]
+    #    :style      => :json or :yaml
+    #    :items      => %w[timestamp level logger message]
+    #    :utc_offset =>  "-06:00" or -21600 or "UTC"
     #
     def initialize( opts = {} )
       super
@@ -241,9 +242,11 @@ module Logging::Layouts
       else raise ArgumentError, "unknown format style '#@style'" end
     end
 
-    # Convert the given time _value_ into an ISO8601 formatted time string.
+    # Convert the given `time` into an ISO8601 formatted time string.
     #
-    def iso8601_format( value )
+    def iso8601_format( time )
+      value = apply_utc_offset(time)
+
       str = value.strftime('%Y-%m-%dT%H:%M:%S')
       str << ('.%06d' % value.usec)
 
