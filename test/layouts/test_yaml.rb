@@ -148,6 +148,20 @@ module TestLayouts
       assert_match %r/\nndc: \[\]\n/, format
     end
 
+    def test_utc_offset
+      layout = Logging.layouts.yaml(:items => %w[timestamp])
+      event = Logging::LogEvent.new('TimestampLogger', @levels['info'], 'log message', false)
+      event.time = Time.utc(2016, 12, 1, 12, 0, 0).freeze
+
+      assert_equal %Q{---\ntimestamp: '2016-12-01T12:00:00.000000Z'\n}, layout.format(event)
+
+      layout.utc_offset = "-06:00"
+      assert_equal %Q{---\ntimestamp: '2016-12-01T06:00:00.000000-06:00'\n}, layout.format(event)
+
+      layout.utc_offset = "+01:00"
+      assert_equal %Q{---\ntimestamp: '2016-12-01T13:00:00.000000+01:00'\n}, layout.format(event)
+    end
+
   private
 
     def assert_yaml_match( expected, actual )
