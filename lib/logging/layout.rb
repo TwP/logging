@@ -41,7 +41,8 @@ class Layout
                   when :inspect, :yaml, :json; f
                   else :string end
 
-    self.backtrace = opts.fetch(:backtrace, ::Logging.backtrace)
+    self.backtrace  = opts.fetch(:backtrace,  ::Logging.backtrace)
+    self.utc_offset = opts.fetch(:utc_offset, ::Logging.utc_offset)
   end
 
   # call-seq:
@@ -62,6 +63,45 @@ class Layout
   # Returns the backtrace setting.
   attr_reader :backtrace
   alias :backtrace? :backtrace
+
+  # Set the UTC offset used when formatting time values. If left unset, the
+  # default local time zone will be used for time values. This method accepts
+  # the `utc_offset` format supported by the `Time#localtime` method in Ruby.
+  #
+  # Passing "UTC" or `0` as the UTC offset will cause all times to be reported
+  # in the UTC timezone.
+  #
+  #   layout.utc_offset = "-07:00"  # Mountain Standard Time in North America
+  #   layout.utc_offset = "+01:00"  # Central European Time
+  #   layout.utc_offset = "UTC"     # UTC
+  #   layout.utc_offset = 0         # UTC
+  #
+  def utc_offset=( value )
+    @utc_offset = case value
+      when nil;             nil
+      when "UTC", "GMT", 0; 0
+      else
+        Time.now.localtime(value)
+        value
+      end
+  end
+
+  # Returns the UTC offset.
+  attr_reader :utc_offset
+
+  #
+  #
+  def apply_utc_offset( time )
+    return time if utc_offset.nil?
+
+    time = time.dup
+    if utc_offset == 0
+      time.utc
+    else
+      time.localtime(utc_offset)
+    end
+    time
+  end
 
   # call-seq:
   #    format( event )

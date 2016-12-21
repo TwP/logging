@@ -325,13 +325,13 @@ module Logging
     #   Logging.utc_offset = 0         # UTC
     #
     def utc_offset=( value )
-      case value
-      when nil;      @utc_offset = nil
-      when "UTC", 0; @utc_offset = 0
-      else
-        Time.now.localtime(value)
-        @utc_offset = value
-      end
+      @utc_offset = case value
+        when nil;             nil
+        when "UTC", "GMT", 0; 0
+        else
+          Time.now.localtime(value)
+          value
+        end
     end
 
     attr_reader :utc_offset

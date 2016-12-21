@@ -120,6 +120,28 @@ module TestLogging
       @layout.backtrace = 'on'
       assert_equal true, @layout.backtrace
     end
+
+    def test_utc_offset
+      assert_nil @layout.utc_offset
+
+      @layout.utc_offset = 0
+      assert_equal 0, @layout.utc_offset
+
+      @layout.utc_offset = "UTC"
+      assert_equal 0, @layout.utc_offset
+
+      @layout.utc_offset = "+01:00"
+      assert_equal "+01:00", @layout.utc_offset
+
+      assert_raise(ArgumentError) {@layout.utc_offset = "06:00"}
+
+      @layout.utc_offset   = nil
+      ::Logging.utc_offset = "UTC"
+      assert_nil @layout.utc_offset
+
+      layout = ::Logging::Layout.new
+      assert_equal 0, layout.utc_offset
+    end
   end  # class TestLayout
 end  # module TestLogging
 
