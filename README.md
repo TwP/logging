@@ -86,9 +86,9 @@ There are many more examples in the [examples folder](/examples) of the logging
 package. The recommended reading order is the following:
 
 * [simple.rb](/examples/simple.rb)
-* [rspec_integration.rb](/blob/master/examples/rspec_integration.rb)
-* [loggers.rb](/blob/master/examples/loggers.rb)
-* [classes.rb](/blob/master/examples/classes.rb)
+* [rspec_integration.rb](/examples/rspec_integration.rb)
+* [loggers.rb](/examples/loggers.rb)
+* [classes.rb](/examples/classes.rb)
 * [hierarchies.rb](/examples/hierarchies.rb)
 * [names.rb](/examples/names.rb)
 * [lazy.rb](/examples/lazy.rb)
