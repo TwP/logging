@@ -85,7 +85,12 @@ module TestLogging
         sleep
 
         assert_not_equal ary.object_id, Logging.ndc.context.object_id
-        assert_equal %w[first second], Logging.ndc.context
+
+        if Logging::INHERIT_CONTEXT
+          assert_equal %w[first second], Logging.ndc.context
+        else
+          assert_empty Logging.ndc.context
+        end
       }
 
       Thread.pass until t.status == 'sleep'

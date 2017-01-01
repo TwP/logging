@@ -397,61 +397,70 @@ module Logging
   end
 
   DIAGNOSTIC_MUTEX = Mutex.new
-
-end  # module Logging
-
+end
 
 # :stopdoc:
-class Thread
-  class << self
-
-    %w[new start fork].each do |m|
-      class_eval <<-__, __FILE__, __LINE__
-        alias_method :_orig_#{m}, :#{m}
-        private :_orig_#{m}
-        def #{m}( *a, &b )
-          create_with_logging_context(:_orig_#{m}, *a ,&b)
-        end
-      __
-    end
-
-  private
-
-    # In order for the diagnostic contexts to behave properly we need to
-    # inherit state from the parent thread. The only way I have found to do
-    # this in Ruby is to override `new` and capture the contexts from the
-    # parent Thread at the time the child Thread is created. The code below does
-    # just this. If there is a more idiomatic way of accomplishing this in Ruby,
-    # please let me know!
-    #
-    # Also, great care is taken in this code to ensure that a reference to the
-    # parent thread does not exist in the binding associated with the block
-    # being executed in the child thread. The same is true for the parent
-    # thread's mdc and ndc. If any of those references end up in the binding,
-    # then they cannot be garbage collected until the child thread exits.
-    #
-    def create_with_logging_context( m, *a, &b )
-      mdc, ndc = nil
-
-      if Thread.current[Logging::MappedDiagnosticContext::STACK_NAME]
-        mdc = Logging::MappedDiagnosticContext.context.dup
-      end
-
-      if Thread.current[Logging::NestedDiagnosticContext::NAME]
-        ndc = Logging::NestedDiagnosticContext.context.dup
-      end
-
-      # This calls the actual `Thread#new` method to create the Thread instance.
-      # If your memory profiling tool says this method is leaking memory, then
-      # you are leaking Thread instances somewhere.
-      self.send(m, *a) { |*args|
-        Logging::MappedDiagnosticContext.inherit(mdc)
-        Logging::NestedDiagnosticContext.inherit(ndc)
-        b.call(*args)
-      }
-    end
-
+Logging::INHERIT_CONTEXT =
+  if ENV.key?("LOGGING_INHERIT_CONTEXT")
+    case ENV["LOGGING_INHERIT_CONTEXT"].downcase
+    when 'false', 'no', '0'; false
+    else true end
+  else
+    true
   end
-end  # Thread
+
+if Logging::INHERIT_CONTEXT
+  class Thread
+    class << self
+
+      %w[new start fork].each do |m|
+        class_eval <<-__, __FILE__, __LINE__
+          alias_method :_orig_#{m}, :#{m}
+          private :_orig_#{m}
+          def #{m}( *a, &b )
+            create_with_logging_context(:_orig_#{m}, *a ,&b)
+          end
+        __
+      end
+
+    private
+
+      # In order for the diagnostic contexts to behave properly we need to
+      # inherit state from the parent thread. The only way I have found to do
+      # this in Ruby is to override `new` and capture the contexts from the
+      # parent Thread at the time the child Thread is created. The code below does
+      # just this. If there is a more idiomatic way of accomplishing this in Ruby,
+      # please let me know!
+      #
+      # Also, great care is taken in this code to ensure that a reference to the
+      # parent thread does not exist in the binding associated with the block
+      # being executed in the child thread. The same is true for the parent
+      # thread's mdc and ndc. If any of those references end up in the binding,
+      # then they cannot be garbage collected until the child thread exits.
+      #
+      def create_with_logging_context( m, *a, &b )
+        mdc, ndc = nil
+
+        if Thread.current[Logging::MappedDiagnosticContext::STACK_NAME]
+          mdc = Logging::MappedDiagnosticContext.context.dup
+        end
+
+        if Thread.current[Logging::NestedDiagnosticContext::NAME]
+          ndc = Logging::NestedDiagnosticContext.context.dup
+        end
+
+        # This calls the actual `Thread#new` method to create the Thread instance.
+        # If your memory profiling tool says this method is leaking memory, then
+        # you are leaking Thread instances somewhere.
+        self.send(m, *a) { |*args|
+          Logging::MappedDiagnosticContext.inherit(mdc)
+          Logging::NestedDiagnosticContext.inherit(ndc)
+          b.call(*args)
+        }
+      end
+
+    end
+  end
+end
 # :startdoc:
 
