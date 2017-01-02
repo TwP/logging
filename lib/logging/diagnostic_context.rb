@@ -404,6 +404,7 @@ Logging::INHERIT_CONTEXT =
   if ENV.key?("LOGGING_INHERIT_CONTEXT")
     case ENV["LOGGING_INHERIT_CONTEXT"].downcase
     when 'false', 'no', '0'; false
+    when false, nil; false
     else true end
   else
     true
