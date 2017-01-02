@@ -264,7 +264,7 @@ module Logging
     #    level = :all
     #
     # Set the level for this logger. The level can be either a +String+, a
-    # +Symbol+, or a +Fixnum+. An +ArgumentError+ is raised if this is not
+    # +Symbol+, or an +Integer+. An +ArgumentError+ is raised if this is not
     # the case.
     #
     # There are two special levels -- "all" and "off". The former will
@@ -294,7 +294,7 @@ module Logging
         else
           lvl = case level
                 when String, Symbol; ::Logging::level_num(level)
-                when Fixnum; level
+                when Integer; level
                 else
                   raise ArgumentError,
                         "level must be a String, Symbol, or Integer"
