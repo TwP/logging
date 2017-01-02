@@ -110,7 +110,7 @@ module Logging
     # Returns nil or the Hash removed from the stack.
     #
     def pop
-      return unless Thread.current[STACK_NAME]
+      return unless Thread.current.thread_variable_get(STACK_NAME)
       return unless stack.length > 1
       clear_context
       stack.pop
@@ -125,7 +125,7 @@ module Logging
     #
     def clear
       clear_context
-      Thread.current[STACK_NAME] = nil
+      Thread.current.thread_variable_set(STACK_NAME, nil)
       self
     end
 
@@ -140,15 +140,14 @@ module Logging
     def inherit( obj )
       case obj
       when Hash
-        Thread.current[STACK_NAME] = [obj.dup]
+        Thread.current.thread_variable_set(STACK_NAME, [obj.dup])
       when Thread
         return if Thread.current == obj
-        DIAGNOSTIC_MUTEX.synchronize {
-          if obj[STACK_NAME]
-            hash = flatten(obj[STACK_NAME])
-            Thread.current[STACK_NAME] = [hash]
+        DIAGNOSTIC_MUTEX.synchronize do
+          if hash = obj.thread_variable_get(STACK_NAME)
+            Thread.current.thread_variable_set(STACK_NAME, [flatten(hash)])
           end
-        }
+        end
       end
 
       self
@@ -159,12 +158,18 @@ module Logging
     # application.
     #
     def context
-      c = Thread.current[NAME]
-      return c unless c.nil?
+      c = Thread.current.thread_variable_get(NAME)
 
-      return Thread.current[NAME] = {} unless Thread.current[STACK_NAME]
+      if c.nil?
+        c = if Thread.current.thread_variable_get(STACK_NAME)
+          flatten(stack)
+        else
+          Hash.new
+        end
+        Thread.current.thread_variable_set(NAME, c)
+      end
 
-      Thread.current[NAME] = flatten(stack)
+      return c
     end
 
     # Returns the stack of Hash objects that are storing the diagnostic
@@ -172,7 +177,12 @@ module Logging
     # one Hash.
     #
     def stack
-      Thread.current[STACK_NAME] ||= [{}]
+      s = Thread.current.thread_variable_get(STACK_NAME)
+      if s.nil?
+        s = [{}]
+        Thread.current.thread_variable_set(STACK_NAME, s)
+      end
+      return s
     end
 
     # Returns the most current Hash from the stack of contexts.
@@ -184,7 +194,7 @@ module Logging
     # Remove the flattened context.
     #
     def clear_context
-      Thread.current[NAME] = nil
+      Thread.current.thread_variable_set(NAME, nil)
       self
     end
 
@@ -320,7 +330,7 @@ module Logging
     # Returns the NestedDiagnosticContext.
     #
     def clear
-      Thread.current[NAME] = nil
+      Thread.current.thread_variable_set(NAME, nil)
       self
     end
 
@@ -335,12 +345,12 @@ module Logging
     def inherit( obj )
       case obj
       when Array
-        Thread.current[NAME] = obj.dup
+        Thread.current.thread_variable_set(NAME, obj.dup)
       when Thread
         return if Thread.current == obj
-        DIAGNOSTIC_MUTEX.synchronize {
-          Thread.current[NAME] = obj[NAME].dup if obj[NAME]
-        }
+        DIAGNOSTIC_MUTEX.synchronize do
+          Thread.current.thread_variable_set(NAME, obj.thread_variable_get(NAME).dup) if obj.thread_variable_get(NAME)
+        end
       end
 
       self
@@ -351,7 +361,12 @@ module Logging
     # running in the application.
     #
     def context
-      Thread.current[NAME] ||= Array.new
+      c = Thread.current.thread_variable_get(NAME)
+      if c.nil?
+        c = Array.new
+        Thread.current.thread_variable_set(NAME, c)
+      end
+      return c
     end
   end  # NestedDiagnosticContext
 
@@ -381,13 +396,13 @@ module Logging
   #
   def self.clear_diagnostic_contexts( all = false )
     if all
-      DIAGNOSTIC_MUTEX.synchronize {
-        Thread.list.each { |thread|
-          thread[MappedDiagnosticContext::NAME] = nil if thread[MappedDiagnosticContext::NAME]
-          thread[NestedDiagnosticContext::NAME] = nil if thread[NestedDiagnosticContext::NAME]
-          thread[MappedDiagnosticContext::STACK_NAME] = nil if thread[MappedDiagnosticContext::STACK_NAME]
-        }
-      }
+      DIAGNOSTIC_MUTEX.synchronize do
+        Thread.list.each do |t|
+          t.thread_variable_set(MappedDiagnosticContext::NAME, nil)       if t.thread_variable?(MappedDiagnosticContext::NAME)
+          t.thread_variable_set(NestedDiagnosticContext::NAME, nil)       if t.thread_variable?(NestedDiagnosticContext::NAME)
+          t.thread_variable_set(MappedDiagnosticContext::STACK_NAME, nil) if t.thread_variable?(MappedDiagnosticContext::STACK_NAME)
+        end
+      end
     else
       MappedDiagnosticContext.clear
       NestedDiagnosticContext.clear
@@ -442,11 +457,11 @@ if Logging::INHERIT_CONTEXT
       def create_with_logging_context( m, *a, &b )
         mdc, ndc = nil
 
-        if Thread.current[Logging::MappedDiagnosticContext::STACK_NAME]
+        if Thread.current.thread_variable_get(Logging::MappedDiagnosticContext::STACK_NAME)
           mdc = Logging::MappedDiagnosticContext.context.dup
         end
 
-        if Thread.current[Logging::NestedDiagnosticContext::NAME]
+        if Thread.current.thread_variable_get(Logging::NestedDiagnosticContext::NAME)
           ndc = Logging::NestedDiagnosticContext.context.dup
         end
 
