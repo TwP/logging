@@ -105,12 +105,21 @@ module TestLogging
 
         assert_not_equal context.object_id, Logging.mdc.context.object_id
 
-        assert_equal 1, Logging.mdc['foo']
-        assert_equal 'buz', Logging.mdc['baz']
-        assert_equal 'something else', Logging.mdc['foobar']
-        assert_nil Logging.mdc['unique']
+        if Logging::INHERIT_CONTEXT
+          assert_equal 1, Logging.mdc['foo']
+          assert_equal 'buz', Logging.mdc['baz']
+          assert_equal 'something else', Logging.mdc['foobar']
+          assert_nil Logging.mdc['unique']
 
-        assert_equal 1, Logging.mdc.stack.length
+          assert_equal 1, Logging.mdc.stack.length
+        else
+          assert_nil Logging.mdc['foo']
+          assert_nil Logging.mdc['baz']
+          assert_nil Logging.mdc['foobar']
+          assert_nil Logging.mdc['unique']
+
+          assert_equal 1, Logging.mdc.stack.length
+        end
       }
 
       Thread.pass until t.status == 'sleep'
