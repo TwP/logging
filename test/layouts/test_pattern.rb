@@ -26,7 +26,7 @@ module TestLayouts
 
       @layout.date_method = 'usec'
       assert_equal 'usec', @layout.date_method
-      assert_instance_of Fixnum, @layout.format_date(Time.now)
+      assert_kind_of Integer, @layout.format_date(Time.now)
 
       @layout.date_method = :to_s
       assert_equal :to_s, @layout.date_method
@@ -38,7 +38,7 @@ module TestLayouts
 
       @layout.date_method = 'usec'
       assert_equal 'usec', @layout.date_method
-      assert_instance_of Fixnum, @layout.format_date(Time.now)
+      assert_kind_of Integer, @layout.format_date(Time.now)
     end
 
     def test_date_pattern

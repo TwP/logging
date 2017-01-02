@@ -114,7 +114,7 @@ class Appender
   #
   # Set the level for this appender; log events below this level will be
   # ignored by this appender. The level can be either a +String+, a
-  # +Symbol+, or a +Fixnum+. An +ArgumentError+ is raised if this is not
+  # +Symbol+, or an +Integer+. An +ArgumentError+ is raised if this is not
   # the case.
   #
   # There are two special levels -- "all" and "off". The former will
@@ -138,7 +138,7 @@ class Appender
   def level=( level )
     lvl = case level
           when String, Symbol; ::Logging::level_num(level)
-          when Fixnum; level
+          when Integer; level
           when nil; 0
           else
             raise ArgumentError,

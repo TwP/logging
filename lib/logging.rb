@@ -95,9 +95,9 @@ module Logging
       layout = ::Logging::Layouts::Pattern.new(l_opts)
 
       a_opts = Hash.new
-      a_opts[:size] = size if size.instance_of?(Fixnum)
+      a_opts[:size] = size if size.is_a?(Integer)
       a_opts[:age]  = age  if age.instance_of?(String)
-      a_opts[:keep] = keep if keep.instance_of?(Fixnum)
+      a_opts[:keep] = keep if keep.is_a?(Integer)
       a_opts[:filename] = dev if dev.instance_of?(String)
       a_opts[:layout] = layout
       a_opts.merge! opts
