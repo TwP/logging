@@ -40,7 +40,7 @@ module Logging
       # Store a color scheme by name.
       #
       def []=( name, value )
-        raise ArgumentError, "Silly! That's not a ColorSchmeme!" unless ColorScheme === value
+        raise ArgumentError, "Silly! That's not a ColorSchmeme!" unless value.is_a?(ColorScheme)
         @color_schemes[name.to_s] = value
       end
 

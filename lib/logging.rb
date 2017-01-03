@@ -452,7 +452,7 @@ module Logging
     # to false. It uses its own appender to send messages to stderr.
     #
     def show_configuration( io = STDOUT, logger = 'root', indent = 0 )
-      logger = ::Logging::Logger[logger] unless ::Logging::Logger === logger
+      logger = ::Logging::Logger[logger] unless logger.is_a?(::Logging::Logger)
 
       io << logger._dump_configuration(indent)
 

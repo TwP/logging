@@ -24,7 +24,7 @@ module Logging::Appenders
       name = self.class.name.split("::").last.downcase
       io   = Object.const_get(name.upcase)
 
-      opts = Hash === args.last ? args.pop : {}
+      opts = args.last.is_a?(Hash) ? args.pop : {}
       name = args.shift unless args.empty?
 
       opts[:encoding] = io.external_encoding if io.respond_to? :external_encoding
