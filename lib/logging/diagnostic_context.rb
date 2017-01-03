@@ -209,7 +209,7 @@ module Logging
     # Raises an ArgumentError if hash is not a Hash.
     #
     def sanitize( hash, target = {} )
-      unless Hash === hash
+      unless hash.is_a?(Hash)
         raise ArgumentError, "Expecting a Hash but received a #{hash.class.name}"
       end
 
