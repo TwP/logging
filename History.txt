@@ -1,3 +1,18 @@
+== 2.2.0 / 2017-03-09
+
+Enhancements
+- diagnostic context inheritance is now optional [PR #160]
+- add support for setting a UTC offset [PR #157]
+- setting a basepath for call tracing [PR #154]
+
+Bug Fixes
+- use thread-local variables for diagnostic contexts [PR #162]
+- replace `Fixnum` with `Integer` [PR #161]
+- fixed a race condition in the rolling file appender [PR #151]
+
+Deprecations
+- dropped Ruby 1.9 support
+
 == 2.1.0 / 2016-03-13
 
 Enhancements
