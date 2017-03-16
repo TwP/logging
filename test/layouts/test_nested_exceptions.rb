@@ -15,10 +15,12 @@ module TestLayouts
     rescue Exception => e
       layout = Logging.layouts.basic({})
       log = layout.format_obj(e)
-      puts log.scan(/(?=<Exception> root exception)/)
       assert_not_nil log.index('<Exception> root exception')
-      assert_not_nil log.index('<StandardError> nested exception')
-      assert_operator log.index('<Exception> root exception'), :<, log.index('<StandardError> nested exception')
+
+      if defined? e.cause
+        assert_not_nil log.index('<StandardError> nested exception')
+        assert_operator log.index('<Exception> root exception'), :<, log.index('<StandardError> nested exception')
+      end
     end
 
     def test_parseable_format_obj
@@ -32,14 +34,17 @@ module TestLayouts
       log = layout.format_obj(e)
       assert_equal Exception.name, log[:class]
       assert_equal 'root exception', log[:message]
-      assert_not_nil log[:cause]
       assert_operator log[:backtrace].size, :>, 0
 
-      log = log[:cause]
-      assert_equal StandardError.name, log[:class]
-      assert_equal 'nested exception', log[:message]
-      assert_nil log[:cause]
-      assert_operator log[:backtrace].size, :>, 0
+      if defined? e.cause
+        assert_not_nil log[:cause]
+
+        log = log[:cause]
+        assert_equal StandardError.name, log[:class]
+        assert_equal 'nested exception', log[:message]
+        assert_nil log[:cause]
+        assert_operator log[:backtrace].size, :>, 0
+      end
     end
   end  # class TestNestedExceptions
 
