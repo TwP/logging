@@ -146,6 +146,7 @@ class Layout
       if backtrace? && !obj.backtrace.nil?
         str << "\n\t" << obj.backtrace.join("\n\t")
       end
+      str = str << "\n\t" << format_obj(obj.cause) if defined?(obj.cause) && obj.cause # in case of ruby 2.0 or older
       str
     when nil; "<#{obj.class.name}> nil"
     else

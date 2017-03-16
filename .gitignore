@@ -12,3 +12,4 @@ tmp/
 vendor/
 .rbx
 .rvmrc
+.idea/
