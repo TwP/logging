@@ -41,7 +41,7 @@ module TestLayouts
       assert_nil log[:cause]
       assert_operator log[:backtrace].size, :>, 0
     end
-  end  # class TestBasic
+  end  # class TestNestedExceptions
 
 end  # module TestLayouts
 end  # module TestLogging
