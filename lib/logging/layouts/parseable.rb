@@ -221,7 +221,8 @@ module Logging::Layouts
       when Exception
         h = { :class   => obj.class.name,
               :message => obj.message }
-        h[:backtrace] = obj.backtrace if @backtrace && !obj.backtrace.nil?
+        h[:backtrace] = obj.backtrace if backtrace? && !obj.backtrace.nil?
+        h[:cause] = format(obj.cause) if defined?(obj.cause) && !obj.cause.nil?
         h
       when Time
         iso8601_format(obj)
