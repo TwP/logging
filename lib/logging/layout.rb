@@ -142,11 +142,15 @@ class Layout
     case obj
     when String; obj
     when Exception
-      str = "<#{obj.class.name}> #{obj.message}"
+      ary = ["<#{obj.class.name}> #{obj.message}"]
       if backtrace? && !obj.backtrace.nil?
-        str << "\n\t" << obj.backtrace.join("\n\t")
+        ary.concat(obj.backtrace)
       end
-      str
+      if defined?(obj.cause) && !obj.cause.nil?
+        ary << "--- Caused by ---"
+        ary << format_obj(obj.cause)
+      end
+      ary.join("\n\t")
     when nil; "<#{obj.class.name}> nil"
     else
       str = "<#{obj.class.name}> "
