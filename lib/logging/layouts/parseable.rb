@@ -222,6 +222,7 @@ module Logging::Layouts
         h = { :class   => obj.class.name,
               :message => obj.message }
         h[:backtrace] = obj.backtrace if @backtrace && !obj.backtrace.nil?
+        h[:cause] = format_obj(obj.cause) if defined?(obj.cause) && obj.cause # in case of ruby 2.0 or older
         h
       when Time
         iso8601_format(obj)
