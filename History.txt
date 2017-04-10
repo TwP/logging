@@ -1,3 +1,8 @@
+== 2.2.1 / 2017-04-09
+
+Enhancements
+- show exception `cause` if one exists [PR #165]
+
 == 2.2.0 / 2017-03-09
 
 Enhancements
