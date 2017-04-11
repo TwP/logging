@@ -41,8 +41,9 @@ class Layout
                   when :inspect, :yaml, :json; f
                   else :string end
 
-    self.backtrace  = opts.fetch(:backtrace,  ::Logging.backtrace)
-    self.utc_offset = opts.fetch(:utc_offset, ::Logging.utc_offset)
+    self.backtrace   = opts.fetch(:backtrace,   ::Logging.backtrace)
+    self.utc_offset  = opts.fetch(:utc_offset,  ::Logging.utc_offset)
+    self.cause_depth = opts.fetch(:cause_depth, ::Logging.cause_depth)
   end
 
   # call-seq:
@@ -88,6 +89,20 @@ class Layout
 
   # Returns the UTC offset.
   attr_reader :utc_offset
+
+  #
+  #
+  def cause_depth=( value )
+    if value.nil?
+      @cause_depth = ::Logging::DEFAULT_CAUSE_DEPTH
+    else
+      value = Integer(value)
+      @cause_depth = value < 0 ? ::Logging::DEFAULT_CAUSE_DEPTH : value
+    end
+  end
+
+  # Returns the exception cause depth formatting limit.
+  attr_reader :cause_depth
 
   # Internal: Helper method that applies the UTC offset to the given `time`
   # instance. A new Time is returned that is equivalent to the original `time`
@@ -142,15 +157,10 @@ class Layout
     case obj
     when String; obj
     when Exception
-      ary = ["<#{obj.class.name}> #{obj.message}"]
-      if backtrace? && !obj.backtrace.nil?
-        ary.concat(obj.backtrace)
-      end
-      if defined?(obj.cause) && !obj.cause.nil?
-        ary << "--- Caused by ---"
-        ary << format_obj(obj.cause)
-      end
-      ary.join("\n\t")
+      lines = ["<#{obj.class.name}> #{obj.message}"]
+      lines.concat(obj.backtrace) if backtrace? && obj.backtrace
+      format_cause(obj, lines)
+      lines.join("\n\t")
     when nil; "<#{obj.class.name}> nil"
     else
       str = "<#{obj.class.name}> "
@@ -162,6 +172,64 @@ class Layout
       str
     end
   end
+
+  # Internal: Format any nested exceptions found in the given exception `e`
+  # while respecting the maximum `cause_depth`. The lines array is used to
+  # capture all the output lines form the nested exceptions; the array is later
+  # joined by the `format_obj` method.
+  #
+  # e     - Exception to format
+  # lines - Array of output lines
+  #
+  # Returns the input `lines` Array
+  def format_cause(e, lines)
+    return lines if cause_depth == 0
+
+    cause_depth.times do
+      break unless e.respond_to?(:cause) && e.cause
+
+      cause = e.cause
+      lines << "--- Caused by ---"
+      lines << "<#{cause.class.name}> #{cause.message}"
+      lines.concat(format_cause_backtrace(e, cause)) if backtrace? && cause.backtrace
+
+      e = cause
+    end
+
+    if e.respond_to?(:cause) && e.cause
+      lines << "--- Further #cause backtraces were omitted ---"
+    end
+
+    lines
+  end
+
+  # Internal: Format the backtrace of the nested `cause` but remove the common
+  # exception lines from the parent exception. This helps keep the backtraces a
+  # wee bit shorter and more comprehensible.
+  #
+  # e     - parent exception
+  # cause - the nested exception generating the returned backtrace
+  #
+  # Returns an Array of backtracke lines.
+  def format_cause_backtrace(e, cause)
+    # Find where the cause's backtrace differs from the parent exception's.
+    backtrace       = Array(e.backtrace)
+    cause_backtrace = Array(cause.backtrace)
+    index = -1
+    min_index = [backtrace.size, cause_backtrace.size].min * -1
+    just_in_case = -5000
+
+    while index > min_index && backtrace[index] == cause_backtrace[index] && index >= just_in_case
+      index -= 1
+    end
+
+    # Add on a few common frames to make it clear where the backtraces line up.
+    index += 3
+    index = -1 if index >= 0
+
+    cause_backtrace[0..index]
+  end
+
 
   # Attempt to format the _obj_ using yaml, but fall back to inspect style
   # formatting if yaml fails.
@@ -188,7 +256,5 @@ class Layout
   rescue StandardError
     obj.inspect
   end
-
-end  # class Layout
-end  # module Logging
-
+end
+end
