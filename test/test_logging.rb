@@ -54,6 +54,24 @@ module TestLogging
       assert_raise(ArgumentError) {::Logging.utc_offset = "06:00"}
     end
 
+    def test_cause_depth
+      assert_equal ::Logging::DEFAULT_CAUSE_DEPTH, ::Logging.cause_depth
+
+      ::Logging.cause_depth = 0
+      assert_equal 0, ::Logging.cause_depth
+
+      ::Logging.cause_depth = nil
+      assert_equal ::Logging::DEFAULT_CAUSE_DEPTH, ::Logging.cause_depth
+
+      ::Logging.cause_depth = "1024"
+      assert_equal 1024, ::Logging.cause_depth
+
+      ::Logging.cause_depth = -1
+      assert_equal ::Logging::DEFAULT_CAUSE_DEPTH, ::Logging.cause_depth
+
+      assert_raise(ArgumentError) {::Logging.cause_depth = "foo"}
+    end
+
     def test_basepath
       assert_nil ::Logging.basepath
 

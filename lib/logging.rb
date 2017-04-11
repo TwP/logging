@@ -23,6 +23,8 @@ module Logging
   PATH = ::File.expand_path('../..', __FILE__) + ::File::SEPARATOR
   LEVELS = {}
   LNAMES = []
+  DEFAULT_CAUSE_DEPTH = 8
+
   module Plugins; end
   # :startdoc:
 
@@ -255,6 +257,8 @@ module Logging
       longest = 'off' if longest.length < 3
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
+      self.cause_depth = nil unless defined? @cause_depth
+
       initialize_plugins
       levels.keys
     end
@@ -335,6 +339,27 @@ module Logging
     end
 
     attr_reader :utc_offset
+
+    # Set the default Exception#cause depth used when formatting Exceptions.
+    # This sets the maximum number of nested errors that will be formatted by
+    # the layouts before giving up. This is used to avoid extremely large
+    # outputs.
+    #
+    #   Logging.cause_depth = nil    # set to the DEFAULT_CAUSE_DEPTH
+    #   Logging.cause_depth = 0      # do not show any exception causes
+    #   Logging.cause_depth = 1024   # show up to 1024 causes
+    #   Logging.cause_depth = -1     # results in the DEFAULT_CAUSE_DEPTH
+    #
+    def cause_depth=( value )
+      if value.nil?
+        @cause_depth = DEFAULT_CAUSE_DEPTH
+      else
+        value = Integer(value)
+        @cause_depth = value < 0 ? DEFAULT_CAUSE_DEPTH : value
+      end
+    end
+
+    attr_reader :cause_depth
 
     # Used to define a `basepath` that will be removed from filenames when
     # reporting tracing information for log events. Normally you would set this
@@ -516,7 +541,8 @@ module Logging
       remove_instance_variable :@basepath  if defined? @basepath
       remove_const :MAX_LEVEL_LENGTH if const_defined? :MAX_LEVEL_LENGTH
       remove_const :OBJ_FORMAT if const_defined? :OBJ_FORMAT
-      self.utc_offset = nil
+      self.utc_offset  = nil
+      self.cause_depth = nil
       self
     end
 
