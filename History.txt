@@ -1,3 +1,8 @@
+== 2.2.2 / 2017-04-11
+
+Enhancements
+- limit the depth of nested exceptions [PR #167]
+
 == 2.2.1 / 2017-04-09
 
 Enhancements
