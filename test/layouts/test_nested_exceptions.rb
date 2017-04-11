@@ -59,31 +59,66 @@ module TestLogging
         err = nil
         begin
           begin
-            raise StandardError, 'nested exception'
+            raise ArgumentError, 'nested exception'
           rescue
-            raise Exception, 'root exception'
+            raise StandardError, 'root exception'
           end
-        rescue Object => e
+        rescue => e
           err = e
         end
 
         layout = Logging.layouts.parseable.new
         log = layout.format_obj(e)
-        assert_equal Exception.name, log[:class]
+        assert_equal 'StandardError', log[:class]
         assert_equal 'root exception', log[:message]
-        assert_operator log[:backtrace].size, :>, 0
+        assert log[:backtrace].size > 0
 
-        if defined? e.cause
+        if e.respond_to?(:cause)
           assert_not_nil log[:cause]
 
           log = log[:cause]
-          assert_equal StandardError.name, log[:class]
+          assert_equal 'ArgumentError', log[:class]
           assert_equal 'nested exception', log[:message]
           assert_nil log[:cause]
-          assert_operator log[:backtrace].size, :>, 0
+          assert log[:backtrace].size > 0
+        end
+      end
+
+      def test_parseable_cause_depth_limiting
+        err = nil
+        begin
+          begin
+            begin
+              raise TypeError, 'nested exception 2'
+            rescue
+              raise ArgumentError, 'nested exception 1'
+            end
+          rescue
+            raise StandardError, 'root exception'
+          end
+        rescue => e
+          err = e
+        end
+
+        layout = Logging.layouts.parseable.new(cause_depth: 1)
+        log = layout.format_obj(e)
+
+        assert_equal 'StandardError', log[:class]
+        assert_equal 'root exception', log[:message]
+        assert log[:backtrace].size > 0
+
+        if e.respond_to?(:cause)
+          assert_not_nil log[:cause]
+
+          log = log[:cause]
+          assert_equal 'ArgumentError', log[:class]
+          assert_equal 'nested exception 1', log[:message]
+          assert_equal({message: "Further #cause backtraces were omitted"}, log[:cause])
+          assert log[:backtrace].size > 0
         end
       end
     end
   end
 end
 
+require 'pp'

@@ -219,16 +219,51 @@ module Logging::Layouts
     def format_obj( obj )
       case obj
       when Exception
-        h = { :class   => obj.class.name,
-              :message => obj.message }
-        h[:backtrace] = obj.backtrace if backtrace? && !obj.backtrace.nil?
-        h[:cause] = format_obj(obj.cause) if defined?(obj.cause) && !obj.cause.nil?
-        h
+        hash = {
+          :class   => obj.class.name,
+          :message => obj.message
+        }
+        hash[:backtrace] = obj.backtrace if backtrace? && obj.backtrace
+
+        cause = format_cause(obj)
+        hash[:cause] = cause unless cause.empty?
+        hash
       when Time
         iso8601_format(obj)
       else
         obj
       end
+    end
+
+    # Internal: Format any nested exceptions found in the given exception `e`
+    # while respecting the maximum `cause_depth`.
+    #
+    # e - Exception to format
+    #
+    # Returns the cause formatted as a Hash
+    def format_cause(e)
+      rv = curr = {}
+      prev = nil
+
+      cause_depth.times do
+        break unless e.respond_to?(:cause) && e.cause
+
+        cause = e.cause
+        curr[:class]     = cause.class.name
+        curr[:message]   = cause.message
+        curr[:backtrace] = format_cause_backtrace(e, cause) if backtrace? && cause.backtrace
+
+        prev[:cause] = curr unless prev.nil?
+        prev, curr = curr, {}
+
+        e = cause
+      end
+
+      if e.respond_to?(:cause) && e.cause
+        prev[:cause] = {message: "Further #cause backtraces were omitted"}
+      end
+
+      rv
     end
 
   private
@@ -258,6 +293,5 @@ module Logging::Layouts
       return str << (value.gmt_offset < 0 ? '-' : '+') << offset
     end
 
-  end  # Parseable
-end  # Logging::Layouts
-
+  end
+end
