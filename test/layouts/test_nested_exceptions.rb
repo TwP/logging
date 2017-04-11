@@ -7,29 +7,66 @@ module TestLogging
       include LoggingTestCase
 
       def test_basic_format_obj
+        err = nil
         begin
-          raise StandardError, 'nested exception'
-        rescue
-          raise Exception, 'root exception'
+          begin
+            raise ArgumentError, 'nested exception'
+          rescue
+            raise StandardError, 'root exception'
+          end
+        rescue => e
+          err = e
         end
-      rescue Exception => e
+
         layout = Logging.layouts.basic({})
         log = layout.format_obj(e)
-        assert_not_nil log.index('<Exception> root exception')
+        assert_not_nil log.index('<StandardError> root exception')
 
-        if defined? e.cause
-          assert_not_nil log.index('<StandardError> nested exception')
-          assert_operator log.index('<Exception> root exception'), :<, log.index('<StandardError> nested exception')
+        if err.respond_to?(:cause)
+          assert_not_nil log.index('<ArgumentError> nested exception')
+          assert(log.index('<StandardError> root exception') < log.index('<ArgumentError> nested exception'))
+        end
+      end
+
+      def test_cause_depth_limiting
+        err = nil
+        begin
+          begin
+            begin
+              raise TypeError, 'nested exception 2'
+            rescue
+              raise ArgumentError, 'nested exception 1'
+            end
+          rescue
+            raise StandardError, 'root exception'
+          end
+        rescue => e
+          err = e
+        end
+
+        layout = Logging.layouts.basic(cause_depth: 1)
+        log = layout.format_obj(e)
+        assert_not_nil log.index('<StandardError> root exception')
+
+        if err.respond_to?(:cause)
+          assert_not_nil log.index('<ArgumentError> nested exception 1')
+          assert_nil log.index('<TypeError> nested exception 2')
+          assert_equal '--- Further #cause backtraces were omitted ---', log.split("\n\t").last
         end
       end
 
       def test_parseable_format_obj
+        err = nil
         begin
-          raise StandardError, 'nested exception'
-        rescue
-          raise Exception, 'root exception'
+          begin
+            raise StandardError, 'nested exception'
+          rescue
+            raise Exception, 'root exception'
+          end
+        rescue Object => e
+          err = e
         end
-      rescue Exception => e
+
         layout = Logging.layouts.parseable.new
         log = layout.format_obj(e)
         assert_equal Exception.name, log[:class]
