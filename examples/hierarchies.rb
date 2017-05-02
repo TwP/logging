@@ -1,8 +1,8 @@
 # :stopdoc:
 #
 # Loggers exist in a hierarchical relationship defined by their names. Each
-# logger has a parent (except for the root logger). A logger can zero or
-# more children. This parent/child relationship is determined by the Ruby
+# logger has a parent (except for the root logger). A logger can zero have
+# or more children. This parent/child relationship is determined by the Ruby
 # namespace separator '::'.
 #
 #   root
