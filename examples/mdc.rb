@@ -29,9 +29,9 @@
   Logging.mdc['first'] = 'John'
   Logging.mdc['last']  = 'Doe'
 
-  # in this first thread we will log some quotes by Allan Rickman
+  # in this first thread we will log some quotes by Alan Rickman
   t1 = Thread.new {
-    Logging.mdc['first'] = 'Allan'
+    Logging.mdc['first'] = 'Alan'
     Logging.mdc['last']  = 'Rickman'
 
     [ %q{I've never been able to plan my life. I just lurch from indecision to indecision.},
