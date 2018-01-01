@@ -268,8 +268,8 @@ module Logging
     #
     # Defines the default _obj_format_ method to use when converting objects
     # into string representations for logging. _obj_format_ can be one of
-    # <tt>:string</tt>, <tt>:inspect</tt>, or <tt>:yaml</tt>. These
-    # formatting commands map to the following object methods
+    # <tt>:string</tt>, <tt>:inspect</tt>, <tt>:json</tt> or <tt>:yaml</tt>.
+    # These formatting commands map to the following object methods
     #
     # * :string  => to_s
     # * :inspect => inspect
@@ -277,7 +277,7 @@ module Logging
     # * :json    => MultiJson.encode(obj)
     #
     # An +ArgumentError+ is raised if anything other than +:string+,
-    # +:inspect+, +:yaml+ is passed to this method.
+    # +:inspect+, +:json+ or +:yaml+ is passed to this method.
     #
     def format_as( f )
       f = f.intern if f.instance_of? String
