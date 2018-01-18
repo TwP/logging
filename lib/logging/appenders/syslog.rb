@@ -205,7 +205,7 @@ module Logging::Appenders
         level = level.to_s.upcase
         self.class.const_get level
       else
-        raise ArgumentError, "unkonwn level '#{level}'"
+        raise ArgumentError, "unknown level '#{level}'"
       end
     end
 
