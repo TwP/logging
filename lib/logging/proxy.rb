@@ -47,7 +47,7 @@ module Logging
 
     # All hail the magic of method missing. Here is where we are going to log
     # the method call and then forward to the proxied object. The return value
-    # from the proxied objet method call is passed back.
+    # from the proxied object method call is passed back.
     #
     def method_missing( name, *args, &block )
       @logger << "#@leader#{name}(#{args.inspect[1..-2]})\n"
