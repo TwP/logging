@@ -86,6 +86,24 @@ module TestAppenders
       cleanup
     end
 
+    def test_file_move
+      log = File.join(TMP, 'file.log')
+      appender = Logging.appenders.file(NAME, :filename => log)
+      appender << "One\n"
+      a_filename = appender.filename
+      b_filename = appender.filename + ".moved"
+
+      assert_equal "One\n", File.read(a_filename)
+
+      FileUtils.mv a_filename, b_filename
+      appender.reopen
+      appender << "Two\n"
+      appender.close
+
+      assert_equal "One\n", File.read(b_filename)
+      assert_equal "Two\n", File.read(a_filename)
+    end
+
     def test_changing_directories
       log = File.join(TMP, 'file.log')
       appender = Logging.appenders.file(NAME, :filename => log)
