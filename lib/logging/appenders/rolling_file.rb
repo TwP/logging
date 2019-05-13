@@ -104,11 +104,13 @@ module Logging::Appenders
       super(name, ::File.new(filename, @mode), opts)
 
       # if the truncate flag was set to true, then roll
-      roll_now = opts.fetch(:truncate, false)
-      if roll_now
-        copy_truncate
-        @roller.roll_files
-      end
+      sync {
+        roll_now = opts.fetch(:truncate, false)
+        if roll_now
+          copy_truncate
+          @roller.roll_files
+        end
+      }
     end
 
     # Returns the path to the logfile.
@@ -159,13 +161,15 @@ module Logging::Appenders
       str = str.force_encoding(encoding) if encoding && str.encoding != encoding
       @io.flock_sh { @io.write str }
 
-      if roll_required?
-        @io.flock? {
-          @age_fn_mtime = nil
-          copy_truncate if roll_required?
-        }
-        @roller.roll_files
-      end
+      sync {
+        if roll_required?
+          @io.flock? {
+            @age_fn_mtime = nil
+            copy_truncate if roll_required?
+          }
+          @roller.roll_files
+        end
+      }
       self
     rescue StandardError => err
       self.level = :off
