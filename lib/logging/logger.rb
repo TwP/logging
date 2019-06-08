@@ -49,7 +49,7 @@ module Logging
       # Share the same mutex that's used by 'define_log_methods' because
       # it iterates over the hash of loggers, and adding a new key to a hash
       # while iterating over it produces an error.
-      ::Logging::Logger._reentrant_mutex.synchronize do
+      ::Logging::Logger.mutex.synchronize do
         logger = repo[name]
         return logger unless logger.nil? # thread-safe double checking
 
@@ -117,6 +117,14 @@ module Logging
         end
       end
       code.join("\n")
+    end
+
+    @mutex = ReentrantMutex.new
+
+    # Returns a global ReentrantMutex for use when creating Logger instances
+    # and/or updating log levels.
+    def self.mutex
+      @mutex
     end
 
     attr_reader :name, :parent, :additive, :caller_tracing
@@ -412,7 +420,7 @@ module Logging
     def define_log_methods( force = false, code = nil )
       return if has_own_level? and !force
 
-      ::Logging::Logger._reentrant_mutex.synchronize do
+      ::Logging::Logger.mutex.synchronize do
         ::Logging::Logger.define_log_methods(self)
         ::Logging::Repository.instance.children(name).each do |child|
           child.define_log_methods
@@ -423,12 +431,6 @@ module Logging
 
     # :stopdoc:
   public
-
-    @reentrant_mutex = ReentrantMutex.new
-
-    def self._reentrant_mutex
-      @reentrant_mutex
-    end
 
     # call-seq:
     #    _meta_eval( code )
@@ -512,6 +514,5 @@ module Logging
     end
     # :startdoc:
 
-  end  # Logger
-end  # Logging
-
+  end
+end
