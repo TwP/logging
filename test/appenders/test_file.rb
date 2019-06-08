@@ -102,22 +102,19 @@ module TestAppenders
       end
     end
 
-    if Object.const_defined? :Encoding
+    def test_encoding
+      log = File.join(TMP, 'file-encoding.log')
+      appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ASCII')
 
-      def test_encoding
-        log = File.join(TMP, 'file-encoding.log')
-        appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ASCII')
+      appender << "A normal line of text\n"
+      appender << "ümlaut\n"
+      appender.close
 
-        appender << "A normal line of text\n"
-        appender << "ümlaut\n"
-        appender.close
+      lines = File.readlines(log, :encoding => 'UTF-8')
+      assert_equal "A normal line of text\n", lines[0]
+      assert_equal "ümlaut\n", lines[1]
 
-        lines = File.readlines(log, :encoding => 'UTF-8')
-        assert_equal "A normal line of text\n", lines[0]
-        assert_equal "ümlaut\n", lines[1]
-
-        cleanup
-      end
+      cleanup
     end
 
   private

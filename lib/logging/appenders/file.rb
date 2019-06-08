@@ -55,7 +55,7 @@ module Logging::Appenders
       @mode = opts.fetch(:truncate, false) ? 'w' : 'a'
 
       self.encoding = opts.fetch(:encoding, self.encoding)
-      @mode = "#{@mode}:#{self.encoding}" if self.encoding
+      @mode = "#{@mode}:#{self.encoding}"
 
       super(name, ::File.new(@fn, @mode), opts)
     end
@@ -79,7 +79,5 @@ module Logging::Appenders
       super
       self
     end
-
-  end  # FileAppender
-end  # Logging::Appenders
-
+  end
+end
