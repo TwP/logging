@@ -19,7 +19,7 @@ module TestLogging
         end
 
         layout = Logging.layouts.basic({})
-        log = layout.format_obj(e)
+        log = layout.format_obj(err)
         assert_not_nil log.index('<StandardError> root exception')
 
         if err.respond_to?(:cause)
@@ -45,7 +45,7 @@ module TestLogging
         end
 
         layout = Logging.layouts.basic(cause_depth: 1)
-        log = layout.format_obj(e)
+        log = layout.format_obj(err)
         assert_not_nil log.index('<StandardError> root exception')
 
         if err.respond_to?(:cause)
@@ -68,12 +68,12 @@ module TestLogging
         end
 
         layout = Logging.layouts.parseable.new
-        log = layout.format_obj(e)
+        log = layout.format_obj(err)
         assert_equal 'StandardError', log[:class]
         assert_equal 'root exception', log[:message]
         assert log[:backtrace].size > 0
 
-        if e.respond_to?(:cause)
+        if err.respond_to?(:cause)
           assert_not_nil log[:cause]
 
           log = log[:cause]
@@ -101,13 +101,13 @@ module TestLogging
         end
 
         layout = Logging.layouts.parseable.new(cause_depth: 1)
-        log = layout.format_obj(e)
+        log = layout.format_obj(err)
 
         assert_equal 'StandardError', log[:class]
         assert_equal 'root exception', log[:message]
         assert log[:backtrace].size > 0
 
-        if e.respond_to?(:cause)
+        if err.respond_to?(:cause)
           assert_not_nil log[:cause]
 
           log = log[:cause]
