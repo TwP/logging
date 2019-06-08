@@ -263,13 +263,9 @@ class Appender
     "<%s name=\"%s\">" % [self.class.name.sub(%r/^Logging::/, ''), self.name]
   end
 
-  # Returns the current Encoding for the appender or nil if an encoding has
-  # not been set.
-  #
-  def encoding
-    return @encoding if defined? @encoding
-    @encoding = Object.const_defined?(:Encoding) ? Encoding.default_external : nil
-  end
+  # Returns the current Encoding for the appender. The default external econding
+  # will be used if none is explicitly set.
+  attr_reader :encoding
 
   # Set the appender encoding to the given value. The value can either be an
   # Encoding instance or a String or Symbol referring to a valid encoding.
@@ -282,9 +278,9 @@ class Appender
   # Raises ArgumentError if the value is not a valid encoding.
   def encoding=( value )
     if value.nil?
-      @encoding = nil
+      @encoding = Encoding.default_external
     else
-      @encoding = Object.const_defined?(:Encoding) ? Encoding.find(value.to_s) : nil
+      @encoding = Encoding.find(value.to_s)
     end
   end
 
