@@ -24,8 +24,6 @@ module Logging
   #
   class Logger
 
-    @mutex = Mutex.new  # :nodoc:
-
     # Returns the root logger.
     def self.root
       ::Logging::Repository.instance[:root]
@@ -48,7 +46,10 @@ module Logging
       logger = repo[name]
       return logger unless logger.nil?
 
-      @mutex.synchronize do
+      # Share the same mutex that's used by 'define_log_methods' because
+      # it iterates over the hash of loggers, and adding a new key to a hash
+      # while iterating over it produces an error.
+      ::Logging::Logger._reentrant_mutex.synchronize do
         logger = repo[name]
         return logger unless logger.nil? # thread-safe double checking
 
