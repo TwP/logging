@@ -253,6 +253,43 @@ module TestLogging
       assert_match %r/\d+\.\d+\.\d+/, ::Logging.version
     end
 
+    class Failer
+      class WriteError < StandardError ; end
+      def self.write(*args)
+        raise WriteError.new("Oh noooooo")
+      end
+    end
+
+    def test_error_handling
+      logger = ::Logging.logger Failer, 2, 100
+      logger.appenders.first.level = :debug
+
+      # No errors are raised by default
+      logger.fatal 'this is a debug message'
+      # Always reset the level; we disable appenders that raise by setting them
+      # to :off
+      logger.appenders.first.level = :debug
+
+      begin
+        Thread.abort_on_exception = true
+        assert_raises Failer::WriteError do
+          logger.fatal 'this fails because the file descriptor is closed'
+        end
+      ensure
+        Thread.abort_on_exception = false
+      end
+      logger.appenders.first.level = :debug
+
+      begin
+        Logging.raise_errors = true
+        assert_raises Failer::WriteError do
+          logger.fatal 'this fails because the file descriptor is closed'
+        end
+      ensure
+        Logging.raise_errors = false
+      end
+    end
+
   end  # class TestLogging
 end  # module TestLogging
 

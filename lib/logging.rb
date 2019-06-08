@@ -490,6 +490,21 @@ module Logging
       io
     end
 
+    # Raise an exception when an error is encountered while logging, be it with
+    # a backing store, formatter, or anything else. You probably wouldn't want
+    # to enable this outside of test.
+    #
+    # Not that only one error will ever be raised per logging backend, as
+    # backends that raise errors on write will be set to :off.
+    def raise_errors=(boolean)
+      @raise_errors = boolean
+    end
+
+    # Whether or not we should raise errors when writing logs.
+    def raise_errors
+      @raise_errors
+    end
+
     # :stopdoc:
     # Convert the given level into a canonical form - a lowercase string.
     def levelify( level )
@@ -518,7 +533,7 @@ module Logging
     # exception will be raised again.
     def log_internal_error( err )
       log_internal(-2) { err }
-      raise err if Thread.abort_on_exception
+      raise err if Thread.abort_on_exception || ::Logging.raise_errors
     end
 
     # Close all appenders
