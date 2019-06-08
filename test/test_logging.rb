@@ -271,16 +271,6 @@ module TestLogging
       logger.appenders.first.level = :debug
 
       begin
-        Thread.abort_on_exception = true
-        assert_raises Failer::WriteError do
-          logger.fatal 'this fails because the file descriptor is closed'
-        end
-      ensure
-        Thread.abort_on_exception = false
-      end
-      logger.appenders.first.level = :debug
-
-      begin
         Logging.raise_errors = true
         assert_raises Failer::WriteError do
           logger.fatal 'this fails because the file descriptor is closed'
@@ -289,7 +279,5 @@ module TestLogging
         Logging.raise_errors = false
       end
     end
-
-  end  # class TestLogging
-end  # module TestLogging
-
+  end
+end

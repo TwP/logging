@@ -258,6 +258,7 @@ module Logging
       module_eval "MAX_LEVEL_LENGTH = #{longest.length}", __FILE__, __LINE__
 
       self.cause_depth = nil unless defined? @cause_depth
+      self.raise_errors = false unless defined? @raise_errors
 
       initialize_plugins
       levels.keys
@@ -501,7 +502,7 @@ module Logging
     end
 
     # Whether or not we should raise errors when writing logs.
-    def raise_errors
+    def raise_errors?
       @raise_errors
     end
 
@@ -533,7 +534,7 @@ module Logging
     # exception will be raised again.
     def log_internal_error( err )
       log_internal(-2) { err }
-      raise err if Thread.abort_on_exception || ::Logging.raise_errors
+      raise err if ::Logging.raise_errors?
     end
 
     # Close all appenders
@@ -584,8 +585,7 @@ module Logging
   require libpath('logging/diagnostic_context')
 
   require libpath('logging/rails_compat')
-end  # module Logging
-
+end
 
 # This finalizer will close all the appenders that exist in the system.
 # This is needed for closing IO streams and connections to the syslog server
