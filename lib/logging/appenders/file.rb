@@ -2,14 +2,12 @@
 module Logging::Appenders
 
   # Accessor / Factory for the File appender.
-  #
   def self.file( *args )
     fail ArgumentError, '::Logging::Appenders::File needs a name as first argument.' if args.empty?
     ::Logging::Appenders::File.new(*args)
   end
 
   # This class provides an Appender that can write to a File.
-  #
   class File < ::Logging::Appenders::IO
 
     # call-seq:
@@ -21,7 +19,6 @@ module Logging::Appenders
     # writable.
     #
     # An +ArgumentError+ is raised if any of these assertions fail.
-    #
     def self.assert_valid_logfile( fn )
       if ::File.exist?(fn)
         if !::File.file?(fn)
@@ -45,7 +42,6 @@ module Logging::Appenders
     # created. If the :truncate option is set to +true+ then the file will
     # be truncated before writing begins; otherwise, log messages will be
     # appended to the file.
-    #
     def initialize( name, opts = {} )
       @filename = opts.fetch(:filename, name)
       raise ArgumentError, 'no filename was given' if @filename.nil?
@@ -72,7 +68,6 @@ module Logging::Appenders
     # Reopen the connection to the underlying logging destination. If the
     # connection is currently closed then it will be opened. If the connection
     # is currently open then it will be closed and immediately opened.
-    #
     def reopen
       @mutex.synchronize {
         if defined? @io && @io
@@ -99,6 +94,5 @@ module Logging::Appenders
     rescue Errno::EEXIST
       open_file
     end
-
   end
 end
