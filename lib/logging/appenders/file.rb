@@ -2,14 +2,12 @@
 module Logging::Appenders
 
   # Accessor / Factory for the File appender.
-  #
   def self.file( *args )
     fail ArgumentError, '::Logging::Appenders::File needs a name as first argument.' if args.empty?
     ::Logging::Appenders::File.new(*args)
   end
 
   # This class provides an Appender that can write to a File.
-  #
   class File < ::Logging::Appenders::IO
 
     # call-seq:
@@ -21,15 +19,14 @@ module Logging::Appenders
     # writable.
     #
     # An +ArgumentError+ is raised if any of these assertions fail.
-    #
     def self.assert_valid_logfile( fn )
       if ::File.exist?(fn)
-        if not ::File.file?(fn)
+        if !::File.file?(fn)
           raise ArgumentError, "#{fn} is not a regular file"
-        elsif not ::File.writable?(fn)
+        elsif !::File.writable?(fn)
           raise ArgumentError, "#{fn} is not writeable"
         end
-      elsif not ::File.writable?(::File.dirname(fn))
+      elsif !::File.writable?(::File.dirname(fn))
         raise ArgumentError, "#{::File.dirname(fn)} is not writable"
       end
       true
@@ -45,39 +42,57 @@ module Logging::Appenders
     # created. If the :truncate option is set to +true+ then the file will
     # be truncated before writing begins; otherwise, log messages will be
     # appended to the file.
-    #
     def initialize( name, opts = {} )
-      @fn = opts.fetch(:filename, name)
-      raise ArgumentError, 'no filename was given' if @fn.nil?
+      @filename = opts.fetch(:filename, name)
+      raise ArgumentError, 'no filename was given' if @filename.nil?
 
-      @fn = ::File.expand_path(@fn)
-      self.class.assert_valid_logfile(@fn)
-      @mode = opts.fetch(:truncate, false) ? 'w' : 'a'
+      @filename = ::File.expand_path(@filename).freeze
+      self.class.assert_valid_logfile(@filename)
+
+      @mode = ::File::WRONLY
+      if opts.fetch(:truncate, false)
+        @mode |= ::File::TRUNC
+      else
+        @mode |= ::File::APPEND
+      end
 
       self.encoding = opts.fetch(:encoding, self.encoding)
-      @mode = "#{@mode}:#{self.encoding}"
 
-      super(name, ::File.new(@fn, @mode), opts)
+      io = open_file
+      super(name, io, opts)
     end
 
     # Returns the path to the logfile.
-    #
-    def filename() @fn.dup end
+    attr_reader :filename
 
     # Reopen the connection to the underlying logging destination. If the
     # connection is currently closed then it will be opened. If the connection
     # is currently open then it will be closed and immediately opened.
-    #
     def reopen
       @mutex.synchronize {
-        if defined? @io and @io
+        if defined? @io && @io
           flush
           @io.close rescue nil
         end
-        @io = ::File.new(@fn, @mode)
+        @io = open_file
       }
       super
       self
+    end
+
+  protected
+
+    def open_file
+      ::File.open(filename, mode: @mode, external_encoding: encoding)
+    rescue Errno::ENOENT
+      create_file
+    end
+
+    def create_file
+      mode = @mode | ::File::CREAT | ::File::EXCL
+      ::File.open(filename, mode: mode, external_encoding: encoding)
+    rescue Errno::EEXIST
+      open_file
     end
   end
 end

@@ -124,7 +124,6 @@ module TestAppenders
         Logging.appenders[NAME] = nil
       end
     end
-
   end  # TestFile
 
 end  # TestAppenders
