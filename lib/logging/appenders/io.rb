@@ -61,6 +61,16 @@ module Logging::Appenders
       return self
     end
 
+    # Reopen the connection to the underlying logging destination. If the
+    # connection is currently closed then it will be opened. If the connection
+    # is currently open then it will be closed and immediately opened. If
+    # supported, the IO will have its sync mode set to `true` so that all writes
+    # are immediately flushed to the underlying operating system.
+    def reopen
+      super
+      @io.sync = true if @io.respond_to? :sync=
+      self
+    end
 
   private
 
