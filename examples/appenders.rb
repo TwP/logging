@@ -1,7 +1,7 @@
 # :stopdoc:
 #
 # Appenders are used to output log events to some logging destination. The
-# same log event can be sent to multiple desitnations by associating
+# same log event can be sent to multiple destinations by associating
 # multiple appenders with the logger.
 #
 # The following is a list of all the available appenders and a brief
