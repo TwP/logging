@@ -160,11 +160,13 @@ module Logging::Appenders
       @io.flock_sh { @io.write str }
 
       if roll_required?
-        @io.flock? {
-          @age_fn_mtime = nil
-          copy_truncate if roll_required?
+        @mutex.synchronize {
+          @io.flock? {
+            @age_fn_mtime = nil
+            copy_truncate if roll_required?
+          }
+          @roller.roll_files
         }
-        @roller.roll_files
       end
       self
     rescue StandardError => err
