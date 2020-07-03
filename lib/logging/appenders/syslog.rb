@@ -157,7 +157,7 @@ module Logging::Appenders
     # is currently open then it will be closed and immediately opened.
     #
     def reopen
-      @mutex.synchronize {
+      sync {
         if @syslog.opened?
           flush
           @syslog.close
@@ -188,7 +188,7 @@ module Logging::Appenders
         end
       return if message.empty?
 
-      @syslog.log(pri, '%s', message)
+      sync { @syslog.log(pri, '%s', message) }
       self
     end
 
@@ -212,4 +212,3 @@ module Logging::Appenders
   end  # Syslog
 end  # Logging::Appenders
 end  # HAVE_SYSLOG
-

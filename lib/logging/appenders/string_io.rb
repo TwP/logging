@@ -34,7 +34,7 @@ module Logging::Appenders
     # will be closed and immediately opened.
     #
     def reopen
-      @mutex.synchronize {
+      sync {
         if defined? @io and @io
           flush
           @io.close rescue nil
@@ -51,7 +51,7 @@ module Logging::Appenders
     # from the buffer.
     #
     def clear
-      @mutex.synchronize {
+      sync {
         @pos = 0
         @sio.seek 0
         @sio.truncate 0
