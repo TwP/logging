@@ -143,14 +143,14 @@ module Logging::Appenders
   private
 
     def open_file
-      mode = ::File::RDWR |::File::APPEND
+      mode = ::File::RDWR | ::File::APPEND
       ::File.open(filename, mode: mode, external_encoding: encoding)
     rescue Errno::ENOENT
       create_file
     end
 
     def create_file
-      mode = ::File::RDWR |::File::APPEND | ::File::CREAT | ::File::EXCL
+      mode = ::File::RDWR | ::File::APPEND | ::File::CREAT | ::File::EXCL
       ::File.open(filename, mode: mode, external_encoding: encoding)
     rescue Errno::EEXIST
       open_file
