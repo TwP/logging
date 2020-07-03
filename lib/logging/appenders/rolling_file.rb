@@ -85,11 +85,11 @@ module Logging::Appenders
     #
     def initialize( name, opts = {} )
       @roller = Roller.new(
-        filename: opts.fetch(:filename, name),
-        age: opts.fetch(:age, nil),
-        size: opts.fetch(:size, nil),
+        opts.fetch(:filename, name),
+        age:     opts.fetch(:age, nil),
+        size:    opts.fetch(:size, nil),
         roll_by: opts.fetch(:roll_by, nil),
-        keep: opts.fetch(:keep, nil)
+        keep:    opts.fetch(:keep, nil)
       )
 
       # grab our options
@@ -285,7 +285,7 @@ module Logging::Appenders
       # roll_by  - roll either by 'number' or 'date'
       # keep     - the number of log files to keep when rolling
       #
-      def initialize( filename:, age: nil, size: nil, roll_by: nil, keep: nil )
+      def initialize( filename, age: nil, size: nil, roll_by: nil, keep: nil )
         # raise an error if a filename was not given
         @fn = filename
         raise ArgumentError, 'no filename was given' if @fn.nil?
