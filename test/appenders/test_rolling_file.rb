@@ -13,9 +13,9 @@ module TestAppenders
       super
       Logging.init
 
-      @fn = File.expand_path('test.log', TMP)
-      @fn_fmt = File.expand_path('test.%d.log', TMP)
-      @glob = File.expand_path('*.log', TMP)
+      @fn = File.expand_path('test.log', @tmpdir)
+      @fn_fmt = File.expand_path('test.%d.log', @tmpdir)
+      @glob = File.expand_path('*.log', @tmpdir)
     end
 
     def test_factory_method_validates_input
@@ -93,8 +93,8 @@ module TestAppenders
     end
 
     def test_age
-      d_glob = File.join(TMP, 'test.*.log')
-      dt_glob = File.join(TMP, 'test.*-*.log')
+      d_glob = File.join(@tmpdir, 'test.*.log')
+      dt_glob = File.join(@tmpdir, 'test.*-*.log')
       age_fn = @fn + '.age'
 
       assert_equal [], Dir.glob(@glob)
@@ -205,7 +205,7 @@ module TestAppenders
 
       begin
         pwd = Dir.pwd
-        Dir.chdir TMP
+        Dir.chdir @tmpdir
 
         ap << 'X' * 100; ap.flush
         assert_equal 1, Dir.glob(@glob).length
@@ -249,9 +249,9 @@ module TestAppenders
     end
 
     def test_custom_numberd_filename
-      fn = File.expand_path('test.log{{.%d}}', TMP)
-      filename = File.expand_path('test.log', TMP)
-      glob = File.expand_path('test.log.*', TMP)
+      fn = File.expand_path('test.log{{.%d}}', @tmpdir)
+      filename = File.expand_path('test.log', @tmpdir)
+      glob = File.expand_path('test.log.*', @tmpdir)
 
       assert_equal [], Dir.glob(glob)
       ap = Logging.appenders.rolling_file(NAME, :filename => fn, :size => 100, :keep => 2)
@@ -285,10 +285,10 @@ module TestAppenders
     end
 
     def test_custom_timestamp_filename
-      fn = File.expand_path('test{{.%S:%M}}.log', TMP)
-      filename = File.expand_path('test.log', TMP)
+      fn = File.expand_path('test{{.%S:%M}}.log', @tmpdir)
+      filename = File.expand_path('test.log', @tmpdir)
       age_file = filename + '.age'
-      glob = File.expand_path('test.*.log', TMP)
+      glob = File.expand_path('test.*.log', @tmpdir)
 
       assert_equal [], Dir.glob(glob)
       ap = Logging.appenders.rolling_file(NAME, :filename => fn, :age => 1, :keep => 2)

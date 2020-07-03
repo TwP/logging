@@ -14,10 +14,10 @@ module TestAppenders
       super
       Logging.init
 
-      FileUtils.mkdir [File.join(TMP, 'dir'), File.join(TMP, 'uw_dir')]
-      FileUtils.chmod 0555, File.join(TMP, 'uw_dir')
-      FileUtils.touch File.join(TMP, 'uw_file')
-      FileUtils.chmod 0444, File.join(TMP, 'uw_file')
+      FileUtils.mkdir [File.join(@tmpdir, 'dir'), File.join(@tmpdir, 'uw_dir')]
+      FileUtils.chmod 0555, File.join(@tmpdir, 'uw_dir')
+      FileUtils.touch File.join(@tmpdir, 'uw_file')
+      FileUtils.chmod 0444, File.join(@tmpdir, 'uw_file')
     end
 
     def test_factory_method_validates_input
@@ -27,27 +27,27 @@ module TestAppenders
     end
 
     def test_class_assert_valid_logfile
-      log = File.join(TMP, 'uw_dir', 'file.log')
+      log = File.join(@tmpdir, 'uw_dir', 'file.log')
       assert_raise(ArgumentError) do
         Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
-      log = File.join(TMP, 'dir')
+      log = File.join(@tmpdir, 'dir')
       assert_raise(ArgumentError) do
         Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
-      log = File.join(TMP, 'uw_file')
+      log = File.join(@tmpdir, 'uw_file')
       assert_raise(ArgumentError) do
         Logging.appenders.file(log).class.assert_valid_logfile(log)
       end
 
-      log = File.join(TMP, 'file.log')
+      log = File.join(@tmpdir, 'file.log')
       assert Logging.appenders.file(log).class.assert_valid_logfile(log)
     end
 
     def test_initialize
-      log = File.join(TMP, 'file.log')
+      log = File.join(@tmpdir, 'file.log')
       appender = Logging.appenders.file(NAME, :filename => log)
       assert_equal 'logfile', appender.name
       assert_equal ::File.expand_path(log), appender.filename
@@ -87,7 +87,7 @@ module TestAppenders
     end
 
     def test_changing_directories
-      log = File.join(TMP, 'file.log')
+      log = File.join(@tmpdir, 'file.log')
       appender = Logging.appenders.file(NAME, :filename => log)
 
       assert_equal 'logfile', appender.name
@@ -95,7 +95,7 @@ module TestAppenders
 
       begin
         pwd = Dir.pwd
-        Dir.chdir TMP
+        Dir.chdir @tmpdir
         assert_nothing_raised { appender.reopen }
       ensure
         Dir.chdir pwd
@@ -103,7 +103,7 @@ module TestAppenders
     end
 
     def test_encoding
-      log = File.join(TMP, 'file-encoding.log')
+      log = File.join(@tmpdir, 'file-encoding.log')
       appender = Logging.appenders.file(NAME, :filename => log, :encoding => 'ASCII')
 
       appender << "A normal line of text\n"
