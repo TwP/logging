@@ -84,19 +84,25 @@ module Logging::Appenders
     #               'date'.
     #
     def initialize( name, opts = {} )
-      @roller = Roller.new name, opts
+      @roller = Roller.new(
+        filename: opts.fetch(:filename, name),
+        age: opts.fetch(:age, nil),
+        size: opts.fetch(:size, nil),
+        roll_by: opts.fetch(:roll_by, nil),
+        keep: opts.fetch(:keep, nil)
+      )
 
       # grab our options
       @size = opts.fetch(:size, nil)
       @size = Integer(@size) unless @size.nil?
 
-      @age_fn = filename + '.age'
+      @age_fn = self.filename + '.age'
       @age_fn_mtime = nil
       @age = opts.fetch(:age, nil)
 
       # create our `sufficiently_aged?` method
       build_singleton_methods
-      FileUtils.touch(@age_fn) if @age && !test(?f, @age_fn)
+      FileUtils.touch(@age_fn) if @age && !::File.file?(@age_fn)
 
       # we are opening the file in read/write mode so that a shared lock can
       # be used on the file descriptor => http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
@@ -161,11 +167,15 @@ module Logging::Appenders
 
       if roll_required?
         @mutex.synchronize {
+# puts "[#{Thread.current[:name]}] mutex"
           @io.flock? {
+# puts "[#{Thread.current[:name]}]   flock"
             @age_fn_mtime = nil
             copy_truncate if roll_required?
+# puts "[#{Thread.current[:name]}]   kcolf"
           }
           @roller.roll_files
+# puts "[#{Thread.current[:name]}] xetum"
         }
       end
       self
@@ -193,6 +203,7 @@ module Logging::Appenders
     # to zero length. This method will set the roll flag so that all the
     # current logfiles will be rolled along with the copied file.
     def copy_truncate
+# puts "[#{Thread.current[:name]}]     copy_truncate"
       return unless ::File.exist?(filename)
       FileUtils.concat filename, copy_file
       @io.truncate 0
@@ -257,22 +268,22 @@ module Logging::Appenders
       # Create a new roller. See the RollingFile#initialize documentation for
       # the list of options.
       #
-      # name - The appender name as a String
-      # opts - The options Hash
+      # filename - the name of the file to roll
+      # age      - the age of the file at which it should be rolled
+      # size     - the size of the file in bytes at which it should be rolled
+      # roll_by  - roll either by 'number' or 'date'
+      # keep     - the number of log files to keep when rolling
       #
-      def initialize( name, opts )
+      def initialize( filename:, age: nil, size: nil, roll_by: nil, keep: nil )
         # raise an error if a filename was not given
-        @fn = opts.fetch(:filename, name)
+        @fn = filename
         raise ArgumentError, 'no filename was given' if @fn.nil?
 
         if (m = RGXP.match @fn)
           @roll_by = ("#{m[2]}%d" == m[1]) ? :number : :date
         else
-          age = opts.fetch(:age, nil)
-          size = opts.fetch(:size, nil)
-
           @roll_by =
-              case opts.fetch(:roll_by, nil)
+              case roll_by
               when 'number'; :number
               when 'date'; :date
               else
@@ -295,8 +306,7 @@ module Logging::Appenders
         ::Logging::Appenders::File.assert_valid_logfile(filename)
 
         @roll = false
-        @keep = opts.fetch(:keep, nil)
-        @keep = Integer(keep) unless keep.nil?
+        @keep = keep.nil? ? nil : Integer(keep)
       end
 
       attr_reader :keep, :roll_by
@@ -344,6 +354,7 @@ module Logging::Appenders
       # Returns nil
       def roll_files
         return unless roll && ::File.exist?(copy_file)
+# puts "[#{Thread.current[:name]}]   roll_files"
 
         files = Dir.glob(glob)
         files.delete copy_file
