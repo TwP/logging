@@ -11,8 +11,8 @@ module TestLogging
       @levels = ::Logging::LEVELS
       @lnames = ::Logging::LNAMES
 
-      @fn = File.join(TMP, 'test.log')
-      @glob = File.join(TMP, '*.log')
+      @fn = File.join(@tmpdir, 'test.log')
+      @glob = File.join(@tmpdir, '*.log')
     end
 
     def test_backtrace

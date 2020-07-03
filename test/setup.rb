@@ -5,6 +5,12 @@ LOGGING_TEST_SETUP = true
 
 require "rubygems"
 require "test/unit"
+require "tmpdir"
+
+LOGGING_TEST_TMPDIR = Dir.mktmpdir("logging")
+Test::Unit.at_exit do
+  FileUtils.remove_entry(LOGGING_TEST_TMPDIR)
+end
 
 if Test::Unit::TestCase.respond_to? :test_order=
   Test::Unit::TestCase.test_order = :random
@@ -15,18 +21,16 @@ require File.expand_path("../../lib/logging", __FILE__)
 module TestLogging
   module LoggingTestCase
 
-    TMP = 'tmp'
-
     def setup
       super
       Logging.reset
-      FileUtils.rm_rf TMP
-      FileUtils.mkdir TMP
+      @tmpdir = LOGGING_TEST_TMPDIR
+      FileUtils.rm_rf(Dir.glob(File.join(@tmpdir, "*")))
     end
 
     def teardown
       super
-      FileUtils.rm_rf TMP
+      FileUtils.rm_rf(Dir.glob(File.join(@tmpdir, "*")))
     end
   end
 end

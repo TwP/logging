@@ -84,24 +84,32 @@ module Logging::Appenders
     #               'date'.
     #
     def initialize( name, opts = {} )
-      @roller = Roller.new name, opts
+      @roller = Roller.new(
+        opts.fetch(:filename, name),
+        age:     opts.fetch(:age, nil),
+        size:    opts.fetch(:size, nil),
+        roll_by: opts.fetch(:roll_by, nil),
+        keep:    opts.fetch(:keep, nil)
+      )
 
       # grab our options
       @size = opts.fetch(:size, nil)
       @size = Integer(@size) unless @size.nil?
 
-      @age_fn = filename + '.age'
+      @age_fn = self.filename + '.age'
       @age_fn_mtime = nil
       @age = opts.fetch(:age, nil)
 
       # create our `sufficiently_aged?` method
       build_singleton_methods
-      FileUtils.touch(@age_fn) if @age && !test(?f, @age_fn)
+      FileUtils.touch(@age_fn) if @age && !::File.file?(@age_fn)
 
       # we are opening the file in read/write mode so that a shared lock can
       # be used on the file descriptor => http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
-      @mode = encoding ? "a+:#{encoding}" : 'a+'
-      super(name, ::File.new(filename, @mode), opts)
+      self.encoding = opts.fetch(:encoding, self.encoding)
+
+      io = open_file
+      super(name, io, opts)
 
       # if the truncate flag was set to true, then roll
       roll_now = opts.fetch(:truncate, false)
@@ -121,11 +129,11 @@ module Logging::Appenders
     # is currently open then it will be closed and immediately opened.
     def reopen
       @mutex.synchronize {
-        if defined?(@io) && @io
+        if defined? @io && @io
           flush
           @io.close rescue nil
         end
-        @io = ::File.new(filename, @mode)
+        @io = open_file
       }
       super
       self
@@ -133,6 +141,20 @@ module Logging::Appenders
 
 
   private
+
+    def open_file
+      mode = ::File::RDWR | ::File::APPEND
+      ::File.open(filename, mode: mode, external_encoding: encoding)
+    rescue Errno::ENOENT
+      create_file
+    end
+
+    def create_file
+      mode = ::File::RDWR | ::File::APPEND | ::File::CREAT | ::File::EXCL
+      ::File.open(filename, mode: mode, external_encoding: encoding)
+    rescue Errno::EEXIST
+      open_file
+    end
 
     # Returns the file name to use as the temporary copy location. We are
     # using copy-and-truncate semantics for rolling files so that the IO
@@ -195,7 +217,7 @@ module Logging::Appenders
     def copy_truncate
       return unless ::File.exist?(filename)
       FileUtils.concat filename, copy_file
-      @io.truncate 0
+      @io.truncate(0)
 
       # touch the age file if needed
       if @age
@@ -257,22 +279,22 @@ module Logging::Appenders
       # Create a new roller. See the RollingFile#initialize documentation for
       # the list of options.
       #
-      # name - The appender name as a String
-      # opts - The options Hash
+      # filename - the name of the file to roll
+      # age      - the age of the file at which it should be rolled
+      # size     - the size of the file in bytes at which it should be rolled
+      # roll_by  - roll either by 'number' or 'date'
+      # keep     - the number of log files to keep when rolling
       #
-      def initialize( name, opts )
+      def initialize( filename, age: nil, size: nil, roll_by: nil, keep: nil )
         # raise an error if a filename was not given
-        @fn = opts.fetch(:filename, name)
+        @fn = filename
         raise ArgumentError, 'no filename was given' if @fn.nil?
 
         if (m = RGXP.match @fn)
           @roll_by = ("#{m[2]}%d" == m[1]) ? :number : :date
         else
-          age = opts.fetch(:age, nil)
-          size = opts.fetch(:size, nil)
-
           @roll_by =
-              case opts.fetch(:roll_by, nil)
+              case roll_by
               when 'number'; :number
               when 'date'; :date
               else
@@ -295,8 +317,7 @@ module Logging::Appenders
         ::Logging::Appenders::File.assert_valid_logfile(filename)
 
         @roll = false
-        @keep = opts.fetch(:keep, nil)
-        @keep = Integer(keep) unless keep.nil?
+        @keep = keep.nil? ? nil : Integer(keep)
       end
 
       attr_reader :keep, :roll_by
@@ -349,7 +370,6 @@ module Logging::Appenders
         files.delete copy_file
 
         self.send "roll_by_#{roll_by}", files
-
         nil
       ensure
         self.roll = false

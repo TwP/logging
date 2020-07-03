@@ -49,17 +49,12 @@ module Logging::Appenders
       @filename = ::File.expand_path(@filename).freeze
       self.class.assert_valid_logfile(@filename)
 
-      @mode = ::File::WRONLY
-      if opts.fetch(:truncate, false)
-        @mode |= ::File::TRUNC
-      else
-        @mode |= ::File::APPEND
-      end
-
       self.encoding = opts.fetch(:encoding, self.encoding)
 
       io = open_file
       super(name, io, opts)
+
+      truncate if opts.fetch(:truncate, false)
     end
 
     # Returns the path to the logfile.
@@ -80,16 +75,29 @@ module Logging::Appenders
       self
     end
 
+
   protected
 
+    def truncate
+      @mutex.synchronize {
+        begin
+          @io.flock(::File::LOCK_EX)
+          @io.truncate(0)
+        ensure
+          @io.flock(::File::LOCK_UN)
+        end
+      }
+    end
+
     def open_file
-      ::File.open(filename, mode: @mode, external_encoding: encoding)
+      mode = ::File::WRONLY | ::File::APPEND
+      ::File.open(filename, mode: mode, external_encoding: encoding)
     rescue Errno::ENOENT
       create_file
     end
 
     def create_file
-      mode = @mode | ::File::CREAT | ::File::EXCL
+      mode = ::File::WRONLY | ::File::APPEND | ::File::CREAT | ::File::EXCL
       ::File.open(filename, mode: mode, external_encoding: encoding)
     rescue Errno::EEXIST
       open_file
