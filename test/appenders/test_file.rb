@@ -117,6 +117,25 @@ module TestAppenders
       cleanup
     end
 
+    def test_reopening_should_not_truncate_the_file
+      log = File.join(@tmpdir, 'truncate.log')
+      appender = Logging.appenders.file(NAME, filename: log, truncate: true)
+
+      appender << "This will be the first line\n"
+      appender << "This will be the second line\n"
+      appender << "This will be the third line\n"
+      appender.reopen
+
+      File.open(log, 'r') do |file|
+        assert_equal "This will be the first line\n", file.readline
+        assert_equal "This will be the second line\n", file.readline
+        assert_equal "This will be the third line\n", file.readline
+        assert_raise(EOFError) {file.readline}
+      end
+
+      cleanup
+    end
+
   private
     def cleanup
       unless Logging.appenders[NAME].nil?
