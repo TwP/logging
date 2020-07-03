@@ -183,15 +183,11 @@ module Logging::Appenders
 
       if roll_required?
         @mutex.synchronize {
-# puts "[#{Thread.current[:name]}] mutex"
           @io.flock? {
-# puts "[#{Thread.current[:name]}]   flock"
             @age_fn_mtime = nil
             copy_truncate if roll_required?
-# puts "[#{Thread.current[:name]}]   kcolf"
           }
           @roller.roll_files
-# puts "[#{Thread.current[:name]}] xetum"
         }
       end
       self
@@ -219,7 +215,6 @@ module Logging::Appenders
     # to zero length. This method will set the roll flag so that all the
     # current logfiles will be rolled along with the copied file.
     def copy_truncate
-# puts "[#{Thread.current[:name]}]     copy_truncate"
       return unless ::File.exist?(filename)
       FileUtils.concat filename, copy_file
       @io.truncate(0)
@@ -370,13 +365,11 @@ module Logging::Appenders
       # Returns nil
       def roll_files
         return unless roll && ::File.exist?(copy_file)
-# puts "[#{Thread.current[:name]}]   roll_files"
 
         files = Dir.glob(glob)
         files.delete copy_file
 
         self.send "roll_by_#{roll_by}", files
-
         nil
       ensure
         self.roll = false
