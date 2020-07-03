@@ -68,12 +68,12 @@ module TestLogging
       assert_equal 'MyLogger', @event.logger
     end
 
-    def test_method
+    def test_method_name
       assert_equal '', @event.file
 
       @logger.caller_tracing = true
       @logger.debug 'debug message'
-      assert_equal 'test_method', @appender.event.method
+      assert_equal 'test_method_name', @appender.event.method_name
     end
 
   end  # class TestLogEvent

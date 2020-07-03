@@ -103,7 +103,7 @@ module Logging::Layouts
       'message'   => 'format_obj(event.data)'.freeze,
       'file'      => 'event.file'.freeze,
       'line'      => 'event.line'.freeze,
-      'method'    => 'event.method'.freeze,
+      'method'    => 'event.method_name'.freeze,
       'hostname'  => "'#{Socket.gethostname}'".freeze,
       'pid'       => 'Process.pid'.freeze,
       'millis'    => 'Integer((event.time-@created_at)*1000)'.freeze,
