@@ -15,7 +15,7 @@ module Logging
     CALLER_INDEX = ((defined? JRUBY_VERSION and JRUBY_VERSION > '1.6') or (defined? RUBY_ENGINE and RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
     # :startdoc:
 
-    attr_accessor :logger, :level, :data, :time, :file, :line, :method
+    attr_accessor :logger, :level, :data, :time, :file, :line, :method_name
 
     # call-seq:
     #    LogEvent.new( logger, level, [data], caller_tracing )
@@ -36,15 +36,15 @@ module Logging
         return if stack.nil?
 
         match = CALLER_RGXP.match(stack)
-        self.file   = match[1]
-        self.line   = Integer(match[2])
-        self.method = match[3] unless match[3].nil?
+        self.file = match[1]
+        self.line = Integer(match[2])
+        self.method_name = match[3] unless match[3].nil?
 
         if (bp = ::Logging.basepath) && !bp.empty? && file.index(bp) == 0
           self.file = file.slice(bp.length + 1, file.length - bp.length)
         end
       else
-        self.file = self.line = self.method = ''
+        self.file = self.line = self.method_name = ''
       end
     end
   end

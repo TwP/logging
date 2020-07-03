@@ -307,7 +307,7 @@ module Logging::Layouts
         'l' => '::Logging::LNAMES[event.level]'.freeze,
         'L' => 'event.line'.freeze,
         'm' => 'format_obj(event.data)'.freeze,
-        'M' => 'event.method'.freeze,
+        'M' => 'event.method_name'.freeze,
         'h' => "'#{Socket.gethostname}'".freeze,
         'p' => 'Process.pid'.freeze,
         'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,

@@ -105,7 +105,7 @@ module TestLayouts
                                     'log message', false)
       event.file = 'test_file.rb'
       event.line = '123'
-      event.method = 'method_name'
+      event.method_name = 'method_name'
 
       @layout.pattern = '%c'
       assert_equal 'TestLogger', @layout.format(event)
