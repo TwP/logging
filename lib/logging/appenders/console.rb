@@ -22,17 +22,48 @@ module Logging::Appenders
     #
     def initialize( *args )
       name = self.class.name.split("::").last.downcase
-      io   = Object.const_get(name.upcase)
 
       opts = args.last.is_a?(Hash) ? args.pop : {}
       name = args.shift unless args.empty?
 
-      opts[:encoding] = io.external_encoding if io.respond_to? :external_encoding
+      io = open_fd
+      opts[:encoding] = io.external_encoding
 
       super(name, io, opts)
-    rescue NameError
-      raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
-                          "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead"
+    end
+
+    # Reopen the connection to the underlying logging destination. If the
+    # connection is currently closed then it will be opened. If the connection
+    # is currently open then it will be closed and immediately reopened.
+    def reopen
+      @mutex.synchronize {
+        if defined? @io && @io
+          flush
+          @io.close rescue nil
+        end
+        @io = open_fd
+      }
+      super
+      self
+    end
+
+  private
+
+    def open_fd
+      case self.class.name.split("::").last.downcase
+      when "stdout"
+        fd = 1
+        encoding = STDOUT.external_encoding
+      when "stderr"
+        fd = 2
+        encoding = STDERR.external_encoding
+      else
+        raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
+                            "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead"
+      end
+
+      mode = ::File::WRONLY | ::File::APPEND
+      ::IO.for_fd(fd, mode: mode, encoding: encoding)
     end
   end
 
@@ -43,7 +74,6 @@ module Logging::Appenders
   Stderr = Class.new(Console)
 
   # Accessor / Factory for the Stdout appender.
-  #
   def self.stdout( *args )
     if args.empty?
       return self['stdout'] || ::Logging::Appenders::Stdout.new
@@ -52,7 +82,6 @@ module Logging::Appenders
   end
 
   # Accessor / Factory for the Stderr appender.
-  #
   def self.stderr( *args )
     if args.empty?
       return self['stderr'] || ::Logging::Appenders::Stderr.new
