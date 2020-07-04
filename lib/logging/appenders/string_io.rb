@@ -62,7 +62,7 @@ module Logging::Appenders
     %w[read readline readlines].each do|m|
       class_eval <<-CODE, __FILE__, __LINE__+1
         def #{m}( *args )
-          sync {
+          @mutex.synchronize {
             begin
               @sio.seek @pos
               rv = @sio.#{m}(*args)
