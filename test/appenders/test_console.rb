@@ -25,11 +25,6 @@ module TestAppenders
       refute_same STDOUT, io
       assert_equal STDOUT.fileno, io.fileno
 
-      appender.close
-      assert appender.closed?
-      assert io.closed?
-      refute STDOUT.closed?
-
       appender = Logging.appenders.stdout('foo')
       assert_equal 'foo', appender.name
 
@@ -42,7 +37,26 @@ module TestAppenders
       assert_equal 3, appender.level
     end
 
-  end  # class TestStdout
+    def test_reopen
+      Logging::Repository.instance
+
+      appender = Logging.appenders.stdout
+      io = appender.instance_variable_get(:@io)
+
+      appender.close
+      assert appender.closed?
+      assert io.closed?
+      refute STDOUT.closed?
+
+      appender.reopen
+      refute appender.closed?
+
+      new_io = appender.instance_variable_get(:@io)
+      refute_same io, new_io
+      refute new_io.closed?
+      assert io.closed?
+    end
+  end
 
   class TestStderr < Test::Unit::TestCase
     include LoggingTestCase
@@ -57,11 +71,6 @@ module TestAppenders
       refute_same STDERR, io
       assert_same STDERR.fileno, io.fileno
 
-      appender.close
-      assert appender.closed?
-      assert io.closed?
-      refute STDERR.closed?
-
       appender = Logging.appenders.stderr('foo')
       assert_equal 'foo', appender.name
 
@@ -74,8 +83,26 @@ module TestAppenders
       assert_equal 3, appender.level
     end
 
-  end  # class TestStderr
+    def test_reopen
+      Logging::Repository.instance
 
-end  # module TestAppenders
-end  # module TestLogging
+      appender = Logging.appenders.stderr
+      io = appender.instance_variable_get(:@io)
+
+      appender.close
+      assert appender.closed?
+      assert io.closed?
+      refute STDERR.closed?
+
+      appender.reopen
+      refute appender.closed?
+
+      new_io = appender.instance_variable_get(:@io)
+      refute_same io, new_io
+      refute new_io.closed?
+      assert io.closed?
+    end
+  end
+end
+end
 
