@@ -1,13 +1,17 @@
-== 2.3.0 / 2020-??-??
+== 2.3.0 / 2020-07-04
 
 Enhancements
--
+- all appender output is now synchronized [PR #219]
+- renamed the `LogEvent#method` to no longer conflict with `Kernel#method` [PR #218]
+- @bhuga (not the Fortnite star) added a `raise_errors` method for debugging [PR #203]
+- thanks to @olleolleolle for keeping on top of Travis and Ruby versions
 
 Bug Fixes
--
-
-Deprecations
--
+- conosle appenders can be reopened [PR #220]
+- fixed a race condition in the rolling file appender [PR #216]
+- fixed a race condition when opening log file destinations [PR #208 #217]
+- @MikaelSmith fixed a race condition in Logger creation [PR #201]
+- documentation bug fixes [PR #184 #185 #188 #194 #209]
 
 == 2.2.2 / 2017-04-11
 
