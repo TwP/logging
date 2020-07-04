@@ -50,16 +50,17 @@ module Logging::Appenders
   private
 
     def open_fd
-      case self.class.name.split("::").last.downcase
-      when "stdout"
+      case self.class.name
+      when "Logging::Appenders::Stdout"
         fd = STDOUT.fileno
         encoding = STDOUT.external_encoding
-      when "stderr"
+      when "Logging::Appenders::Stderr"
         fd = STDERR.fileno
         encoding = STDERR.external_encoding
       else
         raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
-                            "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead"
+                            "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead" +
+                            " [class #{self.class.name}]"
       end
 
       mode = ::File::WRONLY | ::File::APPEND
