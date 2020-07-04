@@ -9,11 +9,6 @@ module Logging
 # Each subclass should provide a +write+ method that will write log
 # messages to the logging destination.
 #
-# A private +sync+ method is provided for use by subclasses. It is used to
-# synchronize writes to the logging destination, and can be used by
-# subclasses to synchronize the closing or flushing of the logging
-# destination.
-#
 class Appender
 
   attr_reader :name, :layout, :level, :filters
@@ -322,17 +317,6 @@ private
   #
   def write( event )
     nil
-  end
-
-  # call-seq:
-  #    sync { block }
-  #
-  # Obtains an exclusive lock, runs the block, and releases the lock when
-  # the block completes. This method is re-entrant so that a single thread
-  # can call +sync+ multiple times without hanging the thread.
-  #
-  def sync( &block )
-    @mutex.synchronize(&block)
   end
 
 end  # class Appender
