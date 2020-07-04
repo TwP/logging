@@ -64,7 +64,7 @@ module Logging::Appenders
     # connection is currently closed then it will be opened. If the connection
     # is currently open then it will be closed and immediately opened.
     def reopen
-      sync {
+      @mutex.synchronize {
         if defined? @io && @io
           flush
           @io.close rescue nil
@@ -79,7 +79,7 @@ module Logging::Appenders
   protected
 
     def truncate
-      sync {
+      @mutex.synchronize {
         begin
           @io.flock(::File::LOCK_EX)
           @io.truncate(0)

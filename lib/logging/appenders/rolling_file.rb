@@ -179,12 +179,12 @@ module Logging::Appenders
       return self if @io.nil?
 
       str = str.force_encoding(encoding) if encoding && str.encoding != encoding
-      sync {
+      @mutex.synchronize {
         @io.flock_sh { @io.write str }
       }
 
       if roll_required?
-        sync {
+        @mutex.synchronize {
           @io.flock? {
             @age_fn_mtime = nil
             copy_truncate if roll_required?

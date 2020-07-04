@@ -79,7 +79,7 @@ module Logging::Appenders
       return self if @buffer.empty?
 
       ary = nil
-      sync {
+      @mutex.synchronize {
         ary = @buffer.dup
         @buffer.clear
       }
@@ -100,7 +100,7 @@ module Logging::Appenders
     # Clear the underlying buffer of all log events. These events will not be
     # appended to the logging destination; they will be lost.
     def clear!
-      sync { @buffer.clear }
+      @mutex.synchronize { @buffer.clear }
     end
 
     # Configure the levels that will trigger an immediate flush of the
@@ -285,7 +285,7 @@ module Logging::Appenders
         canonical_write(str)
       else
         str = str.force_encoding(encoding) if encoding && str.encoding != encoding
-        sync {
+        @mutex.synchronize {
           @buffer << str
         }
         flush_now = @buffer.length >= @auto_flushing || immediate?(event)
