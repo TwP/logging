@@ -20,11 +20,15 @@ module TestAppenders
 
       appender = Logging.appenders.stdout
       assert_equal 'stdout', appender.name
-      assert_same STDOUT, appender.instance_variable_get(:@io)
+
+      io = appender.instance_variable_get(:@io)
+      refute_same STDOUT, io
+      assert_equal STDOUT.fileno, io.fileno
 
       appender.close
-      assert_equal true, appender.closed?
-      assert_equal false, STDOUT.closed?
+      assert appender.closed?
+      assert io.closed?
+      refute STDOUT.closed?
 
       appender = Logging.appenders.stdout('foo')
       assert_equal 'foo', appender.name
@@ -48,11 +52,15 @@ module TestAppenders
 
       appender = Logging.appenders.stderr
       assert_equal 'stderr', appender.name
-      assert_same STDERR, appender.instance_variable_get(:@io)
+
+      io = appender.instance_variable_get(:@io)
+      refute_same STDERR, io
+      assert_same STDERR.fileno, io.fileno
 
       appender.close
-      assert_equal true, appender.closed?
-      assert_equal false, STDERR.closed?
+      assert appender.closed?
+      assert io.closed?
+      refute STDERR.closed?
 
       appender = Logging.appenders.stderr('foo')
       assert_equal 'foo', appender.name
