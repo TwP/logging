@@ -166,6 +166,30 @@ module TestLayouts
       assert_match %r/"ndc":\[\]/, format
     end
 
+    def test_prefix_missing
+      layout = Logging.layouts.json(:items => %w[timestamp])
+      event = Logging::LogEvent.new('TestLogger', @levels['info'], 'msg w/ cookie', false)
+      event.time = Time.utc(2016, 12, 1, 12, 0, 0).freeze
+
+      assert_equal %Q/{"timestamp":"2016-12-01T12:00:00.000000Z"}\n/, layout.format(event)
+    end
+
+    def test_prefix_present
+      layout = Logging.layouts.json(:items => %w[timestamp], :prefix => "@cee:")
+      event = Logging::LogEvent.new('TestLogger', @levels['info'], 'msg w/ cookie', false)
+      event.time = Time.utc(2016, 12, 1, 12, 0, 0).freeze
+
+      assert_equal %Q/@cee:{"timestamp":"2016-12-01T12:00:00.000000Z"}\n/, layout.format(event)
+    end
+
+    def test_prefix_empty
+      layout = Logging.layouts.json(:items => %w[timestamp], :prefix => "")
+      event = Logging::LogEvent.new('TestLogger', @levels['info'], 'msg w/ cookie', false)
+      event.time = Time.utc(2016, 12, 1, 12, 0, 0).freeze
+
+      assert_equal %Q/{"timestamp":"2016-12-01T12:00:00.000000Z"}\n/, layout.format(event)
+    end
+
     def test_utc_offset
       layout = Logging.layouts.json(:items => %w[timestamp])
       event = Logging::LogEvent.new('TimestampLogger', @levels['info'], 'log message', false)

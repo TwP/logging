@@ -137,14 +137,16 @@ module Logging::Layouts
     # This method will create the +format+ method in the given Parseable
     # _layout_ based on the configured items for the layout instance.
     #
-    def self.create_json_format_method( layout )
+    def self.create_json_format_method( layout, prefix )
       code = "undef :format if method_defined? :format\n"
       code << "def format( event )\nh = {\n"
 
       code << layout.items.map {|name|
         "'#{name}' => #{Parseable::DIRECTIVE_TABLE[name]}"
       }.join(",\n")
-      code << "\n}\nMultiJson.encode(h) << \"\\n\"\nend\n"
+      code << "\n}\n"
+      code << "'#{prefix}' << " if prefix
+      code << "MultiJson.encode(h) << \"\\n\"\nend\n"
 
       (class << layout; self end).class_eval(code, __FILE__, __LINE__)
     end
@@ -185,6 +187,7 @@ module Logging::Layouts
       super
       @created_at = Time.now
       @style = opts.fetch(:style, 'json').to_s.intern
+      @prefix = opts[:prefix]
       self.items = opts.fetch(:items, %w[timestamp level logger message])
     end
 
@@ -273,7 +276,7 @@ module Logging::Layouts
     #
     def create_format_method
       case @style
-      when :json; Parseable.create_json_format_method(self)
+      when :json; Parseable.create_json_format_method(self, @prefix)
       when :yaml; Parseable.create_yaml_format_method(self)
       else raise ArgumentError, "unknown format style '#@style'" end
     end

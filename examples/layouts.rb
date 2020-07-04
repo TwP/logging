@@ -26,6 +26,7 @@
     'development.log',
     :age    => 'daily',
     :layout => Logging.layouts.json
+    #:prefix => '@cee:' # optional logging cookie
   )
 
   log = Logging.logger['Foo::Bar']
