@@ -52,10 +52,10 @@ module Logging::Appenders
     def open_fd
       case self.class.name.split("::").last.downcase
       when "stdout"
-        fd = 1
+        fd = STDOUT.fileno
         encoding = STDOUT.external_encoding
       when "stderr"
-        fd = 2
+        fd = STDERR.fileno
         encoding = STDERR.external_encoding
       else
         raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
