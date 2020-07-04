@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
   s.authors = ["Tim Pease".freeze]
-  s.date = "2020-07-03"
+  s.date = "2020-07-04"
   s.description = "**Logging** is a flexible logging library for use in Ruby programs based on the\ndesign of Java's log4j library. It features a hierarchical logging system,\ncustom level names, multiple output destinations per log event, custom\nformatting, and more.".freeze
   s.email = "tim.pease@gmail.com".freeze
   s.extra_rdoc_files = ["History.txt".freeze]
