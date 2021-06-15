@@ -445,12 +445,14 @@ module Logging
 
             yield(*thread_args)
           }
+          wrapped_block.ruby2_keywords if wrapped_block.respond_to?(:ruby2_keywords, true)
 
           # This calls the actual method to create the Thread instance.
           # If your memory profiling tool says this method is leaking memory, then
           # you are leaking Thread instances somewhere.
           super(*args, &wrapped_block)
         end
+        ruby2_keywords :#{m} if respond_to?(:ruby2_keywords, true)
       __
     end
   end
