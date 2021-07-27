@@ -61,6 +61,9 @@ module Logging::Layouts
   #  [p]  Used to output the process ID of the currently running program.
   #  [r]  Used to output the number of milliseconds elapsed from the
   #       construction of the Layout until creation of the log event.
+  #  [R]  Used to output the number of seconds (with milliseconds) elapsed
+  #       between the construction of the Layout and the creation of the log
+  #       event formatted like #.#### (always 4 decimal places).
   #  [t]  Used to output the object ID of the thread that generated the
   #       log event.
   #  [T]  Used to output the name of the thread that generated the log event.
@@ -311,6 +314,7 @@ module Logging::Layouts
         'h' => "'#{Socket.gethostname}'".freeze,
         'p' => 'Process.pid'.freeze,
         'r' => 'Integer((event.time-@created_at)*1000).to_s'.freeze,
+        'R' => 'Kernel.format("%.4f", event.time-@created_at)'.freeze,
         't' => 'Thread.current.object_id.to_s'.freeze,
         'T' => 'Thread.current[:name]'.freeze,
         'X' => :placeholder,
@@ -326,6 +330,7 @@ module Logging::Layouts
         'h' => :hostname,
         'p' => :pid,
         'r' => :time,
+        'R' => :time,
         'T' => :thread,
         't' => :thread_id,
         'F' => :file,
