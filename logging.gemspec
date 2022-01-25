@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--main".freeze, "README.md".freeze]
   s.rubygems_version = "3.0.1".freeze
   s.summary = "A flexible and extendable logging library for Ruby".freeze
-  s.test_files = ["test/appenders/test_async_flushing.rb".freeze, "test/appenders/test_buffered_io.rb".freeze, "test/appenders/test_console.rb".freeze, "test/appenders/test_file.rb".freeze, "test/appenders/test_io.rb".freeze, "test/appenders/test_rolling_file.rb".freeze, "test/appenders/test_string_io.rb".freeze, "test/appenders/test_syslog.rb".freeze, "test/layouts/test_basic.rb".freeze, "test/layouts/test_color_pattern.rb".freeze, "test/layouts/test_json.rb".freeze, "test/layouts/test_nested_exceptions.rb".freeze, "test/layouts/test_pattern.rb".freeze, "test/layouts/test_yaml.rb".freeze, "test/test_appender.rb".freeze, "test/test_color_scheme.rb".freeze, "test/test_filter.rb".freeze, "test/test_layout.rb".freeze, "test/test_log_event.rb".freeze, "test/test_logger.rb".freeze, "test/test_logging.rb".freeze, "test/test_mapped_diagnostic_context.rb".freeze, "test/test_nested_diagnostic_context.rb".freeze, "test/test_proxy.rb".freeze, "test/test_repository.rb".freeze, "test/test_root_logger.rb".freeze, "test/test_utils.rb".freeze]
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
