@@ -110,7 +110,8 @@ module Logging::Layouts
       'thread_id' => 'Thread.current.object_id'.freeze,
       'thread'    => 'Thread.current[:name]'.freeze,
       'mdc'       => 'Logging::MappedDiagnosticContext.context'.freeze,
-      'ndc'       => 'Logging::NestedDiagnosticContext.context'.freeze
+      'ndc'       => 'Logging::NestedDiagnosticContext.context'.freeze,
+      'tags'      => '::Logging::Repository.instance[event.logger].current_tags'.freeze,
     }
 
     # call-seq:

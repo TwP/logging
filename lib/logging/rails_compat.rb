@@ -9,7 +9,7 @@ module Logging
   module RailsCompat
 
     # A no-op implementation of the `formatter` method.
-    def formatter; end
+    # def formatter; end
 
     # A no-op implementation of the +silence+ method. Setting of log levels
     # should be done during the Logging configuration. It is the author's

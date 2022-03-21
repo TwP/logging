@@ -315,6 +315,7 @@ module Logging::Layouts
         'T' => 'Thread.current[:name]'.freeze,
         'X' => :placeholder,
         'x' => :placeholder,
+        'g' => '::Logging::Repository.instance[event.logger].current_tags'.freeze,
         '%' => :placeholder
       }.freeze
 
@@ -332,7 +333,8 @@ module Logging::Layouts
         'L' => :line,
         'M' => :method,
         'X' => :mdc,
-        'x' => :ndc
+        'x' => :ndc,
+        'g' => :tags
       }.freeze
 
       attr_reader :layout

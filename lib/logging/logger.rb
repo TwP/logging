@@ -128,6 +128,7 @@ module Logging
     end
 
     attr_reader :name, :parent, :additive, :caller_tracing
+    attr_accessor :formatter
 
     # call-seq:
     #    Logger.new( name )
@@ -159,6 +160,14 @@ module Logging
 
       repo = ::Logging::Repository.instance
       _setup(name, :parent => repo.parent(name))
+    end
+
+    # Override *clone* to always return self
+    # since logging gem always create only one instance of a Logger
+    # for any given logger name.
+    # See: https://github.com/TwP/logging/blob/master/lib/logging/logger.rb#L36
+    def clone
+      self
     end
 
     # call-seq:
@@ -383,6 +392,14 @@ module Logging
     # Remove all appenders from this logger.
     #
     def clear_appenders( ) @appenders.clear end
+
+    # call-seq:
+    #    current_tags
+    def current_tags
+      return [] if formatter.nil?
+
+      formatter.current_tags
+    end
 
   protected
 
