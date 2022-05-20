@@ -48,16 +48,9 @@ module Logging::Appenders
       super
 
       io, @io = @io, nil
-
-      # JRuby will always close the underlying file descriptor, so we need to
-      # check the FD number and not just the Ruby object ID
-      close_io = if defined?(JRUBY_VERSION)
-        ![STDIN.fileno, STDERR.fileno, STDOUT.fileno].include?(io.fileno)
-      else
-        ![STDIN, STDERR, STDOUT].include?(io)
+      if ![STDIN, STDERR, STDOUT].include?(io)
+        io.send(@close_method) if @close_method && io.respond_to?(@close_method)
       end
-
-      io.send(@close_method) if close_io && @close_method && io.respond_to?(@close_method)
     rescue IOError
     ensure
       return self

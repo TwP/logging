@@ -37,14 +37,7 @@ module Logging::Appenders
     # is currently open then it will be closed and immediately reopened.
     def reopen
       @mutex.synchronize {
-        if defined? @io && @io
-          flush
-          # JRuby will close the underlying file descriptor, so we don't want to
-          # do that even though this is a copy of STDOUT / STDERR
-          if !defined?(JRUBY_VERSION)
-            @io.close rescue nil
-          end
-        end
+        flush if defined? @io && @io
         @io = open_fd
       }
       super
@@ -55,20 +48,13 @@ module Logging::Appenders
 
     def open_fd
       case self.class.name
-      when "Logging::Appenders::Stdout"
-        fd = STDOUT.fileno
-        encoding = STDOUT.external_encoding
-      when "Logging::Appenders::Stderr"
-        fd = STDERR.fileno
-        encoding = STDERR.external_encoding
+      when "Logging::Appenders::Stdout"; STDOUT
+      when "Logging::Appenders::Stderr"; STDERR
       else
         raise RuntimeError, "Please do not use the `Logging::Appenders::Console` class directly - " +
                             "use `Logging::Appenders::Stdout` and `Logging::Appenders::Stderr` instead" +
                             " [class #{self.class.name}]"
       end
-
-      mode = ::File::WRONLY | ::File::APPEND
-      ::IO.for_fd(fd, mode: mode, encoding: encoding)
     end
   end
 
