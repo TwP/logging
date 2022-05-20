@@ -45,7 +45,12 @@ module TestAppenders
 
       appender.close
       assert appender.closed?
-      assert io.closed?
+      # We will not close the IO stream in JRuby
+      if defined?(JRUBY_VERSION)
+        refute io.closed?
+      else
+        assert io.closed?
+      end
       refute STDOUT.closed?
 
       appender.reopen
@@ -54,7 +59,11 @@ module TestAppenders
       new_io = appender.instance_variable_get(:@io)
       refute_same io, new_io
       refute new_io.closed?
-      assert io.closed?
+      if defined?(JRUBY_VERSION)
+        refute io.closed?
+      else
+        assert io.closed?
+      end
     end
   end
 
@@ -91,7 +100,12 @@ module TestAppenders
 
       appender.close
       assert appender.closed?
-      assert io.closed?
+      # We will not close the IO stream in JRuby
+      if defined?(JRUBY_VERSION)
+        refute io.closed?
+      else
+        assert io.closed?
+      end
       refute STDERR.closed?
 
       appender.reopen
@@ -100,7 +114,11 @@ module TestAppenders
       new_io = appender.instance_variable_get(:@io)
       refute_same io, new_io
       refute new_io.closed?
-      assert io.closed?
+      if defined?(JRUBY_VERSION)
+        refute io.closed?
+      else
+        assert io.closed?
+      end
     end
   end
 end
