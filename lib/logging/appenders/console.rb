@@ -39,7 +39,11 @@ module Logging::Appenders
       @mutex.synchronize {
         if defined? @io && @io
           flush
-          @io.close rescue nil
+          # JRuby will close the underlying file descriptor, so we don't want to
+          # do that even though this is a copy of STDOUT / STDERR
+          if !defined?(JRUBY_VERSION)
+            @io.close rescue nil
+          end
         end
         @io = open_fd
       }
