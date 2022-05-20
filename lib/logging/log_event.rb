@@ -12,7 +12,8 @@ module Logging
     # * $3 == method name (might be nil)
     CALLER_RGXP = %r/([-\.\/\(\)\w]+):(\d+)(?::in `([^']+)')?/o
     #CALLER_INDEX = 2
-    CALLER_INDEX = ((defined? JRUBY_VERSION and JRUBY_VERSION > '1.6') or (defined? RUBY_ENGINE and RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
+    CALLER_INDEX = ((defined?(JRUBY_VERSION) && JRUBY_VERSION > '1.6' && JRUBY_VERSION < '9.0') ||
+                    (defined?(RUBY_ENGINE) && RUBY_ENGINE[%r/^rbx/i])) ? 1 : 2
     # :startdoc:
 
     attr_accessor :logger, :level, :data, :time, :file, :line, :method_name

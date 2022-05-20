@@ -48,7 +48,7 @@ module Logging::Appenders
       super
 
       io, @io = @io, nil
-      unless [STDIN, STDERR, STDOUT].include?(io)
+      if ![STDIN, STDERR, STDOUT].include?(io)
         io.send(@close_method) if @close_method && io.respond_to?(@close_method)
       end
     rescue IOError
