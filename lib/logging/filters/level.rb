@@ -4,8 +4,7 @@ module Logging
   module Filters
 
     # The `Level` filter class provides a simple level-based filtering mechanism
-    # that filters messages to only include those from an enumerated list of
-    # levels to log.
+    # that allows events whose log level matches a preconfigured list of values.
     class Level < ::Logging::Filter
 
       # Creates a new level filter that will only allow the given _levels_ to
@@ -15,15 +14,19 @@ module Logging
       # Examples
       #     Logging::Filters::Level.new(:debug, :info)
       #
-      def initialize( *levels )
-        levels  = levels.map { |level| ::Logging::level_num(level) }
-        @levels = Set.new levels
+      def initialize(*levels)
+        super()
+        levels  = levels.flatten.map {|level| ::Logging::level_num(level)}
+        @levels = Set.new(levels)
       end
 
-      def allow( event )
+      # Returns the event if it should be forwarded to the logging appender.
+      # Otherwise, `nil` is returned. The log event is allowed if the
+      # `event.level` matches one of the levels provided to the filter when it
+      # was constructred.
+      def allow(event)
         @levels.include?(event.level) ? event : nil
       end
-
     end
   end
 end
