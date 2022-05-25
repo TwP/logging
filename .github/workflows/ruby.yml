@@ -25,9 +25,9 @@ jobs:
 
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-          bundler-cache: true
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
 
     - name: Setup Gem Cache
       uses: actions/cache@v3
