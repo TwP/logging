@@ -1,5 +1,7 @@
+[![.github/workflows/ruby.yml](https://github.com/TwP/logging/actions/workflows/ruby.yml/badge.svg)](https://github.com/TwP/logging/actions/workflows/ruby.yml)
+
 ## Logging
-by Tim Pease [![](https://secure.travis-ci.org/TwP/logging.svg)](https://travis-ci.org/TwP/logging)
+by Tim Pease
 
 * [Homepage](http://rubygems.org/gems/logging)
 * [Github Project](https://github.com/TwP/logging)
@@ -103,7 +105,7 @@ package. The recommended reading order is the following:
 ### Extending
 
 The Logging framework is extensible via the [little-plugger](https://github.com/twp/little-plugger)
-gem based plugin system. New appenders or formatters can be released as ruby
+gem-based plugin system. New appenders, layouts, or filters can be released as ruby
 gems. When installed locally, the Logging framework will automatically detect
 these gems as plugins and make them available for use.
 
@@ -117,7 +119,7 @@ The three steps for creating a plugin are:
 
 * create a new Ruby gem: `logging-<name>`
 * include a plugin file: `lib/logging/plugins/<name>.rb`
-* definie a plugin initializer: `Logging::Plugins::<Name>.initialize_<name>`
+* define a plugin initializer: `Logging::Plugins::<Name>.initialize_<name>`
 
 ### Development
 
