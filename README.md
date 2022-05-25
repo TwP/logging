@@ -1,5 +1,7 @@
+[![.github/workflows/ruby.yml](https://github.com/TwP/logging/actions/workflows/ruby.yml/badge.svg)](https://github.com/TwP/logging/actions/workflows/ruby.yml)
+
 ## Logging
-by Tim Pease [![](https://secure.travis-ci.org/TwP/logging.svg)](https://travis-ci.org/TwP/logging)
+by Tim Pease
 
 * [Homepage](http://rubygems.org/gems/logging)
 * [Github Project](https://github.com/TwP/logging)
