@@ -32,10 +32,10 @@ jobs:
     - name: Setup Gem Cache
       uses: actions/cache@v3
       with:
-        path: vendor/gems
+        path: vendor/bundle
         key: ${{ runner.os }}-gems-${{ matrix.ruby-version }}-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
-          ${{ runner.os }}-gems-${{ matrix.ruby }}-
+          ${{ runner.os }}-gems-${{ matrix.ruby-version }}-
 
     - name: Install Dependencies
       run: |
