@@ -18,6 +18,7 @@ Bones {
   email        'tim.pease@gmail.com'
   url          'http://rubygems.org/gems/logging'
   version      Logging::VERSION
+  license      'MIT'
 
   rdoc.exclude << '^data'
   rdoc.include << '^examples/.*\.rb'
@@ -28,8 +29,8 @@ Bones {
   depend_on 'little-plugger', '~> 1.1'
   depend_on 'multi_json',     '~> 1.14'
 
-  depend_on 'test-unit', '~> 3.3', :development => true
-  depend_on 'bones-git', '~> 1.3', :development => true
-  #depend_on 'bones-rcov',   :development => true
+  depend_on 'test-unit', '~> 3.3', development: true
+  depend_on 'bones-git', '~> 1.3', development: true
+  #depend_on 'bones-rcov',   development: true
 }
 
