@@ -1,15 +1,13 @@
 #!/usr/bin/env sh
 
-gem list -i bones >/dev/null 2>&1
-rc=$?
-if [[ $rc != 0 ]]; then
-  gem install bones
-fi
+gem_install () {
+  gem list -i $1 >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    gem install $1
+  fi
+}
 
-gem list -i rdoc >/dev/null 2>&1
-rc=$?
-if [[ $rc != 0 ]]; then
-  gem install rdoc
-fi
+gem_install 'bones'
+gem_install 'rdoc'
 
 rake gem:install_dependencies
