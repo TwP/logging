@@ -144,7 +144,12 @@ module Logging::Layouts
       code << layout.items.map {|name|
         "'#{name}' => #{Parseable::DIRECTIVE_TABLE[name]}"
       }.join(",\n")
-      code << "\n}\nMultiJson.encode(h) << \"\\n\"\nend\n"
+      code << "\n}\n"
+      code << "if h['message'].is_a? Hash\n"
+      code << "message_hash = h.delete('message')\n"
+      code << "h.merge!(message_hash)\n"
+      code << "end\n"
+      code << "MultiJson.encode(h) << \"\\n\"\nend\n"
 
       (class << layout; self end).class_eval(code, __FILE__, __LINE__)
     end
