@@ -131,5 +131,13 @@ module TestLogging
       t.join
     end
 
+    def test_thread_patches_work_correctly_on_ruby3
+      the_args, the_kwargs = Thread.new(1, 2, 3, four: 4, five: 5) { |*args, **kwargs|
+        [args, kwargs]
+      }.value
+
+      assert_equal [1, 2, 3], the_args
+      assert_equal ({four: 4, five: 5}), the_kwargs
+    end
   end  # class TestMappedDiagnosticContext
 end  # module TestLogging
