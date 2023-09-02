@@ -134,6 +134,9 @@ module TestLayouts
       @layout.pattern = '%r'
       assert_match %r/\A\d+\z/, @layout.format(event)
 
+      @layout.pattern = '%R'
+      assert_match %r/\A\d+\.\d{4}\z/, @layout.format(event)
+
       @layout.pattern = '%t'
       assert_match %r/\A-?\d+\z/, @layout.format(event)
 
