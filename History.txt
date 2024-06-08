@@ -1,3 +1,12 @@
+== 2.4.0 / 2024-06-08
+
+Enhancements
+- @ag4a fix the rails_compat to work with Rails 7 [PR #246]
+
+Bug Fixes
+- @bastelfreak adding license to the gemspec [PR #223]
+- @olleolleolle dropping unused gemspec directives [PR #233]
+
 == 2.3.1 / 2022-05-24
 
 Bug Fixes
