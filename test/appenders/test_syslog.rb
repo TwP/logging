@@ -1,6 +1,13 @@
 
 require File.expand_path('../setup', File.dirname(__FILE__))
 
+begin
+  require 'syslog'
+  HAVE_SYSLOG = true
+rescue LoadError
+  HAVE_SYSLOG = false
+end
+
 if HAVE_SYSLOG
 
 module TestLogging

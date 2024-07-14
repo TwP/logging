@@ -1,17 +1,6 @@
-
-# only load this class if we have the syslog library
-# Windows does not have syslog
-#
-if HAVE_SYSLOG
+require 'syslog'
 
 module Logging::Appenders
-
-  # Accessor / Factory for the Syslog appender.
-  #
-  def self.syslog( *args )
-    fail ArgumentError, '::Logging::Appenders::Syslog needs a name as first argument.' if args.empty?
-    ::Logging::Appenders::Syslog.new(*args)
-  end
 
   # This class provides an Appender that can write to the UNIX syslog
   # daemon.
@@ -211,4 +200,3 @@ module Logging::Appenders
 
   end  # Syslog
 end  # Logging::Appenders
-end  # HAVE_SYSLOG

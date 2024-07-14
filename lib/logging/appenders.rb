@@ -47,8 +47,21 @@ module Logging
     end
     # :startdoc:
 
+    # Accessor / Factory for the Syslog appender.
+    #
+    def self.syslog( *args )
+      fail ArgumentError, '::Logging::Appenders::Syslog needs a name as first argument.' if args.empty?
+      ::Logging::Appenders::Syslog.new(*args)
+    end
+
     extend self
     @appenders = Hash.new
+
+    # Load Syslog only when requested. Windows does not have syslog, and
+    # Ruby 3.4.0 will remove it from the standard library. Requiring
+    # syslog on Ruby 3.3.0 will result in an warning if the gem is not
+    # explicitly installed.
+    autoload :Syslog, Logging.libpath('logging/appenders/syslog')
   end  # Appenders
 
   require libpath('logging/appenders/buffering')
@@ -57,6 +70,5 @@ module Logging
   require libpath('logging/appenders/file')
   require libpath('logging/appenders/rolling_file')
   require libpath('logging/appenders/string_io')
-  require libpath('logging/appenders/syslog')
 end  # Logging
 

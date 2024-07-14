@@ -6,13 +6,6 @@ require 'fileutils'
 require 'little-plugger'
 require 'multi_json'
 
-begin
-  require 'syslog'
-  HAVE_SYSLOG = true
-rescue LoadError
-  HAVE_SYSLOG = false
-end
-
 #
 #
 module Logging
