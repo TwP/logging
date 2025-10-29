@@ -7,9 +7,19 @@ require 'little-plugger'
 require 'multi_json'
 
 begin
-  require 'syslog'
-  HAVE_SYSLOG = true
-rescue LoadError
+  if RUBY_VERSION >= '3.4'
+    if Gem::Specification.find_all_by_name('syslog').any?
+      gem 'syslog'
+      require 'syslog'
+      HAVE_SYSLOG = true
+    else
+      HAVE_SYSLOG = false
+    end
+  else
+    require 'syslog'
+    HAVE_SYSLOG = true
+  end
+rescue Gem::LoadError, LoadError
   HAVE_SYSLOG = false
 end
 
