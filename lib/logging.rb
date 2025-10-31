@@ -389,7 +389,7 @@ module Logging
     # <tt>File.join</tt>.
     #
     def libpath( *args, &block )
-      rv = args.empty? ? LIBPATH : ::File.join(LIBPATH, args.flatten)
+      rv = args.empty? ? LIBPATH : ::File.join(LIBPATH, *args.flatten)
       if block
         begin
           $LOAD_PATH.unshift LIBPATH
@@ -406,7 +406,7 @@ module Logging
     # <tt>File.join</tt>.
     #
     def path( *args, &block )
-      rv = args.empty? ? PATH : ::File.join(PATH, args.flatten)
+      rv = args.empty? ? PATH : ::File.join(PATH, *args.flatten)
       if block
         begin
           $LOAD_PATH.unshift PATH
