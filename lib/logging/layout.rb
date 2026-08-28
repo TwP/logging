@@ -239,6 +239,11 @@ class Layout
   # Returns a String representation of the object.
   #
   def try_yaml( obj )
+    # Loaded here rather than at the top of logging.rb so that requiring
+    # logging does not pull in yaml/psych. Only the :yaml object format
+    # reaches this method.
+    require 'yaml'
+
     "\n#{obj.to_yaml}"
   rescue TypeError
     obj.inspect

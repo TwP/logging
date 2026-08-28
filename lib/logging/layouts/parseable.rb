@@ -120,6 +120,11 @@ module Logging::Layouts
     # _layout_ based on the configured items for the layout instance.
     #
     def self.create_yaml_format_method( layout )
+      # The generated format method calls #to_yaml, so yaml has to be loaded
+      # before it runs. Doing it here keeps it off the require path for
+      # everyone not using a YAML layout.
+      require 'yaml'
+
       code = "undef :format if method_defined? :format\n"
       code << "def format( event )\nstr = {\n"
 
